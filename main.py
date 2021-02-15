@@ -1,5 +1,8 @@
 import configparser
 import sys
+
+from version import *
+
 from pathlib import Path
 
 # Get user home directory
@@ -10,8 +13,6 @@ SERVER_URL = "http://127.0.0.1:8000"
 CONFIGURATION_FILE = "{}/.shippy.ini".format(home_dir)
 TOKEN = ""
 DEBUG = False
-VERSION_CODE = 2
-VERSION_STRING = "1.1.0"
 
 
 def exception_handler(exception_type, exception, traceback, debug_hook=sys.excepthook):
