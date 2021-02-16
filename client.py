@@ -1,5 +1,4 @@
-from settings import SERVER_URL
-from main import TOKEN
+from main import TOKEN, SERVER_URL
 
 def login_to_server(username, password):
     import requests

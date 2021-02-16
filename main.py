@@ -4,7 +4,6 @@ import sys
 from version import *
 from helper import input_yn
 from client import login_to_server, upload_to_server
-from settings import DEBUG
 
 from pathlib import Path
 
@@ -13,20 +12,12 @@ home_dir = str(Path.home())
 
 # Define constants
 TOKEN = ""
+SERVER_URL = ""
 CONFIGURATION_FILE = "{}/.shippy.ini".format(home_dir)
-
-def exception_handler(exception_type, exception, traceback, debug_hook=sys.excepthook):
-    if DEBUG:
-        debug_hook(exception_type, exception, traceback)
-    else:
-        print("%s: %s" % (exception_type.__name__, exception))
-
-
-sys.excepthook = exception_handler
 
 
 def main():
-    global TOKEN
+    global TOKEN, SERVER_URL
 
     # Load configuration file
     config = configparser.ConfigParser()
@@ -35,16 +26,21 @@ def main():
     print("Welcome to shippy {} (version code {})!".format(VERSION_STRING, VERSION_CODE))
 
     try:
+        SERVER_URL = config['shippy']['server']
         TOKEN = config['shipper']['token']
     except KeyError:
-        print("""
-It looks like this is your first time running shippy.
-In the next couple of steps, shippy will ask for your username
-and password and fetch the authentication token from the shipper server.
-This token will be saved in {}. Let's get started!
-        """.format(CONFIGURATION_FILE))
+        print("We need to configure shippy beforce you can use it.")
 
+        config.add_section('shippy')
         config.add_section('shipper')
+
+        print("Please enter the server URL.")
+        server_url = input("Enter the server URL: ")
+
+        if server_url[-1] == '/':
+            server_url = server_url[:-1]
+
+        config['shippy']['server'] = SERVER_URL = server_url
 
         while True:
             from getpass import getpass
