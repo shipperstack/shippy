@@ -2,6 +2,7 @@ import configparser
 import sys
 
 from version import *
+from helper import input_yn
 
 from pathlib import Path
 
@@ -23,30 +24,6 @@ def exception_handler(exception_type, exception, traceback, debug_hook=sys.excep
 
 
 sys.excepthook = exception_handler
-
-
-# From https://stackoverflow.com/a/3041990, adapted for use in this script
-def input_yn(question, default=True):
-    global TOKEN
-    valid = {"yes": True, "y": True, "ye": True,
-             "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default:
-        prompt = " [Y/n] "
-    else:
-        prompt = " [y/N] "
-
-    while True:
-        print(question + prompt, end='')
-        choice = input().lower()
-        if default is not None and choice == '':
-            return default
-        elif choice in valid:
-            return valid[choice]
-        else:
-            print("Please respond with 'yes' or 'no' (or 'y' or 'n').")
-
 
 def login_to_server(username, password):
     import requests
