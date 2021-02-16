@@ -64,8 +64,6 @@ def upload_to_server(build_file, checksum_file, server_url, token):
         "Content-Type": e.content_type
         }, data=m)
 
-    print(r.json())
-
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
     elif r.status_code == 400:
