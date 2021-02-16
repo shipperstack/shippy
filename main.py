@@ -122,7 +122,7 @@ This token will be saved in {}. Let's get started!
                 with open(CONFIGURATION_FILE, 'w+') as config_file:
                     config.write(config_file)
                 break
-            except Exception as e:
+            except:
                 print("An error occurred logging into the server. Please try again.")
 
     # Search current directory for files
