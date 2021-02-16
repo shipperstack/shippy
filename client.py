@@ -55,7 +55,9 @@ def upload_to_server(build_file, checksum_file):
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
     elif r.status_code == 400:
-        raise Exception("One of the required fields were missing.")
+        if r.json()['error'] == "duplicate_build":
+            raise Exception("This build already exists in the system!")
+        raise Exception("One of the required fields are missing!")
     elif r.status_code == 401:
         raise Exception("You are not allowed to upload for the device {}!".format(codename))
     elif r.status_code == 500:
