@@ -45,9 +45,9 @@ def login_to_server(username, password):
 def upload_to_server(build_file, checksum_file):
     import os.path
     # Get codename from build_file
-    build_file_name, build_file_ext = os.path.splitext(build_file)
+    build_file_name, _ = os.path.splitext(build_file)
     try:
-        _, version, codename, build_type, gapps_raw, date = build_file_name.split('-')
+        _, _, codename, _, _, _ = build_file_name.split('-')
     except:
         raise Exception("The file name is mangled!")
 
