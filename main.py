@@ -50,7 +50,7 @@ def main():
             password = getpass(prompt="Enter your password: ")
 
             try:
-                config['shipper']['token'] = TOKEN = login_to_server(username, password)
+                config['shipper']['token'] = TOKEN = login_to_server(username, password, server_url)
 
                 with open(CONFIGURATION_FILE, 'w+') as config_file:
                     config.write(config_file)
@@ -87,7 +87,7 @@ If you have a unique case contact maintainer support.
                 print("We couldn't find a valid checksum file for this build! Skipping....")
             else:
                 if input_yn("Uploading build {}. Start?".format(build)):
-                    upload_to_server(build, "{}.md5".format(build))
+                    upload_to_server(build, "{}.md5".format(build), SERVER_URL, TOKEN)
 
 
 if __name__ == "__main__":
