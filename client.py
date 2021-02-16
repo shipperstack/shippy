@@ -1,7 +1,8 @@
 from main import TOKEN, SERVER_URL
 
+import requests
+
 def login_to_server(username, password):
-    import requests
     """ Logs in to server and returns authorization token """
     LOGIN_URL = "{}/maintainers/api/login/".format(SERVER_URL)
     r = requests.post(LOGIN_URL, data={'username': username, 'password': password})
@@ -26,7 +27,6 @@ def upload_to_server(build_file, checksum_file):
     except:
         raise Exception("The file name is mangled!")
 
-    import requests
     # Get device ID from server
     DEVICE_ID_URL = "{}/maintainers/api/device/id/".format(SERVER_URL)
     print("Fetching device ID for device {}...".format(codename))
