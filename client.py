@@ -3,6 +3,9 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 import requests
 
+def undef_response_exp(r):
+    raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from server: {}".format(r.status_code, r.json()))
+
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
     LOGIN_URL = "{}/maintainers/api/login/".format(server_url)
@@ -12,11 +15,13 @@ def login_to_server(username, password, server_url):
         data = r.json()
         return data['token']
     elif r.status_code == 400:
-        raise Exception("Username or password must not be blank.")
+        if r.json()['error'] == "blank_username_or_password":
+            raise Exception("Username or password must not be blank.")
     elif r.status_code == 404:
-        raise Exception("Invalid credentials!")
+        if r.json()['error'] == "invalid_credential":
+            raise Exception("Invalid credentials!")
     else:
-        raise Exception("An unknown error occurred.")
+        undef_response_exp(r)
 
 
 def upload_to_server(build_file, checksum_file, server_url, token):
@@ -34,14 +39,16 @@ def upload_to_server(build_file, checksum_file, server_url, token):
     r = requests.get(DEVICE_ID_URL, headers={"Authorization": "Token {}".format(token)}, data={"codename": codename})
 
     if r.status_code == 200:
-        data = r.json()
-        device_id = data['id']
+        device_id = r.json()['id']
     elif r.status_code == 400:
-        raise Exception("The device with the specified codename does not exist.")
+        if r.json()['error'] == "invalid_codename":
+            raise Exception("The device with the specified codename does not exist.")
     elif r.status_code == 401:
-        raise Exception("You are not authorized to upload with this device.")
+        if r.json()['error'] == "insufficient_permissions":
+            raise Exception("You are not authorized to upload with this device.")
     else:
-        raise Exception("A problem occurred while querying the device ID.")
+        print("A problem occurred while querying the device ID.")
+        undef_response_exp(r)
 
     print("Uploading build {}...".format(build_file))
 
@@ -69,10 +76,21 @@ def upload_to_server(build_file, checksum_file, server_url, token):
     elif r.status_code == 400:
         if r.json()['error'] == "duplicate_build":
             raise Exception("This build already exists in the system!")
-        raise Exception("One of the required fields are missing!")
+        if r.json()['error'] == "missing_files":
+            raise Exception("One of the required fields are missing!")
+        if r.json()['error'] == "file_name_mismatch":
+            raise Exception("The build file name does not match the checksum file name!")
+        if r.json()['error'] == "invalid_file_name":
+            raise Exception("The file name was malformed!")
+        if r.json()['error'] == "not_official":
+            raise Exception("The build is not official!")
+        if r.json()['error'] == "codename_mismatch":
+            raise Exception("The codename does not match the build file name!")
     elif r.status_code == 401:
-        raise Exception("You are not allowed to upload for the device {}!".format(codename))
+        if r.json()['error'] == "insufficient_permissions":
+            raise Exception("You are not allowed to upload for the device {}!".format(codename))
     elif r.status_code == 500:
         raise Exception("An internal server error occurred. Contact the administrators for help.")
     else:
-        raise Exception("A problem occurred while uploading your build.")
+        print("A problem occurred while uploading your build.")
+        undef_response_exp(r)
