@@ -3,8 +3,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 import requests
 
-def undef_response_exp(response_code, response):
-    raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from server: {}".format(response_code, response))
+def undef_response_exp(r):
+    raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from server: {}".format(r.status_code, r.json()))
 
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
@@ -93,4 +93,4 @@ def upload_to_server(build_file, checksum_file, server_url, token):
         raise Exception("An internal server error occurred. Contact the administrators for help.")
     else:
         print("A problem occurred while uploading your build.")
-        undef_response_exp(r.status_code, r.json())
+        undef_response_exp(r)
