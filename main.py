@@ -30,7 +30,7 @@ def main():
     config = configparser.ConfigParser()
     config.read(CONFIGURATION_FILE)
 
-    print("Welcome to shippy {} (version code {})!".format(VERSION_STRING, VERSION_CODE))
+    print("Welcome to shippy (v.{})!".format(VERSION_STRING))
 
     try:
         SERVER_URL = config['shippy']['server']
