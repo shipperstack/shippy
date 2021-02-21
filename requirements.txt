@@ -1,3 +1,4 @@
 clint
 requests
 requests-toolbelt
+sentry-sdk
