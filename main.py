@@ -31,8 +31,10 @@ def main():
     except KeyError:
         print("We need to configure shippy beforce you can use it.")
 
-        config.add_section('shippy')
-        config.add_section('shipper')
+        if not config.has_section('shippy'):
+            config.add_section('shippy')
+        if not config.has_section('shipper'):
+            config.add_section('shipper')
 
         print("Please enter the server URL.")
         server_url = input("Enter the server URL: ")
