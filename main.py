@@ -89,7 +89,13 @@ If you have a unique case contact maintainer support.
                 print("We couldn't find a valid checksum file for this build! Skipping....")
             else:
                 if input_yn("Uploading build {}. Start?".format(build)):
-                    upload_to_server(build, "{}.md5".format(build), SERVER_URL, TOKEN)
+                    while True:
+                        try:
+                            upload_to_server(build, "{}.md5".format(build), SERVER_URL, TOKEN)
+                            break
+                        except:
+                            if input_yn("An error occurred uploading the build {}. Do you want to try again?".format(build)):
+                                continue
 
 
 if __name__ == "__main__":
