@@ -7,10 +7,13 @@ from client import login_to_server, upload_to_server
 
 from pathlib import Path
 
+ignore_errors = [KeyboardInterrupt]
+
 sentry_sdk.init(
     "https://0da75bab4671455ea1b7580cb93649f5@o444286.ingest.sentry.io/5645833",
     traces_sample_rate=1.0,
     release=VERSION_STRING,
+    ignore_errors=ignore_errors
 )
 
 # Get user home directory
