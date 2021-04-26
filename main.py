@@ -1,5 +1,4 @@
 import configparser
-import sys
 import sentry_sdk
 
 from version import *
