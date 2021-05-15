@@ -29,7 +29,7 @@ def login_to_server(username, password, server_url):
         undef_response_exp(r)
 
 
-def upload_to_server(build_file, checksum_file, server_url, token):
+def upload_to_server(build_file, checksum_file, server_url, token, chunked_upload=False):
     device_id = -1
 
     import os.path

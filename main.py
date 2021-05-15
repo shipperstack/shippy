@@ -10,19 +10,13 @@ ignore_errors = [KeyboardInterrupt]
 
 sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=VERSION_STRING, ignore_errors=ignore_errors)
 
-# Define constants
-TOKEN = ""
-SERVER_URL = ""
-CHUNKED_UPLOAD = False
-
 
 def main():
-    global TOKEN, SERVER_URL, CHUNKED_UPLOAD
     print("Welcome to shippy (v.{})!".format(VERSION_STRING))
 
     try:
-        SERVER_URL = get_config_value("shippy", "server")
-        TOKEN = get_config_value("shipper", "token")
+        server_url = get_config_value("shippy", "server")
+        token = get_config_value("shipper", "token")
     except KeyError:
         print(FIRST_TIME_RUN_MSG)
         server_url = input("Enter the server URL: ")
@@ -32,7 +26,7 @@ def main():
             server_url = server_url[:-1]
 
         set_config_value("shippy", "server", server_url)
-        SERVER_URL = server_url
+        server_url = server_url
 
         while True:
             from getpass import getpass
@@ -41,20 +35,21 @@ def main():
             password = getpass(prompt="Enter your password: ")
 
             try:
-                TOKEN = login_to_server(username, password, server_url)
-                set_config_value("shipper", "token", TOKEN)
+                token = login_to_server(username, password, server_url)
+                set_config_value("shipper", "token", token)
                 break
             except LoginException:
                 print("An error occurred logging into the server. Please try again.")
 
     try:
-        CHUNKED_UPLOAD = get_config_value("shippy", "chunked_upload")
+        chunked_upload = get_config_value("shippy", "chunked_upload")
     except KeyError:
         # Ask preference for beta upload method
         if input_yn(BETA_CHUNK_UPLOAD_PROMPT_MSG):
             set_config_value("shippy", "chunked_upload", True)
         else:
             set_config_value("shippy", "chunked_upload", False)
+        chunked_upload = get_config_value("shippy", "chunked_upload")
 
     # Search current directory for files
     import glob
@@ -83,7 +78,8 @@ def main():
                 if input_yn("Uploading build {}. Start?".format(build)):
                     while True:
                         try:
-                            upload_to_server(build, "{}.md5".format(build), SERVER_URL, TOKEN)
+                            upload_to_server(build, "{}.md5".format(build), server_url, token,
+                                             chunked_upload=chunked_upload)
                             break
                         except UploadException:
                             if input_yn("An error occurred uploading the build {}. "
