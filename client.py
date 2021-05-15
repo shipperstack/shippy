@@ -1,7 +1,7 @@
 from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from exceptions import UploadException
+from exceptions import LoginException, UploadException
 
 import requests
 
@@ -21,10 +21,10 @@ def login_to_server(username, password, server_url):
         return data['token']
     elif r.status_code == 400:
         if r.json()['error'] == "blank_username_or_password":
-            raise Exception("Username or password must not be blank.")
+            raise LoginException("Username or password must not be blank.")
     elif r.status_code == 404:
         if r.json()['error'] == "invalid_credential":
-            raise Exception("Invalid credentials!")
+            raise LoginException("Invalid credentials!")
     else:
         undef_response_exp(r)
 

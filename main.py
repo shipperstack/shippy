@@ -1,7 +1,7 @@
 import configparser
 import sentry_sdk
 
-from exceptions import UploadException
+from exceptions import LoginException, UploadException
 from version import *
 from helper import input_yn
 from client import login_to_server, upload_to_server
@@ -67,7 +67,7 @@ def main():
                 with open(CONFIGURATION_FILE, 'w+') as config_file:
                     config.write(config_file)
                 break
-            except:
+            except LoginException:
                 print("An error occurred logging into the server. Please try again.")
 
     # Search current directory for files
