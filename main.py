@@ -81,7 +81,8 @@ def main():
                             upload_to_server(build, "{}.md5".format(build), server_url, token,
                                              use_chunked_upload=chunked_upload)
                             break
-                        except UploadException:
+                        except UploadException as exception:
+                            print(exception)
                             if input_yn("An error occurred uploading the build {}. "
                                         "Do you want to try again?".format(build)):
                                 continue
