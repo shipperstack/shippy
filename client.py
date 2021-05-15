@@ -59,6 +59,10 @@ def upload_to_server(build_file, checksum_file, server_url, token):
 
     print("Uploading build {}...".format(build_file))
 
+    direct_upload(server_url, device_id, build_file, checksum_file, token, codename)
+
+
+def direct_upload(server_url, device_id, build_file, checksum_file, token, codename):
     device_upload_url = "{}/maintainers/api/device/{}/upload/".format(server_url, device_id)
 
     e = MultipartEncoder(fields={
@@ -76,7 +80,7 @@ def upload_to_server(build_file, checksum_file, server_url, token):
     r = requests.post(device_upload_url, headers={
         "Authorization": "Token {}".format(token),
         "Content-Type": e.content_type
-        }, data=m)
+    }, data=m)
 
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
