@@ -42,14 +42,14 @@ def main():
                 print("An error occurred logging into the server. Please try again.")
 
     try:
-        chunked_upload = get_config_value("shippy", "chunked_upload")
+        chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
     except KeyError:
         # Ask preference for beta upload method
         if input_yn(BETA_CHUNK_UPLOAD_PROMPT_MSG):
-            set_config_value("shippy", "chunked_upload", True)
+            set_config_value("shippy", "chunked_upload", "true")
         else:
-            set_config_value("shippy", "chunked_upload", False)
-        chunked_upload = get_config_value("shippy", "chunked_upload")
+            set_config_value("shippy", "chunked_upload", "false")
+        chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
 
     # Search current directory for files
     import glob
