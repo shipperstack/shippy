@@ -8,6 +8,11 @@ We need to configure shippy before you can use it.
 
 """
 
+BETA_CHUNK_UPLOAD_PROMPT_MSG = """
+[BETA] shippy has a new upload method that can improve upload performance and reliability.
+Would you like to try it out? Answer no if you would like to use the traditional method of uploading.
+"""
+
 NO_MATCHING_FILES_FOUND_ERROR_MSG = """
 No files matching the submission criteria were detected.
 

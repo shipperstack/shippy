@@ -13,10 +13,11 @@ sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=VERSION_STRING, 
 # Define constants
 TOKEN = ""
 SERVER_URL = ""
+CHUNKED_UPLOAD = False
 
 
 def main():
-    global TOKEN, SERVER_URL
+    global TOKEN, SERVER_URL, CHUNKED_UPLOAD
     print("Welcome to shippy (v.{})!".format(VERSION_STRING))
 
     try:
@@ -45,6 +46,15 @@ def main():
                 break
             except LoginException:
                 print("An error occurred logging into the server. Please try again.")
+
+    try:
+        CHUNKED_UPLOAD = get_config_value("shippy", "chunked_upload")
+    except KeyError:
+        # Ask preference for beta upload method
+        if input_yn(BETA_CHUNK_UPLOAD_PROMPT_MSG):
+            set_config_value("shippy", "chunked_upload", True)
+        else:
+            set_config_value("shippy", "chunked_upload", False)
 
     # Search current directory for files
     import glob
