@@ -76,7 +76,8 @@ def main():
                             upload_to_server(build, "{}.md5".format(build), SERVER_URL, TOKEN)
                             break
                         except UploadException:
-                            if input_yn("An error occurred uploading the build {}. Do you want to try again?".format(build)):
+                            if input_yn("An error occurred uploading the build {}. "
+                                        "Do you want to try again?".format(build)):
                                 continue
 
 
