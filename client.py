@@ -5,13 +5,16 @@ from exceptions import UploadException
 
 import requests
 
+
 def undef_response_exp(r):
-    raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from server: {}".format(r.status_code, r.json()))
+    raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from "
+                    "server: {}".format(r.status_code, r.json()))
+
 
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
-    LOGIN_URL = "{}/maintainers/api/login/".format(server_url)
-    r = requests.post(LOGIN_URL, data={'username': username, 'password': password})
+    login_url = "{}/maintainers/api/login/".format(server_url)
+    r = requests.post(login_url, data={'username': username, 'password': password})
 
     if r.status_code == 200:
         data = r.json()
@@ -27,6 +30,8 @@ def login_to_server(username, password, server_url):
 
 
 def upload_to_server(build_file, checksum_file, server_url, token):
+    device_id = -1
+
     import os.path
     # Get codename from build_file
     build_file_name, _ = os.path.splitext(build_file)
@@ -36,9 +41,9 @@ def upload_to_server(build_file, checksum_file, server_url, token):
         raise UploadException("The file name is mangled!")
 
     # Get device ID from server
-    DEVICE_ID_URL = "{}/maintainers/api/device/id/".format(server_url)
+    device_id_url = "{}/maintainers/api/device/id/".format(server_url)
     print("Fetching device ID for device {}...".format(codename))
-    r = requests.get(DEVICE_ID_URL, headers={"Authorization": "Token {}".format(token)}, data={"codename": codename})
+    r = requests.get(device_id_url, headers={"Authorization": "Token {}".format(token)}, data={"codename": codename})
 
     if r.status_code == 200:
         device_id = r.json()['id']
