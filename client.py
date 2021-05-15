@@ -1,7 +1,10 @@
+import os.path
+
 from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from exceptions import LoginException, UploadException
+from config import get_config_value
 
 import requests
 
@@ -29,7 +32,7 @@ def login_to_server(username, password, server_url):
         undef_response_exp(r)
 
 
-def upload_to_server(build_file, checksum_file, server_url, token, chunked_upload=False):
+def upload_to_server(build_file, checksum_file, server_url, token, use_chunked_upload=False):
     device_id = -1
 
     import os.path
@@ -59,7 +62,58 @@ def upload_to_server(build_file, checksum_file, server_url, token, chunked_uploa
 
     print("Uploading build {}...".format(build_file))
 
-    direct_upload(server_url, device_id, build_file, checksum_file, token, codename)
+    if use_chunked_upload:
+        chunked_upload(server_url, device_id, build_file, checksum_file, token)
+    else:
+        direct_upload(server_url, device_id, build_file, checksum_file, token, codename)
+
+
+def chunked_upload(server_url, device_id, build_file, checksum_file, token):
+    device_upload_url = "{}/maintainers/api/device/{}/chunked_upload/".format(server_url, device_id)
+    device_upload_complete_url = "{}/maintainers/api/device/{}/chunked_upload_complete/".format(server_url, device_id)
+
+    # Split file up into 100 KB segments
+    chunk_size = 10000
+    current_chunk = 0
+    total_file_size = os.path.getsize(build_file)
+
+    bar = ProgressBar(expected_size=total_file_size, filled_char='=')
+
+    with open(build_file, 'rb') as build_file_raw:
+        while chunk_data := build_file_raw.read(chunk_size):
+            if current_chunk == 0:
+                # Upload first chunk to get ID and expiry date
+                r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+                                  data={'file': chunk_data})
+                if r.status_code == 200:
+                    # Get the ID and expiry
+                    upload_id = r.json()['upload_id']
+                    print("Upload started. Expiry (upload before): {}".format(r.json()['expires']))
+                else:
+                    raise UploadException("Something went wrong during the upload. Exiting...")
+            else:
+                # Upload next chunk
+                r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+                                  data={'upload_id': upload_id, 'file': chunk_data})
+                if r.status_code == 200:
+                    bar.show((current_chunk + 1) * chunk_size)
+        current_chunk += 1
+
+    # Complete upload
+    r = requests.post(device_upload_complete_url, headers={"Authorization": "Token {}".format(token)},
+                      data={'upload_id': upload_id, 'md5': get_md5_from_file(checksum_file)})
+
+    if r.status_code == 200:
+        print("Successfully uploaded the build {}!".format(build_file))
+    else:
+        raise UploadException("Something went wrong during upload finalization. Exiting...")
+
+
+def get_md5_from_file(checksum_file):
+    with open(checksum_file, 'r') as checksum_file_raw:
+        line = checksum_file_raw.readline()
+        values = line.split(" ")
+        return values[0]
 
 
 def direct_upload(server_url, device_id, build_file, checksum_file, token, codename):

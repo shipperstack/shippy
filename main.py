@@ -79,7 +79,7 @@ def main():
                     while True:
                         try:
                             upload_to_server(build, "{}.md5".format(build), server_url, token,
-                                             chunked_upload=chunked_upload)
+                                             use_chunked_upload=chunked_upload)
                             break
                         except UploadException:
                             if input_yn("An error occurred uploading the build {}. "
