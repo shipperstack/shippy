@@ -1,6 +1,8 @@
 from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
+from exceptions import UploadException
+
 import requests
 
 def undef_response_exp(r):
@@ -30,8 +32,8 @@ def upload_to_server(build_file, checksum_file, server_url, token):
     build_file_name, _ = os.path.splitext(build_file)
     try:
         _, _, codename, _, _, _ = build_file_name.split('-')
-    except:
-        raise Exception("The file name is mangled!")
+    except ValueError:
+        raise UploadException("The file name is mangled!")
 
     # Get device ID from server
     DEVICE_ID_URL = "{}/maintainers/api/device/id/".format(server_url)
@@ -42,10 +44,10 @@ def upload_to_server(build_file, checksum_file, server_url, token):
         device_id = r.json()['id']
     elif r.status_code == 400:
         if r.json()['error'] == "invalid_codename":
-            raise Exception("The device with the specified codename does not exist.")
+            raise UploadException("The device with the specified codename does not exist.")
     elif r.status_code == 401:
         if r.json()['error'] == "insufficient_permissions":
-            raise Exception("You are not authorized to upload with this device.")
+            raise UploadException("You are not authorized to upload with this device.")
     else:
         print("A problem occurred while querying the device ID.")
         undef_response_exp(r)
@@ -75,22 +77,22 @@ def upload_to_server(build_file, checksum_file, server_url, token):
         print("Successfully uploaded the build {}!".format(build_file))
     elif r.status_code == 400:
         if r.json()['error'] == "duplicate_build":
-            raise Exception("This build already exists in the system!")
+            raise UploadException("This build already exists in the system!")
         if r.json()['error'] == "missing_files":
-            raise Exception("One of the required fields are missing!")
+            raise UploadException("One of the required fields are missing!")
         if r.json()['error'] == "file_name_mismatch":
-            raise Exception("The build file name does not match the checksum file name!")
+            raise UploadException("The build file name does not match the checksum file name!")
         if r.json()['error'] == "invalid_file_name":
-            raise Exception("The file name was malformed!")
+            raise UploadException("The file name was malformed!")
         if r.json()['error'] == "not_official":
-            raise Exception("The build is not official!")
+            raise UploadException("The build is not official!")
         if r.json()['error'] == "codename_mismatch":
-            raise Exception("The codename does not match the build file name!")
+            raise UploadException("The codename does not match the build file name!")
     elif r.status_code == 401:
         if r.json()['error'] == "insufficient_permissions":
-            raise Exception("You are not allowed to upload for the device {}!".format(codename))
+            raise UploadException("You are not allowed to upload for the device {}!".format(codename))
     elif r.status_code == 500:
-        raise Exception("An internal server error occurred. Contact the administrators for help.")
+        raise UploadException("An internal server error occurred. Contact the administrators for help.")
     else:
         print("A problem occurred while uploading your build.")
         undef_response_exp(r)

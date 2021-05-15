@@ -1,6 +1,7 @@
 import configparser
 import sentry_sdk
 
+from exceptions import UploadException
 from version import *
 from helper import input_yn
 from client import login_to_server, upload_to_server
@@ -102,7 +103,7 @@ If you have a unique case contact maintainer support.
                         try:
                             upload_to_server(build, "{}.md5".format(build), SERVER_URL, TOKEN)
                             break
-                        except:
+                        except UploadException:
                             if input_yn("An error occurred uploading the build {}. Do you want to try again?".format(build)):
                                 continue
 
