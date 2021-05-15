@@ -1,12 +1,11 @@
-import configparser
 import sentry_sdk
 
 from exceptions import LoginException, UploadException
 from version import *
 from helper import input_yn
 from client import login_to_server, upload_to_server
+from config import get_config_value, set_config_value
 
-from pathlib import Path
 
 ignore_errors = [KeyboardInterrupt]
 
@@ -17,35 +16,22 @@ sentry_sdk.init(
     ignore_errors=ignore_errors
 )
 
-# Get user home directory
-home_dir = str(Path.home())
 
 # Define constants
 TOKEN = ""
 SERVER_URL = ""
-CONFIGURATION_FILE = "{}/.shippy.ini".format(home_dir)
 
 
 def main():
     global TOKEN, SERVER_URL
-
-    # Load configuration file
-    config = configparser.ConfigParser()
-    config.read(CONFIGURATION_FILE)
-
     print("Welcome to shippy (v.{})!".format(VERSION_STRING))
 
     try:
-        SERVER_URL = config['shippy']['server']
-        TOKEN = config['shipper']['token']
+        SERVER_URL = get_config_value("shippy", "server")
+        TOKEN = get_config_value("shipper", "token")
     except KeyError:
-        print("We need to configure shippy beforce you can use it.")
-
-        if not config.has_section('shippy'):
-            config.add_section('shippy')
-        if not config.has_section('shipper'):
-            config.add_section('shipper')
-
+        print("It looks like this is your first time running shippy.")
+        print("We need to configure shippy before you can use it.")
         print("Please enter the server URL.")
         server_url = input("Enter the server URL: ")
 
@@ -53,7 +39,8 @@ def main():
             print("Trailing slash found. shippy automatically removed it for you!")
             server_url = server_url[:-1]
 
-        config['shippy']['server'] = SERVER_URL = server_url
+        set_config_value("shippy", "server", server_url)
+        SERVER_URL = server_url
 
         while True:
             from getpass import getpass
@@ -62,10 +49,8 @@ def main():
             password = getpass(prompt="Enter your password: ")
 
             try:
-                config['shipper']['token'] = TOKEN = login_to_server(username, password, server_url)
-
-                with open(CONFIGURATION_FILE, 'w+') as config_file:
-                    config.write(config_file)
+                TOKEN = login_to_server(username, password, server_url)
+                set_config_value("shipper", "token", TOKEN)
                 break
             except LoginException:
                 print("An error occurred logging into the server. Please try again.")
