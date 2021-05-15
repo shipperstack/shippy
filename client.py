@@ -69,7 +69,6 @@ def upload_to_server(build_file, checksum_file, server_url, token, use_chunked_u
 
 def chunked_upload(server_url, device_id, build_file, checksum_file, token):
     device_upload_url = "{}/maintainers/api/device/{}/chunked_upload/".format(server_url, device_id)
-    device_upload_complete_url = "{}/maintainers/api/device/{}/chunked_upload_complete/".format(server_url, device_id)
 
     # Split file up into 100 KB segments
     chunk_size = 10000
@@ -80,27 +79,22 @@ def chunked_upload(server_url, device_id, build_file, checksum_file, token):
 
     with open(build_file, 'rb') as build_file_raw:
         while chunk_data := build_file_raw.read(chunk_size):
-            if current_chunk == 0:
-                # Upload first chunk to get ID and expiry date
-                r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
-                                  data={'file': chunk_data})
-                if r.status_code == 200:
-                    # Get the ID and expiry
-                    upload_id = r.json()['upload_id']
-                    print("Upload started. Expiry (upload before): {}".format(r.json()['expires']))
-                else:
-                    raise UploadException("Something went wrong during the upload. Exiting...")
+            r = requests.put(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+                             data={'file': chunk_data})
+
+            if r.status_code == 200:
+                if current_chunk == 0:
+                    # Get new URL and expiry date
+                    device_upload_url = r.json()['url']
+                    print("Upload started. Expiry (upload before): {}\n".format(r.json()['expires']))
+                bar.show((current_chunk + 1) * chunk_size)
             else:
-                # Upload next chunk
-                r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
-                                  data={'upload_id': upload_id, 'file': chunk_data})
-                if r.status_code == 200:
-                    bar.show((current_chunk + 1) * chunk_size)
+                raise UploadException("Something went wrong during the upload. Exiting...")
         current_chunk += 1
 
     # Complete upload
-    r = requests.post(device_upload_complete_url, headers={"Authorization": "Token {}".format(token)},
-                      data={'upload_id': upload_id, 'md5': get_md5_from_file(checksum_file)})
+    r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+                      data={'md5': get_md5_from_file(checksum_file)})
 
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
