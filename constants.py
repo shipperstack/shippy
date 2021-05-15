@@ -7,3 +7,13 @@ It looks like this is your first time running shippy.
 We need to configure shippy before you can use it.
 
 """
+
+NO_MATCHING_FILES_FOUND_ERROR_MSG = """
+No files matching the submission criteria were detected.
+
+Please check the following:
+  1. Make sure you are in the correct directory.
+  2. Please do not rename the build artifacts.
+
+If you believe this is a problem with shippy, please contact maintainer support.
+"""

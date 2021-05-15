@@ -54,11 +54,7 @@ def main():
     builds = []
 
     if build_count == 0:
-        print("""
-Oops, no files were detected! Are you sure you are in the correct directory?
-Please do not rename the build artifacts. This breaks a lot of systems.
-If you have a unique case contact maintainer support.
-        """)
+        print(NO_MATCHING_FILES_FOUND_ERROR_MSG)
     else:
         if build_count == 1:
             print("Detected the following build:")
