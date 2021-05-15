@@ -86,6 +86,8 @@ def main():
                             if input_yn("An error occurred uploading the build {}. "
                                         "Do you want to try again?".format(build)):
                                 continue
+                            else:
+                                break
 
 
 if __name__ == "__main__":
