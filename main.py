@@ -1,21 +1,14 @@
 import sentry_sdk
 
 from exceptions import LoginException, UploadException
-from version import *
 from helper import input_yn
 from client import login_to_server, upload_to_server
 from config import get_config_value, set_config_value
-
+from constants import *
 
 ignore_errors = [KeyboardInterrupt]
 
-sentry_sdk.init(
-    "https://0da75bab4671455ea1b7580cb93649f5@o444286.ingest.sentry.io/5645833",
-    traces_sample_rate=1.0,
-    release=VERSION_STRING,
-    ignore_errors=ignore_errors
-)
-
+sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=VERSION_STRING, ignore_errors=ignore_errors)
 
 # Define constants
 TOKEN = ""
@@ -30,9 +23,7 @@ def main():
         SERVER_URL = get_config_value("shippy", "server")
         TOKEN = get_config_value("shipper", "token")
     except KeyError:
-        print("It looks like this is your first time running shippy.")
-        print("We need to configure shippy before you can use it.")
-        print("Please enter the server URL.")
+        print(FIRST_TIME_RUN_MSG)
         server_url = input("Enter the server URL: ")
 
         if server_url[-1] == '/':
