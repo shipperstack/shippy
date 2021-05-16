@@ -11,7 +11,7 @@ with open(ver_path) as ver_file:
     exec(ver_file.read(), main_ns)
 
 setup(
-    name="shippy",
+    name="shipper-shippy",
     version=main_ns['__version__'],
     author="Eric Park",
     author_email="me@ericswpark.com",
@@ -39,5 +39,6 @@ setup(
         "console_scripts": [
             "shippy=shippy.__main__:main",
         ]
-    }
+    },
+    include_package_data=False,
 )
