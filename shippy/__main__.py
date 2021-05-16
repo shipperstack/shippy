@@ -22,6 +22,13 @@ def main():
         print(FIRST_TIME_RUN_MSG)
         server_url = input("Enter the server URL: ")
 
+        while True:
+            if "http" not in server_url:
+                print("Server URL seems to be missing the schema. Please add http:// or https:// to the server URL.")
+            else:
+                break
+            server_url = input("Enter the server URL: ")
+
         if server_url[-1] == '/':
             print("Trailing slash found. shippy automatically removed it for you!")
             server_url = server_url[:-1]
