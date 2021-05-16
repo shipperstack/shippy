@@ -79,7 +79,12 @@ def chunked_upload(server_url, device_id, build_file, checksum_file, token):
 
     with open(build_file, 'rb') as build_file_raw:
         while chunk_data := build_file_raw.read(chunk_size):
-            r = requests.put(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+            r = requests.put(device_upload_url, headers={
+                "Authorization": "Token {}".format(token),
+                "Content-Range": "bytes {}-{}/{}".format(current_chunk * chunk_size + 1,
+                                                         current_chunk * chunk_size + len(chunk_data),
+                                                         total_file_size)
+            },
                              data={'file': chunk_data})
 
             if r.status_code == 200:
