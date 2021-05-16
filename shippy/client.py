@@ -3,7 +3,7 @@ import os.path
 from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from exceptions import LoginException, UploadException
+from .exceptions import LoginException, UploadException
 
 import requests
 

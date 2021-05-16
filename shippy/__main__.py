@@ -1,11 +1,11 @@
 import sentry_sdk
 
-from exceptions import LoginException, UploadException
-from helper import input_yn
-from client import login_to_server, upload_to_server
-from config import get_config_value, set_config_value
-from constants import *
-from version import __version__
+from .exceptions import LoginException, UploadException
+from .helper import input_yn
+from .client import login_to_server, upload_to_server
+from .config import get_config_value, set_config_value
+from .constants import *
+from .version import __version__
 
 ignore_errors = [KeyboardInterrupt]
 
