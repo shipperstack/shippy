@@ -5,14 +5,15 @@ from helper import input_yn
 from client import login_to_server, upload_to_server
 from config import get_config_value, set_config_value
 from constants import *
+from version import __version__
 
 ignore_errors = [KeyboardInterrupt]
 
-sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=VERSION_STRING, ignore_errors=ignore_errors)
+sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=__version__, ignore_errors=ignore_errors)
 
 
 def main():
-    print("Welcome to shippy (v.{})!".format(VERSION_STRING))
+    print("Welcome to shippy (v.{})!".format(__version__))
 
     try:
         server_url = get_config_value("shippy", "server")

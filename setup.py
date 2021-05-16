@@ -1,13 +1,18 @@
-import setuptools
-
-from shippy.constants import VERSION_STRING
+from setuptools import setup, find_packages
+from distutils.util import convert_path
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+# Read version file
+main_ns = {}
+ver_path = convert_path('shippy/version.py')
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), main_ns)
+
+setup(
     name="shippy",
-    version=VERSION_STRING,
+    version=main_ns['__version__'],
     author="Eric Park",
     author_email="me@ericswpark.com",
     description="Client-side tool to interface with shipper",
@@ -22,7 +27,17 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    packages=setuptools.find_packages(exclude=("tests",)),
+    packages=find_packages(exclude=("tests",)),
     python_requires=">=3.6",
-    install_requires=["clint", "requests", "requests-toolbelt", "sentry-sdk"],
+    install_requires=[
+        "clint",
+        "requests",
+        "requests-toolbelt",
+        "sentry-sdk",
+    ],
+    entry_points={
+        "console_scripts": [
+            "shippy=shippy.__main__:main",
+        ]
+    }
 )
