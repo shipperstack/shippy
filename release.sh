@@ -6,7 +6,6 @@ rm -r dist/ build/
 # Build
 python3 setup.py sdist bdist_wheel
 
-
 # Upload
 if [[ $1 == "-t" ]] ; then
     echo "Uploading to TestPyPI..."
