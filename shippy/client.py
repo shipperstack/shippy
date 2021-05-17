@@ -72,30 +72,30 @@ def chunked_upload(server_url, device_id, build_file, checksum_file, token):
 
     # Split file up into 100 KB segments
     chunk_size = 10000
-    current_chunk = 0
+    current_index = 0
     total_file_size = os.path.getsize(build_file)
 
     bar = ProgressBar(expected_size=total_file_size, filled_char='=')
 
     with open(build_file, 'rb') as build_file_raw:
         while chunk_data := build_file_raw.read(chunk_size):
+            print("bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
+                                          total_file_size))
             r = requests.put(device_upload_url, headers={
                 "Authorization": "Token {}".format(token),
-                "Content-Range": "bytes {}-{}/{}".format(current_chunk * chunk_size + 1,
-                                                         current_chunk * chunk_size + len(chunk_data),
-                                                         total_file_size)
-            },
-                             data={'file': chunk_data})
+                "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
+                                                         total_file_size),
+            }, data={"file": build_file}, files={'file': chunk_data})
 
             if r.status_code == 200:
-                if current_chunk == 0:
+                if current_index == 0:
                     # Get new URL and expiry date
                     device_upload_url = r.json()['url']
                     print("Upload started. Expiry (upload before): {}\n".format(r.json()['expires']))
-                bar.show((current_chunk + 1) * chunk_size)
+                bar.show(current_index)
             else:
                 raise UploadException("Something went wrong during the upload. Exiting...")
-        current_chunk += 1
+        current_index += chunk_size
 
     # Complete upload
     r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
