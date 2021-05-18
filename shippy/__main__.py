@@ -107,9 +107,9 @@ def check_server_compat(server_url):
     server_version = get_server_version(server_url)
     if semver.compare(server_version, server_compat_version) == -1:
         print("Warning: the server you're connecting to is out-of-date. shippy may not work properly.")
+        print("If you know the server admin, please ask them to upgrade the server.")
         print("Reported version from server: {}".format(server_version))
-        print("Compatible version: {}".format(server_compat_version))
-        print("\nIf you know the server admin, please ask them to upgrade the server.")
+        print("Compatible version: {}\n".format(server_compat_version))
 
 
 if __name__ == "__main__":
