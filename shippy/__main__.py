@@ -1,11 +1,12 @@
+import semver
 import sentry_sdk
 
 from .exceptions import LoginException, UploadException
 from .helper import input_yn
-from .client import login_to_server, upload_to_server
+from .client import login_to_server, upload_to_server, get_server_version
 from .config import get_config_value, set_config_value
 from .constants import *
-from .version import __version__
+from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
 
@@ -36,6 +37,8 @@ def main():
         set_config_value("shippy", "server", server_url)
         server_url = server_url
 
+        check_server_compat(server_url)
+
         while True:
             from getpass import getpass
 
@@ -48,6 +51,8 @@ def main():
                 break
             except LoginException:
                 print("An error occurred logging into the server. Please try again.")
+
+    check_server_compat(server_url)
 
     try:
         chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
@@ -96,6 +101,15 @@ def main():
                                 continue
                             else:
                                 break
+
+
+def check_server_compat(server_url):
+    server_version = get_server_version(server_url)
+    if semver.compare(server_version, server_compat_version) == -1:
+        print("Warning: the server you're connecting to is out-of-date. shippy may not work properly.")
+        print("Reported version from server: {}".format(server_version))
+        print("Compatible version: {}".format(server_compat_version))
+        print("\nIf you know the server admin, please ask them to upgrade the server.")
 
 
 if __name__ == "__main__":

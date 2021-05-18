@@ -13,6 +13,16 @@ def undef_response_exp(r):
                     "server: {}".format(r.status_code, r.json()))
 
 
+def get_server_version(server_url):
+    """ Gets server version in semver format """
+    version_url = "{}/maintainers/api/system/".format(server_url)
+    r = requests.get(version_url)
+    if r.status_code == 200:
+        return r.json()['version']
+    else:
+        return None
+
+
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
     login_url = "{}/maintainers/api/login/".format(server_url)

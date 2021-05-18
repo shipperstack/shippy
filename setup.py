@@ -33,6 +33,7 @@ setup(
         "clint",
         "requests",
         "requests-toolbelt",
+        "semver",
         "sentry-sdk",
     ],
     entry_points={
