@@ -77,9 +77,9 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                 if DEBUG:
                     print(r.json())
                 if current_index == 0:
-                    # Get new URL and expiry date
-                    device_upload_url = r.json()['url']
-                    print("Upload started. Expiry (upload before): {}\n".format(r.json()['expires']))
+                    # Get new URL
+                    device_upload_url = "{}/maintainers/api/chunked_upload/{}/".format(server_url, r.json()['id'])
+                    print("Upload started!")
                 bar.show(current_index)
             else:
                 if DEBUG:
