@@ -7,7 +7,7 @@ from .exceptions import LoginException, UploadException
 
 import requests
 
-DEBUG = os.environ.get("SHIPPY_DEBUG", default=False)
+DEBUG = os.environ.get("SHIPPY_DEBUG", default=0)
 
 
 def undef_response_exp(r):
