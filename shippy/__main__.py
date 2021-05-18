@@ -91,6 +91,7 @@ def main():
             else:
                 if input_yn("Uploading build {}. Start?".format(build)):
                     while True:
+                        # noinspection PyBroadException
                         try:
                             upload_to_server(build, "{}.md5".format(build), server_url, token,
                                              use_chunked_upload=chunked_upload)
@@ -105,6 +106,9 @@ def main():
                                     break
                             else:
                                 break
+                        except Exception:
+                            print("An unknown exception occurred. Exiting...")
+                            exit(1)
 
 
 def check_server_compat(server_url):
