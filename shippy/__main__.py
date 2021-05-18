@@ -124,8 +124,8 @@ def check_server_compat(server_url):
         print("If you know the server admin, please ask them to upgrade the server.")
         print(" * Reported server version: \t{}".format(server_version))
         print(" * Compatible version: \t\t{}".format(server_compat_version))
-    if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!", default=False):
-        exit(0)
+        if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!", default=False):
+            exit(0)
 
 
 if __name__ == "__main__":
