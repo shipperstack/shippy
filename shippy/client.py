@@ -7,6 +7,8 @@ from .exceptions import LoginException, UploadException
 
 import requests
 
+DEBUG = os.environ.get("SHIPPY_DEBUG", default=False)
+
 
 def undef_response_exp(r):
     raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from "
@@ -78,6 +80,9 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                     print("Upload started. Expiry (upload before): {}\n".format(r.json()['expires']))
                 bar.show(current_index)
             else:
+                if DEBUG:
+                    with open('output.html', 'wb') as error_output_raw:
+                        error_output_raw.write(r.content)
                 raise UploadException("Something went wrong during the upload. Exiting...")
         current_index += chunk_size
 
