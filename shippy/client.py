@@ -20,6 +20,7 @@ def get_server_version(server_url):
     if r.status_code == 200:
         return r.json()['version']
     else:
+        print("Warning: failed to retrieve server version information!")
         return None
 
 
