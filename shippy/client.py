@@ -73,7 +73,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
 
             if r.status_code == 200:
                 device_upload_url = "{}/maintainers/api/chunked_upload/{}/".format(server_url, r.json()['id'])
-                current_index += chunk_size
+                current_index += len(chunk_data)
                 bar.show(current_index)
             elif r.status_code == 429:
                 print("shippy has been rate-limited.")
