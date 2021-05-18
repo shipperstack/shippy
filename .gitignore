@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore build artifacts
+*.zip
+*.zip.md5
+
+# Ignore test outputs
+*.html
