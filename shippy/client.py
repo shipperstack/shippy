@@ -135,27 +135,31 @@ def direct_upload(server_url, build_file, checksum_file, token):
 
 
 def upload_exception_check(r, build_file):
+    if DEBUG:
+        print("Received code: {}".format(r.status_code))
+        print(r.json())
+
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
     elif r.status_code == 400:
         if r.json()['error'] == "duplicate_build":
             raise UploadException(detail="This build already exists in the system!", retry=False)
-        if r.json()['error'] == "missing_files":
+        elif r.json()['error'] == "missing_files":
             raise UploadException(detail="One of the required fields are missing!", retry=False)
-        if r.json()['error'] == "file_name_mismatch":
+        elif r.json()['error'] == "file_name_mismatch":
             raise UploadException(detail="The build file name does not match the checksum file name!", retry=False)
-        if r.json()['error'] == "invalid_file_name":
+        elif r.json()['error'] == "invalid_file_name":
             raise UploadException(detail="The file name was malformed!", retry=False)
-        if r.json()['error'] == "not_official":
+        elif r.json()['error'] == "not_official":
             raise UploadException(detail="The build is not official!", retry=False)
-        if r.json()['error'] == "codename_mismatch":
+        elif r.json()['error'] == "codename_mismatch":
             raise UploadException(detail="The codename does not match the build file name!", retry=False)
     elif r.status_code == 401:
         if r.json()['error'] == "insufficient_permissions":
             raise UploadException(detail="You are not allowed to upload for this device!", retry=False)
     elif r.status_code == 500:
         raise UploadException(detail="An internal server error occurred. Contact the administrators for help.",
-                              retry=True)
-    else:
-        print("A problem occurred while uploading your build.")
-        undef_response_exp(r)
+                              retry=False)
+
+    print("A problem occurred while uploading your build.")
+    undef_response_exp(r)
