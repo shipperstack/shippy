@@ -4,6 +4,7 @@ from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from .exceptions import LoginException, UploadException
+from .config import get_config_value
 
 import requests
 
@@ -56,8 +57,7 @@ def upload_to_server(build_file, checksum_file, server_url, token, use_chunked_u
 def chunked_upload(server_url, build_file, checksum_file, token):
     device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
 
-    # Split file up into 100 MB segments
-    chunk_size = 100_000_000
+    chunk_size = int(get_config_value("shippy", "chunked_upload_size"))
     current_index = 0
     total_file_size = os.path.getsize(build_file)
 

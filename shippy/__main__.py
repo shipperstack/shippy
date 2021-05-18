@@ -65,6 +65,12 @@ def main():
             set_config_value("shippy", "chunked_upload", "false")
         chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
 
+    try:
+        chunked_upload_size = int(get_config_value("shippy", "chunked_upload_size"))
+    except KeyError:
+        chunked_upload_size = 100_000_000   # 100 MB by default
+        set_config_value("shippy", "chunked_upload_size", str(chunked_upload_size))
+
     # Search current directory for files
     import glob
 
