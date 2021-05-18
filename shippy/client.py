@@ -92,14 +92,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
     r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
                       data={'md5': get_md5_from_file(checksum_file)})
 
-    if r.status_code == 200:
-        print("Successfully uploaded the build {}!".format(build_file))
-    else:
-        if DEBUG:
-            print("Status code received from server: {}".format(r.status_code))
-            with open('output.html', 'wb') as error_output_raw:
-                error_output_raw.write(r.content)
-        raise UploadException(detail="Something went wrong during upload finalization.", retry=False)
+    upload_exception_check(r, build_file)
 
 
 def get_md5_from_file(checksum_file):
@@ -138,6 +131,10 @@ def direct_upload(server_url, build_file, checksum_file, token):
         "Content-Type": e.content_type
     }, data=m)
 
+    upload_exception_check(r, build_file)
+
+
+def upload_exception_check(r, build_file):
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
     elif r.status_code == 400:
