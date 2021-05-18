@@ -81,6 +81,11 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                     device_upload_url = "{}/maintainers/api/chunked_upload/{}/".format(server_url, r.json()['id'])
                     print("Upload started!")
                 bar.show(current_index)
+            elif r.status_code == 429:
+                # We've been rate limited
+                print("shippy has been rate-limited.")
+                import re
+                wait_rate_limit(int(re.findall("\d+", r.json()['detail'])[0]))
             else:
                 if DEBUG:
                     print("Status code received from server: {}".format(r.status_code))
@@ -104,6 +109,15 @@ def get_md5_from_file(checksum_file):
         line = checksum_file_raw.readline()
         values = line.split(" ")
         return values[0]
+
+
+def wait_rate_limit(seconds):
+    import time
+    while seconds:
+        print("Will resume in {} seconds...".format(seconds), end='\r')
+        time.sleep(1)
+        seconds -= 1
+    print(end='\x1b[2K\r')
 
 
 def direct_upload(server_url, build_file, checksum_file, token):
