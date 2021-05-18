@@ -90,7 +90,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                     print("Status code received from server: {}".format(r.status_code))
                     with open('output.html', 'wb') as error_output_raw:
                         error_output_raw.write(r.content)
-                raise UploadException("Something went wrong during the upload. Exiting...")
+                raise UploadException("Something went wrong during the upload.", retry=False)
 
     # Complete upload
     r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
@@ -103,7 +103,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
             print("Status code received from server: {}".format(r.status_code))
             with open('output.html', 'wb') as error_output_raw:
                 error_output_raw.write(r.content)
-        raise UploadException("Something went wrong during upload finalization. Exiting...")
+        raise UploadException("Something went wrong during upload finalization.", retry=False)
 
 
 def get_md5_from_file(checksum_file):

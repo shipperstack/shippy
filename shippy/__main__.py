@@ -97,9 +97,12 @@ def main():
                             break
                         except UploadException as exception:
                             print(exception)
-                            if input_yn("An error occurred uploading the build {}. "
-                                        "Do you want to try again?".format(build)):
-                                continue
+                            if exception.retry:
+                                if input_yn("An error occurred uploading the build {}. "
+                                            "Do you want to try again?".format(build)):
+                                    continue
+                                else:
+                                    break
                             else:
                                 break
 
