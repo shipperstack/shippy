@@ -4,4 +4,6 @@ class LoginException(Exception):
 
 
 class UploadException(Exception):
-    pass
+    def __init__(self, retry=True, **data):
+        self.retry = retry
+        self.data = data
