@@ -43,43 +43,16 @@ def login_to_server(username, password, server_url):
 
 
 def upload_to_server(build_file, checksum_file, server_url, token, use_chunked_upload=False):
-    device_id = -1
-
-    import os.path
-    # Get codename from build_file
-    build_file_name, _ = os.path.splitext(build_file)
-    try:
-        _, _, codename, _, _, _ = build_file_name.split('-')
-    except ValueError:
-        raise UploadException("The file name is mangled!")
-
-    # Get device ID from server
-    device_id_url = "{}/maintainers/api/device/id/".format(server_url)
-    print("Fetching device ID for device {}...".format(codename))
-    r = requests.get(device_id_url, headers={"Authorization": "Token {}".format(token)}, data={"codename": codename})
-
-    if r.status_code == 200:
-        device_id = r.json()['id']
-    elif r.status_code == 400:
-        if r.json()['error'] == "invalid_codename":
-            raise UploadException("The device with the specified codename does not exist.")
-    elif r.status_code == 401:
-        if r.json()['error'] == "insufficient_permissions":
-            raise UploadException("You are not authorized to upload with this device.")
-    else:
-        print("A problem occurred while querying the device ID.")
-        undef_response_exp(r)
-
     print("Uploading build {}...".format(build_file))
 
     if use_chunked_upload:
-        chunked_upload(server_url, device_id, build_file, checksum_file, token)
+        chunked_upload(server_url, build_file, checksum_file, token)
     else:
-        direct_upload(server_url, device_id, build_file, checksum_file, token, codename)
+        direct_upload(server_url, build_file, checksum_file, token)
 
 
-def chunked_upload(server_url, device_id, build_file, checksum_file, token):
-    device_upload_url = "{}/maintainers/api/device/{}/chunked_upload/".format(server_url, device_id)
+def chunked_upload(server_url, build_file, checksum_file, token):
+    device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
 
     # Split file up into 100 KB segments
     chunk_size = 10000
@@ -125,8 +98,8 @@ def get_md5_from_file(checksum_file):
         return values[0]
 
 
-def direct_upload(server_url, device_id, build_file, checksum_file, token, codename):
-    device_upload_url = "{}/maintainers/api/device/{}/upload/".format(server_url, device_id)
+def direct_upload(server_url, build_file, checksum_file, token):
+    device_upload_url = "{}/maintainers/api/upload/".format(server_url)
 
     e = MultipartEncoder(fields={
         'build_file': (build_file, open(build_file, 'rb'), 'text/plain'),
@@ -162,7 +135,7 @@ def direct_upload(server_url, device_id, build_file, checksum_file, token, coden
             raise UploadException("The codename does not match the build file name!")
     elif r.status_code == 401:
         if r.json()['error'] == "insufficient_permissions":
-            raise UploadException("You are not allowed to upload for the device {}!".format(codename))
+            raise UploadException("You are not allowed to upload for this device!")
     elif r.status_code == 500:
         raise UploadException("An internal server error occurred. Contact the administrators for help.")
     else:
