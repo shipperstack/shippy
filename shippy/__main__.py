@@ -25,6 +25,7 @@ def main():
 
         while True:
             if "http" not in server_url:
+                # noinspection HttpUrlsUsage
                 print("Server URL seems to be missing the schema. Please add http:// or https:// to the server URL.")
             else:
                 break
