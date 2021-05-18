@@ -101,6 +101,10 @@ def chunked_upload(server_url, build_file, checksum_file, token):
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
     else:
+        if DEBUG:
+            print("Status code received from server: {}".format(r.status_code))
+            with open('output.html', 'wb') as error_output_raw:
+                error_output_raw.write(r.content)
         raise UploadException("Something went wrong during upload finalization. Exiting...")
 
 
