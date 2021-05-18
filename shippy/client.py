@@ -86,6 +86,8 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                         error_output_raw.write(r.content)
                 raise UploadException(detail="Something went wrong during the upload.", retry=False)
 
+    print("\n")  # Clear progress bar from screen
+
     # Complete upload
     r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
                       data={'md5': get_md5_from_file(checksum_file)})
