@@ -141,6 +141,7 @@ def upload_exception_check(r, build_file):
 
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
+        return
     elif r.status_code == 400:
         if r.json()['error'] == "duplicate_build":
             raise UploadException(detail="This build already exists in the system!", retry=False)
