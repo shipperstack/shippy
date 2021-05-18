@@ -74,6 +74,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
             }, data={"filename": build_file}, files={'file': chunk_data})
 
             if r.status_code == 200:
+                current_index += chunk_size
                 if DEBUG:
                     print(r.json())
                 if current_index == 0:
@@ -92,7 +93,6 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                     with open('output.html', 'wb') as error_output_raw:
                         error_output_raw.write(r.content)
                 raise UploadException("Something went wrong during the upload. Exiting...")
-            current_index += chunk_size
 
     # Complete upload
     r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
