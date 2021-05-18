@@ -74,6 +74,8 @@ def chunked_upload(server_url, build_file, checksum_file, token):
             }, data={"filename": build_file}, files={'file': chunk_data})
 
             if r.status_code == 200:
+                if DEBUG:
+                    print(r.json())
                 if current_index == 0:
                     # Get new URL and expiry date
                     device_upload_url = r.json()['url']
@@ -81,6 +83,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                 bar.show(current_index)
             else:
                 if DEBUG:
+                    print("Status code received from server: {}".format(r.status_code))
                     with open('output.html', 'wb') as error_output_raw:
                         error_output_raw.write(r.content)
                 raise UploadException("Something went wrong during the upload. Exiting...")
