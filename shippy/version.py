@@ -1,3 +1,3 @@
-__version__ = "1.2.6"
+__version__ = "1.3.0"
 
 server_compat_version = "1.6.0"
