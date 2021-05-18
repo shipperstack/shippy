@@ -85,7 +85,7 @@ def chunked_upload(server_url, device_id, build_file, checksum_file, token):
                 "Authorization": "Token {}".format(token),
                 "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
                                                          total_file_size),
-            }, data={"file": build_file}, files={'file': chunk_data})
+            }, data={"filename": build_file}, files={'file': chunk_data})
 
             if r.status_code == 200:
                 if current_index == 0:
