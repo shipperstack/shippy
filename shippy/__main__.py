@@ -1,9 +1,12 @@
+import hashlib
+import os.path
+
 import semver
 import sentry_sdk
 
 from .exceptions import LoginException, UploadException
 from .helper import input_yn
-from .client import login_to_server, upload_to_server, get_server_version
+from .client import login_to_server, upload_to_server, get_server_version, get_md5_from_file
 from .config import get_config_value, set_config_value
 from .constants import *
 from .version import __version__, server_compat_version
@@ -87,10 +90,9 @@ def main():
             builds.append(file)
 
         for build in builds:
-            # Check if build has md5 file
-            import os.path
-            if not os.path.isfile("{}.md5".format(build)):
-                print("We couldn't find a valid checksum file for this build! Skipping....")
+            # Check build file validity
+            if not check_build(build):
+                print("Invalid build. Skipping...")
                 continue
 
             if input_yn("Uploading build {}. Start?".format(build)):
@@ -124,6 +126,41 @@ def check_server_compat(server_url):
         print(" * Compatible version: \t\t{}".format(server_compat_version))
         if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!", default=False):
             exit(0)
+
+
+def check_build(filename):
+    """ Makes sure the build is valid """
+    # Validate that there is a matching checksum file
+    if not os.path.isfile("{}.md5".format(filename)):
+        print("This build does not have a matching checksum file. ", end='')
+        return False
+
+    # Validate checksum
+    md5_hash = hashlib.md5()
+    with open(filename, "rb") as build_file:
+        content = build_file.read()
+        md5_hash.update(content)
+    md5_hash = md5_hash.hexdigest()
+    actual_hash = get_md5_from_file("{}.md5".format(filename))
+    if md5_hash != actual_hash:
+        print("This build's checksum is invalid. ", end='')
+        return False
+
+    build_slug, _ = os.path.splitext(filename)
+    _, _, _, build_type, build_variant, _ = build_slug.split('-')
+
+    # Check build type
+    if build_type != "OFFICIAL":
+        print("This build is not official. ", end='')
+        return False
+
+    # Check build variant
+    valid_variants = ['gapps', 'vanilla', 'foss', 'goapps']
+    if build_variant not in valid_variants:
+        print("This build has an unknown variant. ", end='')
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
