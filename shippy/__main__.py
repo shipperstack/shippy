@@ -3,6 +3,7 @@ import os.path
 
 import semver
 import sentry_sdk
+import argparse
 
 from .exceptions import LoginException, UploadException
 from .helper import input_yn
@@ -18,6 +19,14 @@ sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=__version__, ign
 
 def main():
     print("Welcome to shippy (v.{})!".format(__version__))
+
+    parser = argparse.ArgumentParser(description="Client-side tool for interfacing with shipper.")
+    parser.add_argument('-c', '--chunk-size', action='store_true', help='Edit chunk size')
+    args = parser.parse_args()
+
+    if args.chunk_size:
+        edit_chunk_size()
+        return
 
     try:
         server_url = get_config_value("shippy", "server")
@@ -155,6 +164,12 @@ def check_build(filename):
         return False
 
     return True
+
+
+def edit_chunk_size():
+    print("Now editing the chunk size.")
+    user_size = input("Specify the chunk size in megabytes: ")
+    set_config_value("shippy", "chunked_upload_size", user_size * 1_000_000)
 
 
 if __name__ == "__main__":
