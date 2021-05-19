@@ -34,33 +34,8 @@ def main():
         token = get_config_value("shipper", "token")
     except KeyError:
         print(FIRST_TIME_RUN_MSG)
-        server_url = input("Enter the server URL: ")
-
-        while True:
-            if "http" not in server_url:
-                # noinspection HttpUrlsUsage
-                print("Server URL seems to be missing the schema. Please add http:// or https:// to the server URL.")
-            else:
-                break
-            server_url = input("Enter the server URL: ")
-
-        if server_url[-1] == '/':
-            server_url = server_url[:-1]
-
-        set_config_value("shippy", "server", server_url)
-
-        while True:
-            from getpass import getpass
-
-            username = input("Enter your username: ")
-            password = getpass(prompt="Enter your password: ")
-
-            try:
-                token = login_to_server(username, password, server_url)
-                set_config_value("shipper", "token", token)
-                break
-            except LoginException:
-                print("An error occurred logging into the server. Please try again.")
+        server_url = get_server_url()
+        token = get_token(server_url)
 
     check_server_compat(server_url)
 
@@ -156,6 +131,40 @@ def check_build(filename):
         return False
 
     return True
+
+
+def get_server_url():
+    server_url = input("Enter the server URL: ")
+
+    while True:
+        if "http" not in server_url:
+            # noinspection HttpUrlsUsage
+            print("Server URL seems to be missing the schema. Please add http:// or https:// to the server URL.")
+        else:
+            break
+        server_url = input("Enter the server URL: ")
+
+    if server_url[-1] == '/':
+        server_url = server_url[:-1]
+
+    set_config_value("shippy", "server", server_url)
+
+    return server_url
+
+
+def get_token(server_url):
+    while True:
+        from getpass import getpass
+
+        username = input("Enter your username: ")
+        password = getpass(prompt="Enter your password: ")
+
+        try:
+            token = login_to_server(username, password, server_url)
+            set_config_value("shipper", "token", token)
+            return token
+        except LoginException:
+            print("An error occurred logging into the server. Please try again.")
 
 
 def edit_chunk_size():
