@@ -51,8 +51,6 @@ def main():
         set_config_value("shippy", "server", server_url)
         server_url = server_url
 
-        check_server_compat(server_url)
-
         while True:
             from getpass import getpass
 
