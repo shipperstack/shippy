@@ -1,12 +1,11 @@
 import os.path
 
+import requests
 from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from .exceptions import LoginException, UploadException
 from .config import get_config_value
-
-import requests
+from .exceptions import LoginException, UploadException
 
 DEBUG = os.environ.get("SHIPPY_DEBUG", default=0)
 
