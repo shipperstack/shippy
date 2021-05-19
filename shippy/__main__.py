@@ -79,7 +79,7 @@ def main():
 
     # Search current directory for files
     import glob
-
+    print("Detecting builds in current directory...")
     glob_match = 'Bliss-v*.zip'
     build_count = len(glob.glob(glob_match))
     builds = []
@@ -121,6 +121,7 @@ def main():
 
 
 def check_server_compat(server_url):
+    print("shippy is contacting the remote server... Please wait.")
     server_version = get_server_version(server_url)
     if semver.compare(server_version, server_compat_version) == -1:
         print("Warning: the server you're connecting to is out-of-date. shippy may not work properly.")
@@ -129,6 +130,8 @@ def check_server_compat(server_url):
         print(" * Compatible version: \t\t{}".format(server_compat_version))
         if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!", default=False):
             exit(0)
+    else:
+        print("Finished compatibility check. No problems found.")
 
 
 def check_build(filename):
