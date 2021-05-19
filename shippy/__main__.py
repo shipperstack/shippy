@@ -81,10 +81,7 @@ def main():
     if build_count == 0:
         print(NO_MATCHING_FILES_FOUND_ERROR_MSG)
     else:
-        if build_count == 1:
-            print("Detected the following build:")
-        else:
-            print("Detected the following builds:")
+        print("Detected build(s):")
         for file in glob.glob(glob_match):
             print("\t{}".format(file))
             builds.append(file)
