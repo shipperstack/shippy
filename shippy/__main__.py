@@ -68,15 +68,7 @@ def main():
 
     check_server_compat(server_url)
 
-    try:
-        chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
-    except KeyError:
-        # Ask preference for beta upload method
-        if input_yn(BETA_CHUNK_UPLOAD_PROMPT_MSG):
-            set_config_value("shippy", "chunked_upload", "true")
-        else:
-            set_config_value("shippy", "chunked_upload", "false")
-        chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
+    chunked_upload = (get_config_value("shippy", "chunked_upload").lower() == "true")
 
     # Search current directory for files
     print("Detecting builds in current directory...")

@@ -2,7 +2,7 @@ import configparser
 
 from pathlib import Path
 
-from shippy.constants import DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE
+from shippy.constants import DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE, DEFAULT_SHIPPY_CHUNKED_UPLOAD
 
 home_dir = str(Path.home())
 
@@ -27,7 +27,9 @@ def get_config_value(section, key):
 
 def get_default(section, key):
     if section == "shippy":
-        if key == "chunked_upload_size":
+        if key == "chunked_upload":
+            return DEFAULT_SHIPPY_CHUNKED_UPLOAD
+        elif key == "chunked_upload_size":
             return DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE
 
 
