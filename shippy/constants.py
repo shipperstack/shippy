@@ -20,3 +20,6 @@ Please check the following:
 
 If you believe this is a problem with shippy, please contact maintainer support.
 """
+
+# Defaults
+DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE = 10_000_000    # 10 MB
