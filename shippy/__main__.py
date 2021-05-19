@@ -4,6 +4,7 @@ import os.path
 import semver
 import sentry_sdk
 import argparse
+import glob
 
 from .exceptions import LoginException, UploadException
 from .helper import input_yn
@@ -78,7 +79,6 @@ def main():
         chunked_upload = (get_config_value("shippy", "chunked_upload") == "true")
 
     # Search current directory for files
-    import glob
     print("Detecting builds in current directory...")
     glob_match = 'Bliss-v*.zip'
     build_count = len(glob.glob(glob_match))
