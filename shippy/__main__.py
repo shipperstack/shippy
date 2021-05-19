@@ -48,7 +48,6 @@ def main():
             server_url = server_url[:-1]
 
         set_config_value("shippy", "server", server_url)
-        server_url = server_url
 
         while True:
             from getpass import getpass
