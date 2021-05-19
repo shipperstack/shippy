@@ -1,16 +1,16 @@
+import argparse
+import glob
 import hashlib
 import os.path
 
 import semver
 import sentry_sdk
-import argparse
-import glob
 
-from .exceptions import LoginException, UploadException
-from .helper import input_yn
 from .client import login_to_server, upload_to_server, get_server_version, get_md5_from_file
 from .config import get_config_value, set_config_value
 from .constants import *
+from .exceptions import LoginException, UploadException
+from .helper import input_yn
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
@@ -128,7 +128,8 @@ def check_server_compat(server_url):
         print("If you know the server admin, please ask them to upgrade the server.")
         print(" * Reported server version: \t{}".format(server_version))
         print(" * Compatible version: \t\t{}".format(server_compat_version))
-        if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!", default=False):
+        if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!",
+                        default=False):
             exit(0)
     else:
         print("Finished compatibility check. No problems found.")
