@@ -45,7 +45,6 @@ def main():
             server_url = input("Enter the server URL: ")
 
         if server_url[-1] == '/':
-            print("Trailing slash found. shippy automatically removed it for you!")
             server_url = server_url[:-1]
 
         set_config_value("shippy", "server", server_url)
