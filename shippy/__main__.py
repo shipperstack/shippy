@@ -91,27 +91,28 @@ def main():
             import os.path
             if not os.path.isfile("{}.md5".format(build)):
                 print("We couldn't find a valid checksum file for this build! Skipping....")
-            else:
-                if input_yn("Uploading build {}. Start?".format(build)):
-                    while True:
-                        # noinspection PyBroadException
-                        try:
-                            upload_to_server(build, "{}.md5".format(build), server_url, token,
-                                             use_chunked_upload=chunked_upload)
-                            break
-                        except UploadException as exception:
-                            print(exception)
-                            if exception.retry:
-                                if input_yn("An error occurred uploading the build {}. "
-                                            "Do you want to try again?".format(build)):
-                                    continue
-                                else:
-                                    break
+                continue
+
+            if input_yn("Uploading build {}. Start?".format(build)):
+                while True:
+                    # noinspection PyBroadException
+                    try:
+                        upload_to_server(build, "{}.md5".format(build), server_url, token,
+                                         use_chunked_upload=chunked_upload)
+                        break
+                    except UploadException as exception:
+                        print(exception)
+                        if exception.retry:
+                            if input_yn("An error occurred uploading the build {}. "
+                                        "Do you want to try again?".format(build)):
+                                continue
                             else:
                                 break
-                        except Exception:
-                            print("An unknown exception occurred. Exiting...")
-                            exit(1)
+                        else:
+                            break
+                    except Exception:
+                        print("An unknown exception occurred. Exiting...")
+                        exit(1)
 
 
 def check_server_compat(server_url):
