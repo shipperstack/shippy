@@ -20,7 +20,10 @@ def get_config_value(section, key):
     except KeyError:
         # Set defaults and return
         value = get_default(section, key)
-        set_config_value(section, key, value)
+        if value:
+            set_config_value(section, key, value)
+        else:
+            raise KeyError
 
     return value
 
