@@ -161,5 +161,5 @@ def upload_exception_check(r, build_file):
             raise UploadException("You are not allowed to upload for this device!")
     elif r.status_code == 500:
         raise UploadException("Something went wrong with the server. Please contact the admins.")
-    
+
     undef_response_exp(r)
