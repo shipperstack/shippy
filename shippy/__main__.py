@@ -51,6 +51,11 @@ def main():
         for build in builds:
             print("\t{}".format(build))
 
+        if len(builds) > 1:
+            if not input_yn("Warning: you seem to be uploading multiple builds. Are you sure you want to continue?",
+                            default=False):
+                return
+
         for build in builds:
             # Check build file validity
             if not check_build(build):
