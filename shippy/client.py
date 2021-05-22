@@ -48,8 +48,10 @@ def upload_to_server(build_file, checksum_file, server_url, token, use_chunked_u
     print("Uploading build {}...".format(build_file))
 
     if use_chunked_upload:
+        print("Using chunked upload method to upload...")
         chunked_upload(server_url, build_file, checksum_file, token)
     else:
+        print("Using direct upload method to upload...")
         direct_upload(server_url, build_file, checksum_file, token)
 
 
