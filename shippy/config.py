@@ -33,7 +33,7 @@ def get_default(section, key):
         if key == "chunked_upload":
             return DEFAULT_SHIPPY_CHUNKED_UPLOAD
         elif key == "chunked_upload_size":
-            return DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE
+            return str(DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE)
 
 
 def set_config_value(section, key, value):
