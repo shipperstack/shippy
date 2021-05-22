@@ -159,6 +159,8 @@ def upload_exception_check(r, build_file):
     elif r.status_code == 401:
         if r.json()['error'] == "insufficient_permissions":
             raise UploadException(detail="You are not allowed to upload for this device!", retry=False)
+    elif r.status_code == 404:
+        raise UploadException(detail="The following request failed with a 404: {}".format(r.url), retry=False)
     elif r.status_code == 500:
         raise UploadException(detail="An internal server error occurred. Contact the administrators for help.",
                               retry=False)
