@@ -21,6 +21,16 @@ Please check the following:
 If you believe this is a problem with shippy, please contact maintainer support.
 """
 
+UNHANDLED_EXCEPTION_MSG = """
+shippy crashed for an unknown reason. :(
+To figure out what went wrong, please pass along the full output.
+----
+URL of request: {}
+Request response code: {}
+Request response: {}
+---
+"""
+
 # Defaults
 DEFAULT_SHIPPY_CHUNKED_UPLOAD = "true"
 DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE = 10_000_000  # 10 MB

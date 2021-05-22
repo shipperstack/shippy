@@ -6,13 +6,13 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from .config import get_config_value
 from .exceptions import LoginException, UploadException
+from .constants import UNHANDLED_EXCEPTION_MSG
 
 DEBUG = os.environ.get("SHIPPY_DEBUG", default=0)
 
 
 def undef_response_exp(r):
-    raise Exception("Unhandled error. Contact the admins for help. Response code from server: {} \n Response from "
-                    "server: {}".format(r.status_code, r.json()))
+    raise Exception(UNHANDLED_EXCEPTION_MSG.format(r.url, r.status_code, r.json()))
 
 
 def get_server_version(server_url):
