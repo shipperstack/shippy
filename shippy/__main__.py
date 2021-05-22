@@ -84,6 +84,7 @@ def check_server_compat(server_url):
     else:
         print("Finished compatibility check. No problems found.")
 
+
 def get_builds_in_current_dir():
     builds = []
     glob_match = 'Bliss-v*.zip'
