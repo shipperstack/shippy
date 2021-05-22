@@ -42,18 +42,14 @@ def main():
     chunked_upload = (get_config_value("shippy", "chunked_upload").lower() == "true")
 
     # Search current directory for files
-    print("Detecting builds in current directory...")
-    glob_match = 'Bliss-v*.zip'
-    build_count = len(glob.glob(glob_match))
-    builds = []
+    builds = get_builds_in_current_dir()
 
-    if build_count == 0:
+    if len(builds) == 0:
         print(NO_MATCHING_FILES_FOUND_ERROR_MSG)
     else:
-        print("Detected build(s):")
-        for file in glob.glob(glob_match):
-            print("\t{}".format(file))
-            builds.append(file)
+        print("Detected {} build(s):".format(len(builds)))
+        for build in builds:
+            print("\t{}".format(build))
 
         for build in builds:
             # Check build file validity
@@ -82,6 +78,17 @@ def check_server_compat(server_url):
             exit(0)
     else:
         print("Finished compatibility check. No problems found.")
+
+def get_builds_in_current_dir():
+    builds = []
+    glob_match = 'Bliss-v*.zip'
+
+    print("Detecting builds in current directory...")
+
+    for file in glob.glob(glob_match):
+        builds.append(file)
+
+    return builds
 
 
 def check_build(filename):
