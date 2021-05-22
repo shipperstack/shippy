@@ -89,7 +89,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
 
     print("")  # Clear progress bar from screen
 
-    # Complete upload
+    # Finalize upload to begin processing
     r = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
                       data={'md5': get_md5_from_file(checksum_file)})
 
