@@ -78,9 +78,9 @@ def main():
                                 break
                         else:
                             break
-                    except Exception:
-                        print("An unknown exception occurred. Exiting...")
-                        exit(1)
+                    except Exception as exception:
+                        print("An unknown exception occurred. Please report this to the developers.")
+                        raise exception
 
 
 def check_server_compat(server_url):
