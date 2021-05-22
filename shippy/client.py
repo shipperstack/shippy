@@ -85,7 +85,7 @@ def chunked_upload(server_url, build_file, checksum_file, token):
                     print("Status code received from server: {}".format(r.status_code))
                     with open('output.html', 'wb') as error_output_raw:
                         error_output_raw.write(r.content)
-                raise UploadException(detail="Something went wrong during the upload.", retry=False)
+                raise UploadException("Something went wrong during the upload.")
 
     print("")  # Clear progress bar from screen
 
@@ -145,25 +145,24 @@ def upload_exception_check(r, build_file):
         return
     elif r.status_code == 400:
         if r.json()['error'] == "duplicate_build":
-            raise UploadException(detail="This build already exists in the system!", retry=False)
+            raise UploadException("This build already exists in the system!")
         elif r.json()['error'] == "missing_files":
-            raise UploadException(detail="One of the required fields are missing!", retry=False)
+            raise UploadException("One of the required fields are missing!")
         elif r.json()['error'] == "file_name_mismatch":
-            raise UploadException(detail="The build file name does not match the checksum file name!", retry=False)
+            raise UploadException("The build file name does not match the checksum file name!")
         elif r.json()['error'] == "invalid_file_name":
-            raise UploadException(detail="The file name was malformed!", retry=False)
+            raise UploadException("The file name was malformed!")
         elif r.json()['error'] == "not_official":
-            raise UploadException(detail="The build is not official!", retry=False)
+            raise UploadException("The build is not official!")
         elif r.json()['error'] == "codename_mismatch":
-            raise UploadException(detail="The codename does not match the build file name!", retry=False)
+            raise UploadException("The codename does not match the build file name!")
     elif r.status_code == 401:
         if r.json()['error'] == "insufficient_permissions":
-            raise UploadException(detail="You are not allowed to upload for this device!", retry=False)
+            raise UploadException("You are not allowed to upload for this device!")
     elif r.status_code == 404:
-        raise UploadException(detail="The following request failed with a 404: {}".format(r.url), retry=False)
+        raise UploadException("The following request failed with a 404: {}".format(r.url))
     elif r.status_code == 500:
-        raise UploadException(detail="An internal server error occurred. Contact the administrators for help.",
-                              retry=False)
+        raise UploadException("An internal server error occurred. Contact the administrators for help.")
 
     print("A problem occurred while uploading your build.")
     undef_response_exp(r)

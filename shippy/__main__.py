@@ -62,25 +62,11 @@ def main():
                 continue
 
             if input_yn("Uploading build {}. Start?".format(build)):
-                while True:
-                    # noinspection PyBroadException
-                    try:
-                        upload_to_server(build, "{}.md5".format(build), server_url, token,
-                                         use_chunked_upload=chunked_upload)
-                        break
-                    except UploadException as exception:
-                        print(exception)
-                        if exception.retry:
-                            if input_yn("An error occurred uploading the build {}. "
-                                        "Do you want to try again?".format(build)):
-                                continue
-                            else:
-                                break
-                        else:
-                            break
-                    except Exception as exception:
-                        print("An unknown exception occurred. Please report this to the developers.")
-                        raise exception
+                try:
+                    upload_to_server(build, "{}.md5".format(build), server_url, token,
+                                     use_chunked_upload=chunked_upload)
+                except UploadException as exception:
+                    print(exception)
 
 
 def check_server_compat(server_url):
