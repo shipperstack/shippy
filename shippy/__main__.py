@@ -115,12 +115,15 @@ def get_builds_in_current_dir():
 
 def check_build(filename):
     """ Makes sure the build is valid """
+    print("Validating build {}...".format(filename))
+
     # Validate that there is a matching checksum file
     if not os.path.isfile("{}.md5".format(filename)):
         print("This build does not have a matching checksum file. ", end='')
         return False
 
     # Validate checksum
+    print("Checking MD5 hash of {}... this may take a couple of seconds.".format(filename))
     md5_hash = hashlib.md5()
     with open(filename, "rb") as build_file:
         content = build_file.read()
@@ -130,6 +133,7 @@ def check_build(filename):
     if md5_hash != actual_hash:
         print("This build's checksum is invalid. ", end='')
         return False
+    print("MD5 hash of {} matched.".format(filename))
 
     build_slug, _ = os.path.splitext(filename)
     _, _, _, build_type, build_variant, _ = build_slug.split('-')
@@ -145,6 +149,7 @@ def check_build(filename):
         print("This build has an unknown variant. ", end='')
         return False
 
+    print("Validation of build {} complete. No problems found.".format(filename))
     return True
 
 
