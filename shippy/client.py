@@ -2,12 +2,12 @@ import os.path
 from json import JSONDecodeError
 
 import requests
-from clint.textui.progress import Bar as ProgressBar
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from .config import get_config_value
 from .exceptions import LoginException, UploadException
 from .constants import UNHANDLED_EXCEPTION_MSG
+from .helper import ProgressBar
 
 DEBUG = os.environ.get("SHIPPY_DEBUG", default=0)
 

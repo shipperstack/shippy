@@ -1,4 +1,37 @@
-# From https://stackoverflow.com/a/3041990, adapted for use in this script
+import time
+import humanize
+
+from clint.textui.progress import Bar, ETA_INTERVAL, ETA_SMA_WINDOW, STREAM
+
+BAR_TEMPLATE = '%s[%s%s] %s/%s - %s\r'
+
+
+class ProgressBar(Bar):
+    def show(self, progress, count=None):
+        if count is not None:
+            self.expected_size = count
+        if self.expected_size is None:
+            raise Exception("expected_size not initialized")
+        self.last_progress = progress
+        if (time.time() - self.etadelta) > ETA_INTERVAL:
+            self.etadelta = time.time()
+            self.ittimes = \
+                self.ittimes[-ETA_SMA_WINDOW:] + \
+                    [-(self.start - time.time()) / (progress+1)]
+            self.eta = \
+                sum(self.ittimes) / float(len(self.ittimes)) * \
+                (self.expected_size - progress)
+            self.etadisp = self.format_time(self.eta)
+        x = int(self.width * progress / self.expected_size)
+        if not self.hide:
+            if (progress % self.every) == 0 or (progress == self.expected_size):
+                STREAM.write(BAR_TEMPLATE % (
+                    self.label, self.filled_char * x,
+                    self.empty_char * (self.width - x), humanize.naturalsize(progress),
+                    humanize.naturalsize(self.expected_size), self.etadisp))
+                STREAM.flush()
+
+
 def input_yn(question, default=True):
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}

@@ -3,3 +3,4 @@ requests
 requests-toolbelt
 semver
 sentry-sdk
+humanize~=3.5.0
