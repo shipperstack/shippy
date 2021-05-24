@@ -35,6 +35,7 @@ setup(
         "requests-toolbelt",
         "semver",
         "sentry-sdk",
+        "humanize"
     ],
     entry_points={
         "console_scripts": [
