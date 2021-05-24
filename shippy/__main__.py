@@ -3,6 +3,7 @@ import glob
 import hashlib
 import os.path
 
+import requests
 import semver
 import sentry_sdk
 
@@ -28,6 +29,9 @@ def main():
     if args.chunk_size:
         edit_chunk_size()
         return
+
+    # Check for updates
+    check_shippy_update()
 
     try:
         server_url = get_config_value("shippy", "server")
@@ -83,6 +87,18 @@ def check_server_compat(server_url):
             exit(0)
     else:
         print("Finished compatibility check. No problems found.")
+
+
+def check_shippy_update():
+    print("Checking for updates...")
+    r = requests.get("https://api.github.com/repos/ericswpark/shippy/releases/latest")
+    latest_version = r.json()['name']
+
+    if semver.compare(__version__, latest_version) == -1:
+        print("Warning: shippy is out-of-date. We recommend updating with the following command:")
+        print("\tpip3 install --upgrade shipper-shippy")
+    else:
+        print("Finished update check. shippy is up-to-date!")
 
 
 def get_builds_in_current_dir():
