@@ -6,12 +6,13 @@ import os.path
 import requests
 import semver
 import sentry_sdk
+from clint.textui import puts, colored
 
 from .client import login_to_server, upload_to_server, get_server_version, get_md5_from_file
 from .config import get_config_value, set_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
-from .helper import input_yn
+from .helper import input_yn, print_error_tag
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
@@ -56,8 +57,8 @@ def main():
             print("\t{}".format(build))
 
         if len(builds) > 1:
-            if not input_yn("Warning: you seem to be uploading multiple builds. Are you sure you want to continue?",
-                            default=False):
+            puts(colored.red("Warning: you seem to be uploading multiple builds. "), newline=False)
+            if not input_yn("Are you sure you want to continue?", default=False):
                 return
 
         for build in builds:
@@ -131,6 +132,7 @@ def check_build(filename):
     md5_hash = md5_hash.hexdigest()
     actual_hash = get_md5_from_file("{}.md5".format(filename))
     if md5_hash != actual_hash:
+        print_error_tag()
         print("This build's checksum is invalid. ", end='')
         return False
     print("MD5 hash of {} matched.".format(filename))
@@ -140,12 +142,14 @@ def check_build(filename):
 
     # Check build type
     if build_type != "OFFICIAL":
+        print_error_tag()
         print("This build is not official. ", end='')
         return False
 
     # Check build variant
     valid_variants = ['gapps', 'vanilla', 'foss', 'goapps']
     if build_variant not in valid_variants:
+        print_error_tag()
         print("This build has an unknown variant. ", end='')
         return False
 
@@ -158,6 +162,7 @@ def get_server_url():
 
     while True:
         if "http" not in server_url:
+            print_error_tag()
             # noinspection HttpUrlsUsage
             print("Server URL seems to be missing the schema. Please add http:// or https:// to the server URL.")
         else:
@@ -184,7 +189,7 @@ def get_token(server_url):
             set_config_value("shipper", "token", token)
             return token
         except LoginException:
-            print("An error occurred logging into the server. Please try again.")
+            puts(colored.red("An error occurred logging into the server. Please try again."))
 
 
 def edit_chunk_size():

@@ -1,5 +1,6 @@
 import time
 import humanize
+from clint.textui import puts, colored
 
 from clint.textui.progress import Bar, ETA_INTERVAL, ETA_SMA_WINDOW, STREAM
 
@@ -53,3 +54,7 @@ def input_yn(question, default=True):
             return valid[choice]
         else:
             print("Please respond with 'yes' or 'no' (or 'y' or 'n').")
+
+
+def print_error_tag():
+    puts(colored.red("ERROR: "), newline=False)
