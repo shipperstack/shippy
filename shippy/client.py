@@ -1,4 +1,5 @@
 import os.path
+from json import JSONDecodeError
 
 import requests
 from clint.textui.progress import Bar as ProgressBar
@@ -12,7 +13,10 @@ DEBUG = os.environ.get("SHIPPY_DEBUG", default=0)
 
 
 def undef_response_exp(r):
-    raise Exception(UNHANDLED_EXCEPTION_MSG.format(r.url, r.status_code, r.json()))
+    try:
+        raise Exception(UNHANDLED_EXCEPTION_MSG.format(r.url, r.status_code, r.json()))
+    except JSONDecodeError:
+        raise Exception(UNHANDLED_EXCEPTION_MSG.format(r.url, r.status_code, r.content))
 
 
 def get_server_version(server_url):
