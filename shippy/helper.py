@@ -3,7 +3,7 @@ import humanize
 
 from clint.textui.progress import Bar, ETA_INTERVAL, ETA_SMA_WINDOW, STREAM
 
-BAR_TEMPLATE = '%s[%s%s] %s/%s - %s\r'
+BAR_TEMPLATE = '%s[%s%s] %i%% - %s/%s - %s\r'
 
 
 class ProgressBar(Bar):
@@ -27,7 +27,9 @@ class ProgressBar(Bar):
             if (progress % self.every) == 0 or (progress == self.expected_size):
                 STREAM.write(BAR_TEMPLATE % (
                     self.label, self.filled_char * x,
-                    self.empty_char * (self.width - x), humanize.naturalsize(progress),
+                    self.empty_char * (self.width - x),
+                    progress * 100 / self.expected_size,
+                    humanize.naturalsize(progress),
                     humanize.naturalsize(self.expected_size), self.etadisp))
                 STREAM.flush()
 
