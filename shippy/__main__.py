@@ -175,8 +175,9 @@ def get_token(server_url):
             token = login_to_server(username, password, server_url)
             set_config_value("shipper", "token", token)
             return token
-        except LoginException:
-            puts(colored.red("An error occurred logging into the server. Please try again."))
+        except LoginException as exception:
+            print_error_tag()
+            print("{} Please try again.".format(exception))
 
 
 if __name__ == "__main__":
