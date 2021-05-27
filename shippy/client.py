@@ -7,8 +7,6 @@ from .exceptions import LoginException, UploadException
 from .constants import UNHANDLED_EXCEPTION_MSG
 from .helper import ProgressBar, print_error_tag
 
-DEBUG = os.environ.get("SHIPPY_DEBUG", default=0)
-
 
 def undef_response_exp(r):
     try:
@@ -73,10 +71,6 @@ def upload(server_url, build_file, checksum_file, token):
                 import re
                 wait_rate_limit(int(re.findall("\d+", r.json()['detail'])[0]))
             else:
-                if DEBUG:
-                    print("Status code received from server: {}".format(r.status_code))
-                    with open('output.html', 'wb') as error_output_raw:
-                        error_output_raw.write(r.content)
                 raise UploadException("Something went wrong during the upload.")
 
     print("")  # Clear progress bar from screen
@@ -105,10 +99,6 @@ def wait_rate_limit(seconds):
 
 
 def upload_exception_check(r, build_file):
-    if DEBUG:
-        print("Received code: {}".format(r.status_code))
-        print(r.json())
-
     if r.status_code == 200:
         print("Successfully uploaded the build {}!".format(build_file))
         return
