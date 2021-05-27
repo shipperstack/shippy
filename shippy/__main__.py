@@ -67,13 +67,9 @@ def check_server_compat(server_url):
     print("shippy is contacting the remote server... Please wait.")
     server_version = get_server_version(server_url)
     if semver.compare(server_version, server_compat_version) == -1:
-        print("Warning: the server you're connecting to is out-of-date. shippy may not work properly.")
-        print("If you know the server admin, please ask them to upgrade the server.")
-        print(" * Reported server version: \t{}".format(server_version))
-        print(" * Compatible version: \t\t{}".format(server_compat_version))
-        if not input_yn("Are you sure you want to continue? Only proceed if you know what you are doing!",
-                        default=False):
-            exit(0)
+        print_error_tag()
+        print(SERVER_COMPAT_ERROR_MSG.format(server_version, server_compat_version))
+        exit(0)
     else:
         print("Finished compatibility check. No problems found.")
 
