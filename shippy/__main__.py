@@ -44,8 +44,6 @@ def main():
 
     check_server_compat(server_url)
 
-    chunked_upload = (get_config_value("shippy", "chunked_upload").lower() == "true")
-
     # Search current directory for files
     builds = get_builds_in_current_dir()
 
@@ -69,8 +67,7 @@ def main():
 
             if input_yn("Uploading build {}. Start?".format(build)):
                 try:
-                    upload_to_server(build, "{}.md5".format(build), server_url, token,
-                                     use_chunked_upload=chunked_upload)
+                    upload_to_server(build, "{}.md5".format(build), server_url, token)
                 except UploadException as exception:
                     print(exception)
 

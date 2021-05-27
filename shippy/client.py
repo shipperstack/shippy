@@ -2,7 +2,6 @@ import os.path
 from json import JSONDecodeError
 
 import requests
-from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from .config import get_config_value
 from .exceptions import LoginException, UploadException
@@ -49,15 +48,9 @@ def login_to_server(username, password, server_url):
         undef_response_exp(r)
 
 
-def upload_to_server(build_file, checksum_file, server_url, token, use_chunked_upload=False):
+def upload_to_server(build_file, checksum_file, server_url, token):
     print("Uploading build {}...".format(build_file))
-
-    if use_chunked_upload:
-        print("Using chunked upload method to upload...")
-        chunked_upload(server_url, build_file, checksum_file, token)
-    else:
-        print("Using direct upload method to upload...")
-        direct_upload(server_url, build_file, checksum_file, token)
+    chunked_upload(server_url, build_file, checksum_file, token)
 
 
 def chunked_upload(server_url, build_file, checksum_file, token):
@@ -115,29 +108,6 @@ def wait_rate_limit(seconds):
         time.sleep(1)
         seconds -= 1
     print(end='\x1b[2K\r')
-
-
-def direct_upload(server_url, build_file, checksum_file, token):
-    device_upload_url = "{}/maintainers/api/upload/".format(server_url)
-
-    e = MultipartEncoder(fields={
-        'build_file': (build_file, open(build_file, 'rb'), 'text/plain'),
-        'checksum_file': (checksum_file, open(checksum_file, 'rb'), 'text/plain'),
-    })
-
-    bar = ProgressBar(expected_size=e.len, filled_char='=')
-
-    def callback(monitor):
-        bar.show(monitor.bytes_read)
-
-    m = MultipartEncoderMonitor(e, callback)
-
-    r = requests.post(device_upload_url, headers={
-        "Authorization": "Token {}".format(token),
-        "Content-Type": e.content_type
-    }, data=m)
-
-    upload_exception_check(r, build_file)
 
 
 def upload_exception_check(r, build_file):
