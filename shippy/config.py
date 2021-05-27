@@ -2,8 +2,6 @@ import configparser
 
 from pathlib import Path
 
-from shippy.constants import DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE, DEFAULT_SHIPPY_CHUNKED_UPLOAD
-
 home_dir = str(Path.home())
 
 # Constants
