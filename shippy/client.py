@@ -3,7 +3,6 @@ from json import JSONDecodeError
 
 import requests
 
-from .config import get_config_value
 from .exceptions import LoginException, UploadException
 from .constants import UNHANDLED_EXCEPTION_MSG
 from .helper import ProgressBar, print_error_tag
@@ -56,7 +55,7 @@ def upload_to_server(build_file, checksum_file, server_url, token):
 def chunked_upload(server_url, build_file, checksum_file, token):
     device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
 
-    chunk_size = int(get_config_value("shippy", "chunked_upload_size"))
+    chunk_size = 10_000_000     # 10 MB
     current_index = 0
     total_file_size = os.path.getsize(build_file)
 
