@@ -7,7 +7,7 @@ import semver
 import sentry_sdk
 from clint.textui import puts, colored
 
-from .client import login_to_server, upload_to_server, get_server_version, get_md5_from_file
+from .client import login_to_server, upload, get_server_version, get_md5_from_file
 from .config import get_config_value, set_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
@@ -58,7 +58,10 @@ def main():
 
             if input_yn("Uploading build {}. Start?".format(build)):
                 try:
-                    upload_to_server(build, "{}.md5".format(build), server_url, token)
+                    upload(server_url=server_url,
+                           build_file=build,
+                           checksum_file="{}.md5".format(build),
+                           token=token)
                 except UploadException as exception:
                     print(exception)
 

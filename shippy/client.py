@@ -47,12 +47,7 @@ def login_to_server(username, password, server_url):
         undef_response_exp(r)
 
 
-def upload_to_server(build_file, checksum_file, server_url, token):
-    print("Uploading build {}...".format(build_file))
-    chunked_upload(server_url, build_file, checksum_file, token)
-
-
-def chunked_upload(server_url, build_file, checksum_file, token):
+def upload(server_url, build_file, checksum_file, token):
     device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
 
     chunk_size = 10_000_000     # 10 MB
