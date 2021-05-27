@@ -15,25 +15,7 @@ config.read(CONFIGURATION_FILE)
 
 
 def get_config_value(section, key):
-    try:
-        value = config[section][key]
-    except KeyError:
-        # Set defaults and return
-        value = get_default(section, key)
-        if value:
-            set_config_value(section, key, value)
-        else:
-            raise KeyError
-
-    return value
-
-
-def get_default(section, key):
-    if section == "shippy":
-        if key == "chunked_upload":
-            return DEFAULT_SHIPPY_CHUNKED_UPLOAD
-        elif key == "chunked_upload_size":
-            return str(DEFAULT_SHIPPY_CHUNKED_UPLOAD_SIZE)
+    return config[section][key]
 
 
 def set_config_value(section, key, value):
