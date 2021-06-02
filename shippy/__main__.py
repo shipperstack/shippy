@@ -142,37 +142,43 @@ def check_build(filename):
 
 
 def get_server_url():
-    server_url = input("Enter the server URL: ")
-
-    while True:
-        if "http" not in server_url:
-            # noinspection HttpUrlsUsage
-            print_error(msg="Server URL is missing either http:// or https://.", newline=True, exit_after=False)
-        else:
-            break
+    try:
         server_url = input("Enter the server URL: ")
 
-    if server_url[-1] == '/':
-        server_url = server_url[:-1]
+        while True:
+            if "http" not in server_url:
+                # noinspection HttpUrlsUsage
+                print_error(msg="Server URL is missing either http:// or https://.", newline=True, exit_after=False)
+            else:
+                break
+            server_url = input("Enter the server URL: ")
 
-    set_config_value("shippy", "server", server_url)
+        if server_url[-1] == '/':
+            server_url = server_url[:-1]
 
-    return server_url
+        set_config_value("shippy", "server", server_url)
+
+        return server_url
+    except KeyboardInterrupt:
+        exit(0)
 
 
 def get_token(server_url):
     while True:
         from getpass import getpass
 
-        username = input("Enter your username: ")
-        password = getpass(prompt="Enter your password: ")
-
         try:
-            token = login_to_server(username, password, server_url)
-            set_config_value("shipper", "token", token)
-            return token
-        except LoginException as exception:
-            print_error("{} Please try again.".format(exception), newline=True, exit_after=False)
+            username = input("Enter your username: ")
+            password = getpass(prompt="Enter your password: ")
+
+            try:
+                token = login_to_server(username, password, server_url)
+                set_config_value("shipper", "token", token)
+                return token
+            except LoginException as exception:
+                print_error("{} Please try again.".format(exception), newline=True, exit_after=False)
+        except KeyboardInterrupt:
+            exit(0)
 
 
 if __name__ == "__main__":
