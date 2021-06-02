@@ -83,8 +83,7 @@ def check_shippy_update():
     latest_version = r.json()['name']
 
     if semver.compare(__version__, latest_version) == -1:
-        print("Warning: shippy is out-of-date. We recommend updating with the following command:")
-        print("\tpip3 install --upgrade shipper-shippy")
+        print(SHIPPY_OUTDATED_MSG.format(__version__, latest_version))
     else:
         print("Finished update check. shippy is up-to-date!")
 

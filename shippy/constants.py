@@ -25,6 +25,15 @@ If you know the server admin, please ask them to upgrade the server.
 To prevent data corruption, shippy will not work with an outdated server. Exiting...
 """
 
+SHIPPY_OUTDATED_MSG = """
+Warning: shippy is out-of-date.
+ * Current version: \t{}
+ * New version: \t{}
+
+We recommend updating shippy with the following command:
+\tpip3 install --upgrade shipper-shippy
+"""
+
 UNHANDLED_EXCEPTION_MSG = """
 shippy crashed for an unknown reason. :(
 To figure out what went wrong, please pass along the full output.
