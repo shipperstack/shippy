@@ -29,7 +29,7 @@ def main():
         server_url = get_config_value("shippy", "server")
         token = get_config_value("shipper", "token")
     except KeyError:
-        print(FIRST_TIME_RUN_MSG)
+        print("No configuration file found. You need to configure shippy before you can start using it.")
         server_url = get_server_url()
         token = get_token(server_url)
 
