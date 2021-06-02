@@ -61,3 +61,7 @@ def print_error(msg, newline, exit_after):
 
     if exit_after:
         exit(1)
+
+
+def print_warning(msg, newline):
+    puts(colored.yellow("Warning: {}".format(msg)), newline=newline)

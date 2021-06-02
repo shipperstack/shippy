@@ -5,13 +5,12 @@ import os.path
 import requests
 import semver
 import sentry_sdk
-from clint.textui import puts, colored
 
 from .client import login_to_server, upload, get_server_version, get_md5_from_file
 from .config import get_config_value, set_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
-from .helper import input_yn, print_error
+from .helper import input_yn, print_error, print_warning
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
@@ -47,7 +46,7 @@ def main():
             print("\t{}".format(build))
 
         if len(builds) > 1:
-            puts(colored.red("Warning: you seem to be uploading multiple builds. "), newline=False)
+            print_warning("Warning: you seem to be uploading multiple builds. ", newline=False)
             if not input_yn("Are you sure you want to continue?", default=False):
                 return
 
