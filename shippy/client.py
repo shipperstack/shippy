@@ -5,7 +5,7 @@ import requests
 
 from .exceptions import LoginException, UploadException
 from .constants import UNHANDLED_EXCEPTION_MSG, FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, \
-    CANNOT_CONTACT_SERVER_ERROR_MSG
+    CANNOT_CONTACT_SERVER_ERROR_MSG, FAILED_TO_LOG_IN_ERROR_MSG
 from .helper import ProgressBar, print_error
 
 
@@ -34,19 +34,23 @@ def get_server_version(server_url):
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
     login_url = "{}/maintainers/api/login/".format(server_url)
-    r = requests.post(login_url, data={'username': username, 'password': password})
+    # noinspection PyBroadException
+    try:
+        r = requests.post(login_url, data={'username': username, 'password': password})
 
-    if r.status_code == 200:
-        data = r.json()
-        return data['token']
-    elif r.status_code == 400:
-        if r.json()['error'] == "blank_username_or_password":
-            raise LoginException("Username or password must not be blank.")
-    elif r.status_code == 404:
-        if r.json()['error'] == "invalid_credential":
-            raise LoginException("Invalid credentials!")
-    else:
-        handle_undefined_response(r)
+        if r.status_code == 200:
+            data = r.json()
+            return data['token']
+        elif r.status_code == 400:
+            if r.json()['error'] == "blank_username_or_password":
+                raise LoginException("Username or password must not be blank.")
+        elif r.status_code == 404:
+            if r.json()['error'] == "invalid_credential":
+                raise LoginException("Invalid credentials!")
+        else:
+            handle_undefined_response(r)
+    except Exception as _:
+        print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG, newline=True, exit_after=True)
 
 
 def upload(server_url, build_file, checksum_file, token):

@@ -36,6 +36,7 @@ We recommend updating shippy with the following command:
 
 CANNOT_CONTACT_SERVER_ERROR_MSG = "Cannot contact the server. "
 FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG = "Failed to retrieve server version information!"
+FAILED_TO_LOG_IN_ERROR_MSG = "Failed to log into server!"
 
 UNHANDLED_EXCEPTION_MSG = """
 shippy crashed for an unknown reason. :(
