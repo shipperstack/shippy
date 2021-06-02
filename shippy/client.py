@@ -49,6 +49,8 @@ def login_to_server(username, password, server_url):
                 raise LoginException("Invalid credentials!")
         else:
             handle_undefined_response(r)
+    except LoginException as e:
+        raise e
     except Exception as _:
         print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG, newline=True, exit_after=True)
 
