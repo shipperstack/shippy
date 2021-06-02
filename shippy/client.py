@@ -64,31 +64,40 @@ def upload(server_url, build_file, checksum_file, token):
 
     with open(build_file, 'rb') as build_file_raw:
         while chunk_data := build_file_raw.read(chunk_size):
-            chunk_request = requests.put(device_upload_url, headers={
-                "Authorization": "Token {}".format(token),
-                "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
-                                                         total_file_size),
-            }, data={"filename": build_file}, files={'file': chunk_data})
+            try:
+                chunk_request = requests.put(device_upload_url, headers={
+                    "Authorization": "Token {}".format(token),
+                    "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
+                                                             total_file_size),
+                }, data={"filename": build_file}, files={'file': chunk_data})
 
-            if chunk_request.status_code == 200:
-                device_upload_url = "{}/maintainers/api/chunked_upload/{}/".format(server_url,
-                                                                                   chunk_request.json()['id'])
-                current_index += len(chunk_data)
-                bar.show(current_index)
-            elif chunk_request.status_code == 429:
-                print("shippy has been rate-limited.")
-                import re
-                wait_rate_limit(int(re.findall("\d+", chunk_request.json()['detail'])[0]))
-            else:
-                raise UploadException("Something went wrong during the upload.")
+                if chunk_request.status_code == 200:
+                    device_upload_url = "{}/maintainers/api/chunked_upload/{}/".format(server_url,
+                                                                                       chunk_request.json()['id'])
+                    current_index += len(chunk_data)
+                    bar.show(current_index)
+                elif chunk_request.status_code == 429:
+                    print("shippy has been rate-limited.")
+                    import re
+                    wait_rate_limit(int(re.findall("\d+", chunk_request.json()['detail'])[0]))
+                else:
+                    raise UploadException("Something went wrong during the upload.")
+            except Exception as _:
+                raise UploadException("Something went wrong during the upload and the connection to the server was "
+                                      "lost!")
 
     print("")  # Clear progress bar from screen
 
     # Finalize upload to begin processing
-    finalize_request = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
-                                     data={'md5': get_md5_from_file(checksum_file)})
+    try:
+        finalize_request = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+                                         data={'md5': get_md5_from_file(checksum_file)})
 
-    upload_exception_check(finalize_request, build_file)
+        upload_exception_check(finalize_request, build_file)
+    except UploadException as e:
+        raise e
+    except Exception as _:
+        raise UploadException("Something went wrong during the upload and the connection to the server was lost!")
 
 
 def get_md5_from_file(checksum_file):
