@@ -56,5 +56,8 @@ def input_yn(question, default=True):
             print("Please respond with 'yes' or 'no' (or 'y' or 'n').")
 
 
-def print_error_tag():
-    puts(colored.red("ERROR: "), newline=False)
+def print_error(msg, newline, exit_after):
+    puts(colored.red("ERROR: {}".format(msg)), newline=newline)
+
+    if exit_after:
+        exit(1)

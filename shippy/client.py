@@ -4,8 +4,9 @@ from json import JSONDecodeError
 import requests
 
 from .exceptions import LoginException, UploadException
-from .constants import UNHANDLED_EXCEPTION_MSG
-from .helper import ProgressBar, print_error_tag
+from .constants import UNHANDLED_EXCEPTION_MSG, FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, \
+    CANNOT_CONTACT_SERVER_ERROR_MSG
+from .helper import ProgressBar, print_error
 
 
 def handle_undefined_response(request):
@@ -18,13 +19,16 @@ def handle_undefined_response(request):
 def get_server_version(server_url):
     """ Gets server version in semver format """
     version_url = "{}/maintainers/api/system/".format(server_url)
-    r = requests.get(version_url)
-    if r.status_code == 200:
-        return r.json()['version']
-    else:
-        print_error_tag()
-        print("Failed to retrieve server version information!")
-        return None
+    # noinspection PyBroadException
+    try:
+        r = requests.get(version_url)
+        if r.status_code == 200:
+            return r.json()['version']
+        else:
+            print_error(msg=FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, newline=True, exit_after=True)
+    except Exception as _:
+        print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, newline=True,
+                    exit_after=True)
 
 
 def login_to_server(username, password, server_url):

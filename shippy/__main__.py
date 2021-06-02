@@ -11,7 +11,7 @@ from .client import login_to_server, upload, get_server_version, get_md5_from_fi
 from .config import get_config_value, set_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
-from .helper import input_yn, print_error_tag
+from .helper import input_yn, print_error
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
@@ -70,8 +70,8 @@ def check_server_compat(server_url):
     print("shippy is contacting the remote server... Please wait.")
     server_version = get_server_version(server_url)
     if semver.compare(server_version, server_compat_version) == -1:
-        print_error_tag()
-        print(SERVER_COMPAT_ERROR_MSG.format(server_version, server_compat_version))
+        print_error(msg=SERVER_COMPAT_ERROR_MSG.format(server_version, server_compat_version), newline=True,
+                    exit_after=True)
         exit(0)
     else:
         print("Finished compatibility check. No problems found.")
@@ -118,8 +118,7 @@ def check_build(filename):
     md5_hash = md5_hash.hexdigest()
     actual_hash = get_md5_from_file("{}.md5".format(filename))
     if md5_hash != actual_hash:
-        print_error_tag()
-        print("This build's checksum is invalid. ", end='')
+        print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
         return False
     print("MD5 hash of {} matched.".format(filename))
 
@@ -128,15 +127,13 @@ def check_build(filename):
 
     # Check build type
     if build_type != "OFFICIAL":
-        print_error_tag()
-        print("This build is not official. ", end='')
+        print_error(msg="This build is not official. ", newline=False, exit_after=False)
         return False
 
     # Check build variant
     valid_variants = ['gapps', 'vanilla', 'foss', 'goapps']
     if build_variant not in valid_variants:
-        print_error_tag()
-        print("This build has an unknown variant. ", end='')
+        print_error(msg="This build has an unknown variant. ", newline=False, exit_after=False)
         return False
 
     print("Validation of build {} complete. No problems found.".format(filename))
@@ -148,9 +145,8 @@ def get_server_url():
 
     while True:
         if "http" not in server_url:
-            print_error_tag()
             # noinspection HttpUrlsUsage
-            print("Server URL seems to be missing the schema. Please add http:// or https:// to the server URL.")
+            print_error(msg="Server URL is missing either http:// or https://.", newline=True, exit_after=False)
         else:
             break
         server_url = input("Enter the server URL: ")
@@ -175,8 +171,7 @@ def get_token(server_url):
             set_config_value("shipper", "token", token)
             return token
         except LoginException as exception:
-            print_error_tag()
-            print("{} Please try again.".format(exception))
+            print_error("{} Please try again.".format(exception), newline=True, exit_after=False)
 
 
 if __name__ == "__main__":
