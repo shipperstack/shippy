@@ -19,14 +19,13 @@ def handle_undefined_response(request):
 def get_server_version(server_url):
     """ Gets server version in semver format """
     version_url = "{}/maintainers/api/system/".format(server_url)
-    # noinspection PyBroadException
     try:
         r = requests.get(version_url)
         if r.status_code == 200:
             return r.json()['version']
         else:
             print_error(msg=FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, newline=True, exit_after=True)
-    except Exception as _:
+    except requests.exceptions.RequestException:
         print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, newline=True,
                     exit_after=True)
 
@@ -34,7 +33,6 @@ def get_server_version(server_url):
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
     login_url = "{}/maintainers/api/login/".format(server_url)
-    # noinspection PyBroadException
     try:
         r = requests.post(login_url, data={'username': username, 'password': password})
 
@@ -51,7 +49,7 @@ def login_to_server(username, password, server_url):
             handle_undefined_response(r)
     except LoginException as e:
         raise e
-    except Exception as _:
+    except requests.exceptions.RequestException:
         print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG, newline=True, exit_after=True)
 
 
@@ -84,7 +82,7 @@ def upload(server_url, build_file, checksum_file, token):
                     wait_rate_limit(int(re.findall("\d+", chunk_request.json()['detail'])[0]))
                 else:
                     raise UploadException("Something went wrong during the upload.")
-            except Exception as _:
+            except requests.exceptions.RequestException:
                 raise UploadException("Something went wrong during the upload and the connection to the server was "
                                       "lost!")
 
@@ -98,7 +96,7 @@ def upload(server_url, build_file, checksum_file, token):
         upload_exception_check(finalize_request, build_file)
     except UploadException as e:
         raise e
-    except Exception as _:
+    except requests.exceptions.RequestException:
         raise UploadException("Something went wrong during the upload and the connection to the server was lost!")
 
 
