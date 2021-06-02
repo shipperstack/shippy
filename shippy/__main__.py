@@ -39,7 +39,8 @@ def main():
     builds = get_builds_in_current_dir()
 
     if len(builds) == 0:
-        print(NO_MATCHING_FILES_FOUND_ERROR_MSG)
+        print_error(msg="No files matching the submission criteria were detected in the current directory.",
+                    newline=True, exit_after=False)
     else:
         print("Detected {} build(s):".format(len(builds)))
         for build in builds:

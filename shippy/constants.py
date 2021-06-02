@@ -6,16 +6,6 @@ We need to configure shippy before you can use it.
 
 """
 
-NO_MATCHING_FILES_FOUND_ERROR_MSG = """
-No files matching the submission criteria were detected.
-
-Please check the following:
-  1. Make sure you are in the correct directory.
-  2. Please do not rename the build artifacts.
-
-If you believe this is a problem with shippy, please contact maintainer support.
-"""
-
 SERVER_COMPAT_ERROR_MSG = """
 The server you're connecting to is out-of-date.
 If you know the server admin, please ask them to upgrade the server.
