@@ -18,7 +18,7 @@ class ProgressBar(Bar):
             self.etadelta = time.time()
             self.ittimes = \
                 self.ittimes[-ETA_SMA_WINDOW:] + \
-                    [-(self.start - time.time()) / (progress+1)]
+                [-(self.start - time.time()) / (progress + 1)]
             self.eta = \
                 sum(self.ittimes) / float(len(self.ittimes)) * \
                 (self.expected_size - progress)
