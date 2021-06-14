@@ -28,7 +28,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     packages=find_packages(exclude=("tests",)),
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=[
         "clint",
         "requests",
