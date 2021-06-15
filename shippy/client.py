@@ -63,12 +63,8 @@ def upload(server_url, build_file, checksum_file, token):
     bar = ProgressBar(expected_size=total_file_size, filled_char='=')
 
     with open(build_file, 'rb') as build_file_raw:
-        while True:
-            chunk_data = build_file_raw.read(chunk_size)
-
-            if chunk_data is None:
-                break
-
+        chunk_data = build_file_raw.read(chunk_size)
+        while chunk_data:
             try:
                 chunk_request = requests.put(device_upload_url, headers={
                     "Authorization": "Token {}".format(token),
@@ -81,6 +77,9 @@ def upload(server_url, build_file, checksum_file, token):
                                                                                        chunk_request.json()['id'])
                     current_index += len(chunk_data)
                     bar.show(current_index)
+
+                    # Read next chunk and continue
+                    chunk_data = build_file_raw.read(chunk_size)
                 elif chunk_request.status_code == 429:
                     print("shippy has been rate-limited.")
                     import re
