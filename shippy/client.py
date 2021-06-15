@@ -63,7 +63,12 @@ def upload(server_url, build_file, checksum_file, token):
     bar = ProgressBar(expected_size=total_file_size, filled_char='=')
 
     with open(build_file, 'rb') as build_file_raw:
-        while chunk_data := build_file_raw.read(chunk_size):
+        while True:
+            chunk_data = build_file_raw.read(chunk_size)
+
+            if chunk_data is None:
+                break
+
             try:
                 chunk_request = requests.put(device_upload_url, headers={
                     "Authorization": "Token {}".format(token),
