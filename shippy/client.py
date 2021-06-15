@@ -56,7 +56,7 @@ def login_to_server(username, password, server_url):
 def upload(server_url, build_file, checksum_file, token):
     device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
 
-    chunk_size = 10_000_000  # 10 MB
+    chunk_size = 10000000  # 10 MB
     current_index = 0
     total_file_size = os.path.getsize(build_file)
 
