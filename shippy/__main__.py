@@ -6,7 +6,7 @@ import requests
 import semver
 import sentry_sdk
 
-from .client import login_to_server, upload, get_server_version, get_md5_from_file
+from .client import login_to_server, upload, get_server_version, get_md5_from_file, check_token
 from .config import get_config_value, set_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
@@ -27,6 +27,8 @@ def main():
     try:
         server_url = get_config_value("shippy", "server")
         token = get_config_value("shipper", "token")
+
+        token = check_token_validity(server_url, token)
     except KeyError:
         print("No configuration file found. You need to configure shippy before you can start using it.")
         server_url = get_server_url()
@@ -75,6 +77,15 @@ def check_server_compat(server_url):
         exit(0)
     else:
         print("Finished compatibility check. No problems found.")
+
+
+def check_token_validity(server_url, token):
+    print("Checking if token is valid...")
+    if not check_token(server_url, token):
+        # Token check failed, prompt for login again
+        print("The saved token is invalid. Please sign-in again.")
+        token = get_token(server_url)
+    return token
 
 
 def check_shippy_update():

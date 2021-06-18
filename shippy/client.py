@@ -53,6 +53,17 @@ def login_to_server(username, password, server_url):
         print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG, newline=True, exit_after=True)
 
 
+def check_token(server_url, token):
+    token_check_url = "{}/maintainers/api/token_check/".format(server_url)
+    r = requests.get(token_check_url, headers={"Authorization": "Token {}".format(token)})
+
+    if r.status_code == 200:
+        print("Successfully validated token! Hello, {}.".format(r.json()['username']))
+        return True
+    else:
+        return False
+
+
 def upload(server_url, build_file, checksum_file, token):
     device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
 
