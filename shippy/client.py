@@ -170,7 +170,7 @@ def check_build_disable(server_url, token, build_id):
         # Not defined
         return
 
-    if disable_build_on_upload == "yes":
+    if disable_build_on_upload == "true":
         disable_build_url = "{}/maintainers/api/build/enabled_status_modify/".format(server_url)
         r = requests.get(disable_build_url, headers={"Authorization": "Token {}".format(token)},
                          data={"build_id": build_id, "enable": False})
