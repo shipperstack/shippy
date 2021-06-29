@@ -30,7 +30,8 @@ def main():
 
         token = check_token_validity(server_url, token)
     except KeyError:
-        print("No configuration file found. You need to configure shippy before you can start using it.")
+        print("No configuration file found or configuration is invalid. You need to configure shippy before you can "
+              "start using it.")
         server_url = get_server_url()
         token = get_token(server_url)
 
