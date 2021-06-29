@@ -26,7 +26,7 @@ def main():
 
     try:
         server_url = get_config_value("shippy", "server")
-        token = get_config_value("shipper", "token")
+        token = get_config_value("shippy", "token")
 
         token = check_token_validity(server_url, token)
     except KeyError:
@@ -184,7 +184,7 @@ def get_token(server_url):
 
             try:
                 token = login_to_server(username, password, server_url)
-                set_config_value("shipper", "token", token)
+                set_config_value("shippy", "token", token)
                 return token
             except LoginException as exception:
                 print_error("{} Please try again.".format(exception), newline=True, exit_after=False)
