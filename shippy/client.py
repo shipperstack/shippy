@@ -7,6 +7,7 @@ from .exceptions import LoginException, UploadException
 from .constants import UNHANDLED_EXCEPTION_MSG, FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, \
     CANNOT_CONTACT_SERVER_ERROR_MSG, FAILED_TO_LOG_IN_ERROR_MSG
 from .helper import ProgressBar, print_error
+from .config import get_config_value
 
 
 def handle_undefined_response(request):
@@ -109,6 +110,9 @@ def upload(server_url, build_file, checksum_file, token):
                                          data={'md5': get_md5_from_file(checksum_file)})
 
         upload_exception_check(finalize_request, build_file)
+
+        # Check if build should be disabled immediately after run
+        check_build_disable(server_url, token, finalize_request.json()['build_id'])
     except UploadException as e:
         raise e
     except requests.exceptions.RequestException:
@@ -157,3 +161,23 @@ def upload_exception_check(request, build_file):
         raise UploadException("Something went wrong with the server. Please contact the admins.")
 
     handle_undefined_response(request)
+
+
+def check_build_disable(server_url, token, build_id):
+    try:
+        disable_build_on_upload = get_config_value("shippy", "DisableBuildOnUpload")
+    except KeyError:
+        # Not defined
+        return
+
+    if disable_build_on_upload == "yes":
+        disable_build_url = "{}/maintainers/api/build/enabled_status_modify/".format(server_url)
+        r = requests.get(disable_build_url, headers={"Authorization": "Token {}".format(token)},
+                         data={"build_id": build_id, "enable": False})
+
+        if r.status_code == 200:
+            print("Build has been automatically disabled, following configuration.")
+            print("If this is unexpected, please check your configuration.")
+        else:
+            print("There was a problem disabling the build.")
+
