@@ -1,3 +1,4 @@
+import argparse
 import glob
 import hashlib
 import os.path
@@ -5,7 +6,6 @@ import os.path
 import requests
 import semver
 import sentry_sdk
-import argparse
 
 from .client import login_to_server, upload, get_server_version, get_md5_from_file, check_token
 from .config import get_config_value, set_config_value, get_optional_true_config_value
