@@ -33,9 +33,15 @@ def set_config_value(section, key, value):
     config_save()
 
 
+def delete_deprecated_config():
+    if config.has_section('shipper'):
+        config.remove_section('shipper')
+
+
 def config_init():
     if not config.has_section('shippy'):
         config.add_section('shippy')
+    delete_deprecated_config()
 
 
 def config_save():
