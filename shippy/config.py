@@ -21,6 +21,8 @@ def get_optional_true_config_value(section, key):
         value = (config[section][key] == "true")
         return value
     except KeyError:
+        # Set default to false so users can change it later
+        set_config_value(section, key, "false")
         return False
 
 
