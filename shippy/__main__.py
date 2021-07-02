@@ -82,6 +82,7 @@ def init_argparse():
     parser.add_argument('-y', '--yes', action='store_true', help='Upload builds automatically without prompting')
     return parser.parse_args()
 
+
 def check_server_compat(server_url):
     print("shippy is contacting the remote server... Please wait.")
     server_version = get_server_version(server_url)
