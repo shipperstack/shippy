@@ -9,6 +9,7 @@ CONFIGURATION_FILE = "{}/.shippy.ini".format(home_dir)
 
 # Load configuration
 config = configparser.ConfigParser()
+config.optionxform = str
 config.read(CONFIGURATION_FILE)
 
 
