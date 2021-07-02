@@ -35,8 +35,6 @@ def set_config_value(section, key, value):
 def config_init():
     if not config.has_section('shippy'):
         config.add_section('shippy')
-    if not config.has_section('shipper'):
-        config.add_section('shipper')
 
 
 def config_save():
