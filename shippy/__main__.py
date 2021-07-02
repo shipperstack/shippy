@@ -7,7 +7,7 @@ import semver
 import sentry_sdk
 
 from .client import login_to_server, upload, get_server_version, get_md5_from_file, check_token
-from .config import get_config_value, set_config_value
+from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
 from .helper import input_yn, print_error, print_warning
@@ -35,6 +35,8 @@ def main():
         server_url = get_server_url()
         token = get_token(server_url)
 
+    upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
+
     check_server_compat(server_url)
 
     # Search current directory for files
@@ -48,7 +50,7 @@ def main():
         for build in builds:
             print("\t{}".format(build))
 
-        if len(builds) > 1:
+        if not upload_without_prompt and len(builds) > 1:
             print_warning("Warning: you seem to be uploading multiple builds. ", newline=False)
             if not input_yn("Are you sure you want to continue?", default=False):
                 return
@@ -59,7 +61,7 @@ def main():
                 print("Invalid build. Skipping...")
                 continue
 
-            if input_yn("Uploading build {}. Start?".format(build)):
+            if upload_without_prompt or input_yn("Uploading build {}. Start?".format(build)):
                 try:
                     upload(server_url=server_url,
                            build_file=build,
