@@ -16,6 +16,14 @@ def get_config_value(section, key):
     return config[section][key]
 
 
+def get_optional_true_config_value(section, key):
+    try:
+        value = (config[section][key] == "true")
+        return value
+    except KeyError:
+        return False
+
+
 def set_config_value(section, key, value):
     config_init()
     config[section][key] = value
