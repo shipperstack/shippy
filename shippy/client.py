@@ -180,4 +180,3 @@ def check_build_disable(server_url, token, build_id):
             print("If this is unexpected, please check your configuration.")
         else:
             print("There was a problem disabling the build.")
-
