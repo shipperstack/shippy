@@ -5,6 +5,7 @@ import os.path
 import requests
 import semver
 import sentry_sdk
+import argparse
 
 from .client import login_to_server, upload, get_server_version, get_md5_from_file, check_token
 from .config import get_config_value, set_config_value, get_optional_true_config_value
@@ -35,7 +36,12 @@ def main():
         server_url = get_server_url()
         token = get_token(server_url)
 
+    # Check if we cannot prompt the user (default to auto-upload)
     upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
+
+    # Get commandline arguments
+    args = init_argparse()
+    upload_without_prompt = upload_without_prompt or args.yes
 
     check_server_compat(server_url)
 
@@ -70,6 +76,11 @@ def main():
                 except UploadException as exception:
                     print(exception)
 
+
+def init_argparse():
+    parser = argparse.ArgumentParser(description="Client-side tool for interfacing with shipper")
+    parser.add_argument('-y', '--yes', action='store_true', help='Upload builds automatically without prompting')
+    return parser.parse_args()
 
 def check_server_compat(server_url):
     print("shippy is contacting the remote server... Please wait.")
