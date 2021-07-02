@@ -165,12 +165,12 @@ def upload_exception_check(request, build_file):
 
 def check_build_disable(server_url, token, build_id):
     try:
-        disable_build_on_upload = get_config_value("shippy", "DisableBuildOnUpload")
+        disable_build_on_upload = (get_config_value("shippy", "DisableBuildOnUpload") == "true")
     except KeyError:
         # Not defined
         return
 
-    if disable_build_on_upload == "true":
+    if disable_build_on_upload:
         disable_build_url = "{}/maintainers/api/build/enabled_status_modify/".format(server_url)
         r = requests.get(disable_build_url, headers={"Authorization": "Token {}".format(token)},
                          data={"build_id": build_id, "enable": False})
