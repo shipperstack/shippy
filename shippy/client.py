@@ -3,11 +3,11 @@ from json import JSONDecodeError
 
 import requests
 
-from .exceptions import LoginException, UploadException
+from .config import get_config_value
 from .constants import UNHANDLED_EXCEPTION_MSG, FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, \
     CANNOT_CONTACT_SERVER_ERROR_MSG, FAILED_TO_LOG_IN_ERROR_MSG
+from .exceptions import LoginException, UploadException
 from .helper import ProgressBar, print_error
-from .config import get_config_value
 
 
 def handle_undefined_response(request):
