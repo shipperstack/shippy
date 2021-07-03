@@ -68,8 +68,7 @@ def check_token(server_url, token):
     if r.status_code == 200:
         print("Successfully validated token! Hello, {}.".format(r.json()['username']))
         return True
-    else:
-        return False
+    return False
 
 
 def upload(server_url, build_file, checksum_file, token):
