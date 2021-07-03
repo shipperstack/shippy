@@ -3,7 +3,7 @@ from json import JSONDecodeError
 
 import requests
 
-from .config import get_config_value
+from .config import get_config_value, set_config_value
 from .constants import UNHANDLED_EXCEPTION_MSG, FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, \
     CANNOT_CONTACT_SERVER_ERROR_MSG, FAILED_TO_LOG_IN_ERROR_MSG
 from .exceptions import LoginException, UploadException
@@ -46,6 +46,14 @@ def login_to_server(username, password, server_url):
         elif r.status_code == 404:
             if r.json()['error'] == "invalid_credential":
                 raise LoginException("Invalid credentials!")
+        # Really, really weird edge case where HTTP URLs would redirect and cause a GET request
+        elif r.status_code == 405 and r.json()['detail'] == 'Method "GET" not allowed.' and server_url[0:5] == "http:":
+            print("It seems like you entered a HTTP address when setting up shippy, but the server instance uses "
+                  "HTTPS. shippy automatically corrected your server URL in the configuration file.")
+            server_url = "https://{}".format(server_url[7:])
+            set_config_value("shippy", "server", server_url)
+            # Attempt logging in again
+            return login_to_server(username, password, server_url)
         else:
             handle_undefined_response(r)
     except LoginException as e:
