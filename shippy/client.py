@@ -164,7 +164,7 @@ def upload_exception_check(request, build_file):
     elif request.status_code == 404:
         raise UploadException("Your device isn't registered on shipper. Please contact an admin to add your device.")
     elif int(request.status_code / 100) == 5:
-        raise UploadException("Something went wrong with the server. Please contact the admins.")
+        raise UploadException("An internal server error occurred. Please contact the admins.")
 
     handle_undefined_response(request)
 
