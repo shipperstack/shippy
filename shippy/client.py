@@ -52,8 +52,9 @@ def login_to_server(username, password, server_url):
             set_config_value("shippy", "server", server_url)
             # Attempt logging in again
             return login_to_server(username, password, server_url)
-        else:
-            handle_undefined_response(r)
+
+        # Returned status code matches no scenario, abort
+        handle_undefined_response(r)
     except LoginException as e:
         raise e
     except requests.exceptions.RequestException:
