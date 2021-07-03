@@ -36,6 +36,9 @@ def main():
         server_url = get_server_url()
         token = get_token(server_url)
 
+        # In case login function updated server URL, we need to fetch it again
+        server_url = get_config_value("shippy", "server")
+
     # Check if we cannot prompt the user (default to auto-upload)
     upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
 
