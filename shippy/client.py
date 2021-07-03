@@ -40,12 +40,10 @@ def login_to_server(username, password, server_url):
         if r.status_code == 200:
             data = r.json()
             return data['token']
-        elif r.status_code == 400:
-            if r.json()['error'] == "blank_username_or_password":
-                raise LoginException("Username or password must not be blank.")
-        elif r.status_code == 404:
-            if r.json()['error'] == "invalid_credential":
-                raise LoginException("Invalid credentials!")
+        elif r.status_code == 400 and r.json()['error'] == "blank_username_or_password":
+            raise LoginException("Username or password must not be blank.")
+        elif r.status_code == 404 and r.json()['error'] == "invalid_credential":
+            raise LoginException("Invalid credentials!")
         # Really, really weird edge case where HTTP URLs would redirect and cause a GET request
         elif r.status_code == 405 and r.json()['detail'] == 'Method "GET" not allowed.' and server_url[0:5] == "http:":
             print("It seems like you entered a HTTP address when setting up shippy, but the server instance uses "
