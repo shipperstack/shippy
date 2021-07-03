@@ -77,7 +77,7 @@ def main():
                            checksum_file="{}.md5".format(build),
                            token=token)
                 except UploadException as exception:
-                    print(exception)
+                    print_error(exception, newline=True, exit_after=False)
 
 
 def init_argparse():
