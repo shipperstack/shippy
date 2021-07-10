@@ -19,7 +19,7 @@ def handle_undefined_response(request):
 
 def get_server_version(server_url):
     """ Gets server version in semver format """
-    version_url = "{}/maintainers/api/system/".format(server_url)
+    version_url = "{}/api/v1/system/info/".format(server_url)
     try:
         r = requests.get(version_url)
         if r.status_code == 200:
@@ -33,7 +33,7 @@ def get_server_version(server_url):
 
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
-    login_url = "{}/maintainers/api/login/".format(server_url)
+    login_url = "{}/api/v1/maintainers/login/".format(server_url)
     try:
         r = requests.post(login_url, data={'username': username, 'password': password})
 
@@ -62,7 +62,7 @@ def login_to_server(username, password, server_url):
 
 
 def check_token(server_url, token):
-    token_check_url = "{}/maintainers/api/token_check/".format(server_url)
+    token_check_url = "{}/api/v1/maintainers/token_check/".format(server_url)
     r = requests.get(token_check_url, headers={"Authorization": "Token {}".format(token)})
 
     if r.status_code == 200:
@@ -72,7 +72,7 @@ def check_token(server_url, token):
 
 
 def upload(server_url, build_file, checksum_file, token):
-    device_upload_url = "{}/maintainers/api/chunked_upload/".format(server_url)
+    device_upload_url = "{}/api/v1/maintainers/chunked_upload/".format(server_url)
 
     chunk_size = 10000000  # 10 MB
     current_index = 0
@@ -91,8 +91,8 @@ def upload(server_url, build_file, checksum_file, token):
                 }, data={"filename": build_file}, files={'file': chunk_data})
 
                 if chunk_request.status_code == 200:
-                    device_upload_url = "{}/maintainers/api/chunked_upload/{}/".format(server_url,
-                                                                                       chunk_request.json()['id'])
+                    device_upload_url = "{}/api/v1/maintainers/chunked_upload/{}/".format(server_url,
+                                                                                          chunk_request.json()['id'])
                     current_index += len(chunk_data)
                     bar.show(current_index)
 
@@ -177,7 +177,7 @@ def check_build_disable(server_url, token, build_id):
         return
 
     if disable_build_on_upload:
-        disable_build_url = "{}/maintainers/api/build/enabled_status_modify/".format(server_url)
+        disable_build_url = "{}/api/v1/maintainers/build/enabled_status_modify/".format(server_url)
         r = requests.get(disable_build_url, headers={"Authorization": "Token {}".format(token)},
                          data={"build_id": build_id, "enable": False})
 
