@@ -13,7 +13,7 @@ Client-side tool to interface with shipper
 Get shippy from PyPI:
 
 ```shell
-pip3 install shipper-shippy
+pip3 install --upgrade shipper-shippy
 ```
 
 Go to the directory with build files, and run:
