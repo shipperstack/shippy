@@ -2,6 +2,15 @@ import os.path
 import requests
 
 from json import JSONDecodeError
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    TextColumn,
+    TimeRemainingColumn,
+    TransferSpeedColumn,
+)
+
 from .config import get_config_value, set_config_value
 from .constants import (
     UNHANDLED_EXCEPTION_MSG,
@@ -11,7 +20,21 @@ from .constants import (
     UNEXPECTED_SERVER_RESPONSE_ERROR_MSG
 )
 from .exceptions import LoginException, UploadException
-from .helper import ProgressBar, print_error
+from .helper import print_error
+
+# Set up progress bar
+progress = Progress(
+    TextColumn("[progress.description]{task.description}"),
+    BarColumn(),
+    "[progress.percentage]{task.percentage:>3.1f}%",
+    "•",
+    DownloadColumn(),
+    "•",
+    TransferSpeedColumn(),
+    "•",
+    TimeRemainingColumn(),
+    transient=True
+)
 
 
 def handle_undefined_response(request):
@@ -84,35 +107,36 @@ def upload(server_url, build_file, checksum_file, token):
     current_index = 0
     total_file_size = os.path.getsize(build_file)
 
-    bar = ProgressBar(expected_size=total_file_size, filled_char='=')
+    with progress:
+        upload_progress = progress.add_task("[green]Uploading...", total=total_file_size)
 
-    with open(build_file, 'rb') as build_file_raw:
-        chunk_data = build_file_raw.read(chunk_size)
-        while chunk_data:
-            try:
-                chunk_request = requests.put(device_upload_url, headers={
-                    "Authorization": "Token {}".format(token),
-                    "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
-                                                             total_file_size),
-                }, data={"filename": build_file}, files={'file': chunk_data})
+        with open(build_file, 'rb') as build_file_raw:
+            chunk_data = build_file_raw.read(chunk_size)
+            while chunk_data:
+                try:
+                    chunk_request = requests.put(device_upload_url, headers={
+                        "Authorization": "Token {}".format(token),
+                        "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
+                                                                total_file_size),
+                    }, data={"filename": build_file}, files={'file': chunk_data})
 
-                if chunk_request.status_code == 200:
-                    device_upload_url = "{}/api/v1/maintainers/chunked_upload/{}/".format(server_url,
-                                                                                          chunk_request.json()['id'])
-                    current_index += len(chunk_data)
-                    bar.show(current_index)
-
-                    # Read next chunk and continue
-                    chunk_data = build_file_raw.read(chunk_size)
-                elif chunk_request.status_code == 429:
-                    print("shippy has been rate-limited.")
-                    import re
-                    wait_rate_limit(int(re.findall("\d+", chunk_request.json()['detail'])[0]))
-                else:
-                    raise UploadException("Something went wrong during the upload.")
-            except requests.exceptions.RequestException:
-                raise UploadException("Something went wrong during the upload and the connection to the server was "
-                                      "lost!")
+                    if chunk_request.status_code == 200:
+                        device_upload_url = "{}/api/v1/maintainers/chunked_upload/{}/".format(server_url,
+                                                                                            chunk_request.json()['id'])
+                        current_index += len(chunk_data)
+                        progress.update(upload_progress, completed=current_index)
+                        
+                        # Read next chunk and continue
+                        chunk_data = build_file_raw.read(chunk_size)
+                    elif chunk_request.status_code == 429:
+                        print("shippy has been rate-limited.")
+                        import re
+                        wait_rate_limit(int(re.findall("\d+", chunk_request.json()['detail'])[0]))
+                    else:
+                        raise UploadException("Something went wrong during the upload.")
+                except requests.exceptions.RequestException:
+                    raise UploadException("Something went wrong during the upload and the connection to the server was "
+                                        "lost!")
 
     print("")  # Clear progress bar from screen
 
