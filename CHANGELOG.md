@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
+# [1.5.2] - 2022-02-19
+
+## Changed
+- Use `rich` module for all text output and spinner/progress indicators
+- Clean up dependencies
+- Updated library dependencies
+
 
 # [1.5.1] - 2021-07-11
 
