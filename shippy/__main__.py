@@ -22,9 +22,17 @@ sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=__version__, ign
 def main():
     print("Welcome to shippy (v.{})!".format(__version__))
 
+    # Check if we cannot prompt the user (default to auto-upload)
+    upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
+
+    # Get commandline arguments
+    args = init_argparse()
+    upload_without_prompt = upload_without_prompt or args.yes
+
     # Check for updates
     check_shippy_update()
 
+    # Check if server config is valid
     try:
         server_url = get_config_value("shippy", "server")
         token = get_config_value("shippy", "token")
@@ -39,13 +47,7 @@ def main():
         # In case login function updated server URL, we need to fetch it again
         server_url = get_config_value("shippy", "server")
 
-    # Check if we cannot prompt the user (default to auto-upload)
-    upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
-
-    # Get commandline arguments
-    args = init_argparse()
-    upload_without_prompt = upload_without_prompt or args.yes
-
+    # Check server version compatibility
     check_server_compat(server_url)
 
     # Search current directory for files
