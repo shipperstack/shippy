@@ -7,16 +7,21 @@ import requests
 import semver
 import sentry_sdk
 
+from rich import print
+from rich.console import Console
+
 from .client import login_to_server, upload, get_server_version, get_md5_from_file, check_token
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
-from .helper import input_yn, print_error, print_warning, AsyncSpinner
+from .helper import input_yn, print_error, print_warning
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
 
 sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=__version__, ignore_errors=ignore_errors)
+
+console = Console()
 
 
 def main():
@@ -89,10 +94,9 @@ def init_argparse():
 
 
 def check_server_compat(server_url):
-    spinner = AsyncSpinner("Please wait while shippy contacts the remote server to check compatibility... ")
-    spinner.start()
-    server_version = get_server_version(server_url)
-    spinner.stop()
+    with console.status("Please wait while shippy contacts the remote server to check compatibility... ") as status:
+        server_version = get_server_version(server_url)
+
     if semver.compare(server_version, server_compat_version) == -1:
         print_error(msg=SERVER_COMPAT_ERROR_MSG.format(server_version, server_compat_version), newline=True,
                     exit_after=True)
@@ -102,10 +106,9 @@ def check_server_compat(server_url):
 
 
 def check_token_validity(server_url, token):
-    spinner = AsyncSpinner("Please wait while shippy contacts the remote server to check if the token is still valid... ")
-    spinner.start()
-    is_token_valid = check_token(server_url, token)
-    spinner.stop()
+    with console.status("Please wait while shippy contacts the remote server to check if the token is still valid... ") as status:
+        is_token_valid = check_token(server_url, token)
+
     if not is_token_valid:
         # Token check failed, prompt for login again
         print("The saved token is invalid. Please sign-in again.")
@@ -114,11 +117,9 @@ def check_token_validity(server_url, token):
 
 
 def check_shippy_update():
-    spinner = AsyncSpinner("Please wait while shippy checks for updates... ")
-    spinner.start()
-    r = requests.get("https://api.github.com/repos/ericswpark/shippy/releases/latest")
-    latest_version = r.json()['name']
-    spinner.stop()
+    with console.status("Please wait while shippy checks for updates... ") as status:
+        r = requests.get("https://api.github.com/repos/ericswpark/shippy/releases/latest")
+        latest_version = r.json()['name']
 
     if semver.compare(__version__, latest_version) == -1:
         print(SHIPPY_OUTDATED_MSG.format(__version__, latest_version))
@@ -130,12 +131,11 @@ def get_builds_in_current_dir():
     builds = []
     glob_match = 'Bliss-v*.zip'
 
-    print("Detecting builds in current directory...")
+    with console.status("Detecting builds in current directory...") as status:
+        for file in glob.glob(glob_match):
+            builds.append(file)
 
-    for file in glob.glob(glob_match):
-        builds.append(file)
-
-    return builds
+        return builds
 
 
 def check_build(filename):
@@ -148,19 +148,17 @@ def check_build(filename):
         return False
 
     # Validate checksum
-    spinner = AsyncSpinner("Checking MD5 hash of {}... this may take a couple of seconds. ".format(filename))
-    spinner.start()
-    md5_hash = hashlib.md5()
-    with open(filename, "rb") as build_file:
-        content = build_file.read()
-        md5_hash.update(content)
-    md5_hash = md5_hash.hexdigest()
-    actual_hash = get_md5_from_file("{}.md5".format(filename))
-    spinner.stop()
-    if md5_hash != actual_hash:
-        print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
-        return False
-    print("MD5 hash of {} matched.".format(filename))
+    with console.status("Checking MD5 hash of {}... this may take a couple of seconds. ".format(filename)) as status:
+        md5_hash = hashlib.md5()
+        with open(filename, "rb") as build_file:
+            content = build_file.read()
+            md5_hash.update(content)
+        md5_hash = md5_hash.hexdigest()
+        actual_hash = get_md5_from_file("{}.md5".format(filename))
+        if md5_hash != actual_hash:
+            print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
+            return False
+        print("MD5 hash of {} matched.".format(filename))
 
     build_slug, _ = os.path.splitext(filename)
     _, _, _, build_type, build_variant, _ = build_slug.split('-')

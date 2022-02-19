@@ -4,10 +4,8 @@ import threading
 
 from clint.textui import puts, colored
 from clint.textui.progress import Bar, ETA_INTERVAL, ETA_SMA_WINDOW, STREAM
-from progress.spinner import Spinner
 
 BAR_TEMPLATE = '%s[%s%s] %i%% - %s/%s - %s\r'
-
 
 class ProgressBar(Bar):
     def show(self, progress, count=None):
@@ -35,23 +33,6 @@ class ProgressBar(Bar):
                     humanize.naturalsize(progress),
                     humanize.naturalsize(self.expected_size), self.etadisp))
                 STREAM.flush()
-
-
-class AsyncSpinner(threading.Thread):
-    def __init__(self, text):
-        threading.Thread.__init__(self)
-        self._stopcon = False
-        self._spinner = Spinner(text)
-    
-    def run(self):
-        while not self._stopcon:
-            time.sleep(0.1)
-            self._spinner.next()
-        print("") # Newline
-    
-    def stop(self):
-        self._stopcon = True
-        self.join()
 
 
 def input_yn(question, default=True):
