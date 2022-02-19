@@ -11,7 +11,7 @@ from .client import login_to_server, upload, get_server_version, get_md5_from_fi
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
-from .helper import input_yn, print_error, print_warning
+from .helper import input_yn, print_error, print_warning, AsyncSpinner
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
@@ -87,8 +87,10 @@ def init_argparse():
 
 
 def check_server_compat(server_url):
-    print("shippy is contacting the remote server... Please wait.")
+    spinner = AsyncSpinner("Please wait while shippy contacts the remote server to check compatibility... ")
+    spinner.start()
     server_version = get_server_version(server_url)
+    spinner.stop()
     if semver.compare(server_version, server_compat_version) == -1:
         print_error(msg=SERVER_COMPAT_ERROR_MSG.format(server_version, server_compat_version), newline=True,
                     exit_after=True)
@@ -98,8 +100,11 @@ def check_server_compat(server_url):
 
 
 def check_token_validity(server_url, token):
-    print("Checking if token is valid...")
-    if not check_token(server_url, token):
+    spinner = AsyncSpinner("Please wait while shippy contacts the remote server to check if the token is still valid... ")
+    spinner.start()
+    is_token_valid = check_token(server_url, token)
+    spinner.stop()
+    if not is_token_valid:
         # Token check failed, prompt for login again
         print("The saved token is invalid. Please sign-in again.")
         token = get_token(server_url)
@@ -107,9 +112,11 @@ def check_token_validity(server_url, token):
 
 
 def check_shippy_update():
-    print("Checking for updates...")
+    spinner = AsyncSpinner("Please wait while shippy checks for updates... ")
+    spinner.start()
     r = requests.get("https://api.github.com/repos/ericswpark/shippy/releases/latest")
     latest_version = r.json()['name']
+    spinner.stop()
 
     if semver.compare(__version__, latest_version) == -1:
         print(SHIPPY_OUTDATED_MSG.format(__version__, latest_version))
@@ -139,13 +146,15 @@ def check_build(filename):
         return False
 
     # Validate checksum
-    print("Checking MD5 hash of {}... this may take a couple of seconds.".format(filename))
+    spinner = AsyncSpinner("Checking MD5 hash of {}... this may take a couple of seconds. ".format(filename))
+    spinner.start()
     md5_hash = hashlib.md5()
     with open(filename, "rb") as build_file:
         content = build_file.read()
         md5_hash.update(content)
     md5_hash = md5_hash.hexdigest()
     actual_hash = get_md5_from_file("{}.md5".format(filename))
+    spinner.stop()
     if md5_hash != actual_hash:
         print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
         return False
