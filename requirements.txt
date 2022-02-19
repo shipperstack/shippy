@@ -1,7 +1,7 @@
 clint==0.5.1
 requests==2.25.1
-requests-toolbelt
+requests-toolbelt==0.9.1
 semver==2.13.0
-sentry-sdk
+sentry-sdk==1.5.5
 humanize==3.5.0
 setuptools==56.0.0
