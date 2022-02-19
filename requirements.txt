@@ -6,3 +6,4 @@ sentry-sdk==1.5.5
 humanize==3.5.0
 setuptools==56.0.0
 progress==1.6
+rich==11.2.0
