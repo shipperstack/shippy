@@ -51,6 +51,7 @@ class AsyncSpinner(threading.Thread):
     
     def stop(self):
         self._stop = True
+        time.sleep(0.5) # Wait 0.5 seconds for thread to terminate
 
 
 def input_yn(question, default=True):
