@@ -1,11 +1,15 @@
 import os.path
-from json import JSONDecodeError
-
 import requests
 
+from json import JSONDecodeError
 from .config import get_config_value, set_config_value
-from .constants import UNHANDLED_EXCEPTION_MSG, FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, \
-    CANNOT_CONTACT_SERVER_ERROR_MSG, FAILED_TO_LOG_IN_ERROR_MSG, UNEXPECTED_SERVER_RESPONSE_ERROR_MSG
+from .constants import (
+    UNHANDLED_EXCEPTION_MSG,
+    FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG,
+    CANNOT_CONTACT_SERVER_ERROR_MSG,
+    FAILED_TO_LOG_IN_ERROR_MSG,
+    UNEXPECTED_SERVER_RESPONSE_ERROR_MSG
+)
 from .exceptions import LoginException, UploadException
 from .helper import ProgressBar, print_error
 
