@@ -30,12 +30,11 @@ setup(
     packages=find_packages(exclude=("tests",)),
     python_requires=">=3.5",
     install_requires=[
-        "clint",
         "requests",
-        "requests-toolbelt",
         "semver",
         "sentry-sdk",
-        "humanize"
+        "humanize",
+        "rich",
     ],
     entry_points={
         "console_scripts": [
