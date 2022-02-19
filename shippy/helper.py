@@ -22,11 +22,11 @@ def input_yn(question, default=True):
 
 
 def print_error(msg, newline, exit_after):
-    print("[red]ERROR: {}".format(msg)), newline=newline)
+    print("[red]ERROR: {}".format(msg), newline=newline)
 
     if exit_after:
         exit(1)
 
 
 def print_warning(msg, newline):
-    print("[yellow]Warning: {}".format(msg)), newline=newline)
+    print("[yellow]Warning: {}".format(msg), newline=newline)
