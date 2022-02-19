@@ -40,18 +40,18 @@ class ProgressBar(Bar):
 class AsyncSpinner(threading.Thread):
     def __init__(self, text):
         threading.Thread.__init__(self)
-        self._stop = False
+        self._stopcon = False
         self._spinner = Spinner(text)
     
     def run(self):
-        while not self._stop:
+        while not self._stopcon:
             time.sleep(0.1)
             self._spinner.next()
         print("") # Newline
     
     def stop(self):
-        self._stop = True
-        time.sleep(0.5) # Wait 0.5 seconds for thread to terminate
+        self._stopcon = True
+        self.join()
 
 
 def input_yn(question, default=True):
