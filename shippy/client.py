@@ -105,7 +105,7 @@ def upload(server_url, build_file, checksum_file, token):
     """ Upload given build files to specified server with token """
     device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
 
-    chunk_size = 10000000  # 10 MB
+    chunk_size = 1000000  # 1 MB
     current_index = 0
     total_file_size = os.path.getsize(build_file)
 
