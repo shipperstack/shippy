@@ -38,6 +38,7 @@ progress = Progress(
 
 
 def handle_undefined_response(request):
+    """ Handles undefined responses sent back by the server """
     try:
         raise Exception(UNHANDLED_EXCEPTION_MSG.format(request.url, request.status_code, request.json()))
     except JSONDecodeError:
@@ -59,7 +60,7 @@ def get_server_version(server_url):
 
 
 def login_to_server(username, password, server_url):
-    """ Logs in to server and returns authorization token """
+    """ Authenticates to server and returns authorization token """
     login_url = f"{server_url}/api/v1/maintainers/login/"
     try:
         r = requests.post(login_url, data={'username': username, 'password': password})
@@ -101,6 +102,7 @@ def check_token(server_url, token):
 
 
 def upload(server_url, build_file, checksum_file, token):
+    """ Upload given build files to specified server with token """
     device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
 
     chunk_size = 10000000  # 10 MB
