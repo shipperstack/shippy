@@ -138,8 +138,6 @@ def upload(server_url, build_file, checksum_file, token):
                     raise UploadException("Something went wrong during the upload and the connection to the server was "
                                         "lost!")
 
-    print("")  # Clear progress bar from screen
-
     # Finalize upload to begin processing
     try:
         finalize_request = requests.post(device_upload_url, headers={"Authorization": f"Token {token}"},
