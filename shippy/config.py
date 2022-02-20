@@ -5,7 +5,7 @@ from pathlib import Path
 home_dir = str(Path.home())
 
 # Constants
-CONFIGURATION_FILE = "{}/.shippy.ini".format(home_dir)
+CONFIGURATION_FILE = f"{home_dir}/.shippy.ini"
 
 # Load configuration
 config = configparser.ConfigParser()

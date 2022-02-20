@@ -46,7 +46,7 @@ def handle_undefined_response(request):
 
 def get_server_version(server_url):
     """ Gets server version in semver format """
-    version_url = "{}/api/v1/system/info/".format(server_url)
+    version_url = f"{server_url}/api/v1/system/info/"
     try:
         r = requests.get(version_url)
         if r.status_code == 200:
@@ -60,7 +60,7 @@ def get_server_version(server_url):
 
 def login_to_server(username, password, server_url):
     """ Logs in to server and returns authorization token """
-    login_url = "{}/api/v1/maintainers/login/".format(server_url)
+    login_url = f"{server_url}/api/v1/maintainers/login/"
     try:
         r = requests.post(login_url, data={'username': username, 'password': password})
 
@@ -75,7 +75,7 @@ def login_to_server(username, password, server_url):
         elif r.status_code == 405 and r.json()['detail'] == 'Method "GET" not allowed.' and server_url[0:5] == "http:":
             print("It seems like you entered a HTTP address when setting up shippy, but the server instance uses "
                   "HTTPS. shippy automatically corrected your server URL in the configuration file.")
-            server_url = "https://{}".format(server_url[7:])
+            server_url = f"https://{server_url[7:]}"
             set_config_value("shippy", "server", server_url)
             # Attempt logging in again
             return login_to_server(username, password, server_url)
@@ -91,17 +91,17 @@ def login_to_server(username, password, server_url):
 
 
 def check_token(server_url, token):
-    token_check_url = "{}/api/v1/maintainers/token_check/".format(server_url)
-    r = requests.get(token_check_url, headers={"Authorization": "Token {}".format(token)})
+    token_check_url = f"{server_url}/api/v1/maintainers/token_check/"
+    r = requests.get(token_check_url, headers={"Authorization": f"Token {token}"})
 
     if r.status_code == 200:
-        print("Successfully validated token! Hello, {}.".format(r.json()['username']))
+        print(f"Successfully validated token! Hello, {r.json()['username']}.")
         return True
     return False
 
 
 def upload(server_url, build_file, checksum_file, token):
-    device_upload_url = "{}/api/v1/maintainers/chunked_upload/".format(server_url)
+    device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
 
     chunk_size = 10000000  # 10 MB
     current_index = 0
@@ -115,14 +115,12 @@ def upload(server_url, build_file, checksum_file, token):
             while chunk_data:
                 try:
                     chunk_request = requests.put(device_upload_url, headers={
-                        "Authorization": "Token {}".format(token),
-                        "Content-Range": "bytes {}-{}/{}".format(current_index, current_index + len(chunk_data) - 1,
-                                                                total_file_size),
+                        "Authorization": f"Token {token}",
+                        "Content-Range": f"bytes {current_index}-{current_index + len(chunk_data) - 1}/{total_file_size}",
                     }, data={"filename": build_file}, files={'file': chunk_data})
 
                     if chunk_request.status_code == 200:
-                        device_upload_url = "{}/api/v1/maintainers/chunked_upload/{}/".format(server_url,
-                                                                                            chunk_request.json()['id'])
+                        device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/{chunk_request.json()['id']}/"
                         current_index += len(chunk_data)
                         progress.update(upload_progress, completed=current_index)
                         
@@ -142,7 +140,7 @@ def upload(server_url, build_file, checksum_file, token):
 
     # Finalize upload to begin processing
     try:
-        finalize_request = requests.post(device_upload_url, headers={"Authorization": "Token {}".format(token)},
+        finalize_request = requests.post(device_upload_url, headers={"Authorization": f"Token {token}"},
                                          data={'md5': get_md5_from_file(checksum_file)})
 
         upload_exception_check(finalize_request, build_file)
@@ -162,18 +160,18 @@ def get_md5_from_file(checksum_file):
         return values[0]
 
 
-def wait_rate_limit(seconds):
+def wait_rate_limit(s):
     import time
-    while seconds:
-        print("Will resume in {} seconds...".format(seconds), end='\r')
+    while s:
+        print(f"Will resume in {s} seconds...", end='\r')
         time.sleep(1)
-        seconds -= 1
+        s -= 1
     print(end='\x1b[2K\r')
 
 
 def upload_exception_check(request, build_file):
     if request.status_code == 200:
-        print("Successfully uploaded the build {}!".format(build_file))
+        print(f"Successfully uploaded the build {build_file}!")
         return
     elif request.status_code == 400:
         if request.json()['error'] == "duplicate_build":
@@ -207,8 +205,8 @@ def check_build_disable(server_url, token, build_id):
         return
 
     if disable_build_on_upload:
-        disable_build_url = "{}/api/v1/maintainers/build/enabled_status_modify/".format(server_url)
-        r = requests.post(disable_build_url, headers={"Authorization": "Token {}".format(token)},
+        disable_build_url = f"{server_url}/api/v1/maintainers/build/enabled_status_modify/"
+        r = requests.post(disable_build_url, headers={"Authorization": f"Token {token}"},
                           data={"build_id": build_id, "enable": False})
 
         if r.status_code == 200:

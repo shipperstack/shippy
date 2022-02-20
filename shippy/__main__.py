@@ -25,7 +25,7 @@ console = Console()
 
 
 def main():
-    print("Welcome to shippy (v.{})!".format(__version__))
+    print(f"Welcome to shippy (v.{__version__})!")
 
     # Check if we cannot prompt the user (default to auto-upload)
     upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
@@ -62,9 +62,9 @@ def main():
         print_error(msg="No files matching the submission criteria were detected in the current directory.",
                     newline=True, exit_after=False)
     else:
-        print("Detected {} build(s):".format(len(builds)))
+        print(f"Detected {len(builds)} build(s):")
         for build in builds:
-            print("\t{}".format(build))
+            print(f"\t{build}")
 
         if not upload_without_prompt and len(builds) > 1:
             print_warning("You seem to be uploading multiple builds. ", newline=False)
@@ -77,11 +77,11 @@ def main():
                 print_warning("Invalid build. Skipping...")
                 continue
 
-            if upload_without_prompt or input_yn("Uploading build {}. Start?".format(build)):
+            if upload_without_prompt or input_yn(f"Uploading build {build}. Start?"):
                 try:
                     upload(server_url=server_url,
                            build_file=build,
-                           checksum_file="{}.md5".format(build),
+                           checksum_file=f"{build}.md5",
                            token=token)
                 except UploadException as exception:
                     print_error(exception, newline=True, exit_after=False)
