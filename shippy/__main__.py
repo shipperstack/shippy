@@ -14,7 +14,7 @@ from .client import login_to_server, upload, get_server_version, get_md5_from_fi
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
-from .helper import input_yn, print_error, print_warning
+from .helper import input_yn, print_error, print_warning, print_success
 from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
@@ -44,7 +44,7 @@ def main():
 
         token = check_token_validity(server_url, token)
     except KeyError:
-        print("No configuration file found or configuration is invalid. You need to configure shippy before you can "
+        print_warning("No configuration file found or configuration is invalid. You need to configure shippy before you can "
               "start using it.")
         server_url = get_server_url()
         token = get_token(server_url)
@@ -67,14 +67,14 @@ def main():
             print("\t{}".format(build))
 
         if not upload_without_prompt and len(builds) > 1:
-            print_warning("Warning: you seem to be uploading multiple builds. ", newline=False)
+            print_warning("You seem to be uploading multiple builds. ", newline=False)
             if not input_yn("Are you sure you want to continue?", default=False):
                 return
 
         for build in builds:
             # Check build file validity
             if not check_build(build):
-                print("Invalid build. Skipping...")
+                print_warning("Invalid build. Skipping...")
                 continue
 
             if upload_without_prompt or input_yn("Uploading build {}. Start?".format(build)):
@@ -102,7 +102,7 @@ def check_server_compat(server_url):
                     exit_after=True)
         exit(0)
     else:
-        print("Finished compatibility check. No problems found.")
+        print_success("Finished compatibility check. No problems found.")
 
 
 def check_token_validity(server_url, token):
@@ -111,7 +111,7 @@ def check_token_validity(server_url, token):
 
     if not is_token_valid:
         # Token check failed, prompt for login again
-        print("The saved token is invalid. Please sign-in again.")
+        print_warning("The saved token is invalid. Please sign-in again.")
         token = get_token(server_url)
     return token
 
@@ -124,7 +124,7 @@ def check_shippy_update():
     if semver.compare(__version__, latest_version) == -1:
         print(SHIPPY_OUTDATED_MSG.format(__version__, latest_version))
     else:
-        print("Finished update check. shippy is up-to-date!")
+        print_success("Finished update check. shippy is up-to-date!")
 
 
 def get_builds_in_current_dir():
@@ -140,25 +140,25 @@ def get_builds_in_current_dir():
 
 def check_build(filename):
     """ Makes sure the build is valid """
-    print("Validating build {}...".format(filename))
+    print(f"Validating build {filename}...")
 
     # Validate that there is a matching checksum file
-    if not os.path.isfile("{}.md5".format(filename)):
-        print("This build does not have a matching checksum file. ", end='')
+    if not os.path.isfile(f"{filename}.md5"):
+        print_warning("This build does not have a matching checksum file. ", newline=False)
         return False
 
     # Validate checksum
-    with console.status("Checking MD5 hash of {}... this may take a couple of seconds. ".format(filename)) as status:
+    with console.status(f"Checking MD5 hash of {filename}... this may take a couple of seconds. ") as status:
         md5_hash = hashlib.md5()
         with open(filename, "rb") as build_file:
             content = build_file.read()
             md5_hash.update(content)
         md5_hash = md5_hash.hexdigest()
-        actual_hash = get_md5_from_file("{}.md5".format(filename))
+        actual_hash = get_md5_from_file(f"{filename}.md5")
         if md5_hash != actual_hash:
             print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
             return False
-        print("MD5 hash of {} matched.".format(filename))
+        print_success(f"MD5 hash of {filename} matched.")
 
     build_slug, _ = os.path.splitext(filename)
     _, _, _, build_type, build_variant, _ = build_slug.split('-')
@@ -174,7 +174,7 @@ def check_build(filename):
         print_error(msg="This build has an unknown variant. ", newline=False, exit_after=False)
         return False
 
-    print("Validation of build {} complete. No problems found.".format(filename))
+    print_success(f"Validation of build {filename} complete. No problems found.")
     return True
 
 
@@ -213,7 +213,7 @@ def get_token(server_url):
                 set_config_value("shippy", "token", token)
                 return token
             except LoginException as exception:
-                print_error("{} Please try again.".format(exception), newline=True, exit_after=False)
+                print_error(f"{exception} Please try again.", newline=True, exit_after=False)
         except KeyboardInterrupt:
             exit(0)
 
