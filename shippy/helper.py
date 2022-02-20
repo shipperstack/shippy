@@ -28,5 +28,5 @@ def print_error(msg, newline, exit_after):
         exit(1)
 
 
-def print_warning(msg, newline):
+def print_warning(msg, newline=True):
     print("[yellow]Warning: {}".format(msg), end='\n' if newline else '')
