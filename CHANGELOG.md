@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
+# [1.5.3] - 2022-02-20
+
+## Added
+- Added prettified message printing to quickly read status messages
+- Added status message for when waiting on server to process build artifact
+
+## Changed
+- Reduced chunk size to 1 MB to avoid having requests dropped by middleware
+- General code cleanup
+
+
 # [1.5.2] - 2022-02-19
 
 ## Changed
@@ -278,7 +289,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/ericswpark/shippy/compare/1.5.2...HEAD
+[Unreleased]: https://github.com/ericswpark/shippy/compare/1.5.3...HEAD
+[1.5.3]: https://github.com/ericswpark/shippy/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/ericswpark/shippy/compare/1.5.1...1.5.2
 [1.5.1]: https://github.com/ericswpark/shippy/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/ericswpark/shippy/compare/1.4.2...1.5.0
