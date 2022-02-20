@@ -22,7 +22,7 @@ def input_yn(question, default=True):
 
 
 def print_error(msg, newline, exit_after):
-    print("[red]ERROR: {}".format(msg), end='\n' if newline else '')
+    print("[red]\u274c ERROR: {}".format(msg), end='\n' if newline else '')
 
     if exit_after:
         exit(1)
