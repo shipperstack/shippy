@@ -141,13 +141,14 @@ def upload(server_url, build_file, checksum_file, token):
 
     # Finalize upload to begin processing
     try:
-        finalize_request = requests.post(device_upload_url, headers={"Authorization": f"Token {token}"},
-                                         data={'md5': get_md5_from_file(checksum_file)})
+        with console.status("Waiting for the server to process the uploaded build. This may take around 30 seconds... ") as status:
+            finalize_request = requests.post(device_upload_url, headers={"Authorization": f"Token {token}"},
+                                             data={'md5': get_md5_from_file(checksum_file)})
 
-        upload_exception_check(finalize_request, build_file)
+            upload_exception_check(finalize_request, build_file)
 
-        # Check if build should be disabled immediately after run
-        check_build_disable(server_url, token, finalize_request.json()['build_id'])
+            # Check if build should be disabled immediately after run
+            check_build_disable(server_url, token, finalize_request.json()['build_id'])
     except UploadException as e:
         raise e
     except requests.exceptions.RequestException:
