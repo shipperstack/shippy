@@ -17,7 +17,8 @@ from .constants import (
     FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG,
     CANNOT_CONTACT_SERVER_ERROR_MSG,
     FAILED_TO_LOG_IN_ERROR_MSG,
-    UNEXPECTED_SERVER_RESPONSE_ERROR_MSG
+    UNEXPECTED_SERVER_RESPONSE_ERROR_MSG,
+    RATE_LIMIT_WAIT_STATUS_MSG
 )
 from .exceptions import LoginException, UploadException
 from .helper import print_error
@@ -162,11 +163,11 @@ def get_md5_from_file(checksum_file):
 
 def wait_rate_limit(s):
     import time
-    while s:
-        print(f"Will resume in {s} seconds...", end='\r')
-        time.sleep(1)
-        s -= 1
-    print(end='\x1b[2K\r')
+    with console.status(RATE_LIMIT_WAIT_STATUS_MSG.format(s)) as status:
+        while s:
+            time.sleep(1)
+            s -= 1
+            status.update(status=RATE_LIMIT_WAIT_STATUS_MSG.format(s))
 
 
 def upload_exception_check(request, build_file):

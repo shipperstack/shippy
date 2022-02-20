@@ -18,6 +18,9 @@ We recommend updating shippy with the following command:
 \tpip3 install --upgrade shipper-shippy
 """
 
+RATE_LIMIT_WAIT_STATUS_MSG = "Waiting to resume after being rate limited. shippy will resume uploading in {} seconds."
+
+
 CANNOT_CONTACT_SERVER_ERROR_MSG = "Cannot contact the server. "
 UNEXPECTED_SERVER_RESPONSE_ERROR_MSG = "The server returned an unexpected response. "
 FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG = "Failed to retrieve server version information! "
