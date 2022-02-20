@@ -29,4 +29,4 @@ def print_error(msg, newline, exit_after):
 
 
 def print_warning(msg, newline=True):
-    print("[yellow]Warning: {}".format(msg), end='\n' if newline else '')
+    print(f"[yellow]\u26a0 Warning: {msg}", end='\n' if newline else '')
