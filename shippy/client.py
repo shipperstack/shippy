@@ -106,7 +106,7 @@ def upload(server_url, build_file, checksum_file, token):
     device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
 
     chunk_size = 1000000  # 1 MB
-    current_index = 0
+    current_byte = 0
     total_file_size = os.path.getsize(build_file)
 
     with progress:
@@ -118,13 +118,13 @@ def upload(server_url, build_file, checksum_file, token):
                 try:
                     chunk_request = requests.put(device_upload_url, headers={
                         "Authorization": f"Token {token}",
-                        "Content-Range": f"bytes {current_index}-{current_index + len(chunk_data) - 1}/{total_file_size}",
+                        "Content-Range": f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/{total_file_size}",
                     }, data={"filename": build_file}, files={'file': chunk_data})
 
                     if chunk_request.status_code == 200:
                         device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/{chunk_request.json()['id']}/"
-                        current_index += len(chunk_data)
-                        progress.update(upload_progress, completed=current_index)
+                        current_byte += len(chunk_data)
+                        progress.update(upload_progress, completed=current_byte)
                         
                         # Read next chunk and continue
                         chunk_data = build_file_raw.read(chunk_size)
