@@ -2,6 +2,7 @@ import os.path
 import requests
 
 from json import JSONDecodeError
+from rich.console import Console
 from rich.progress import (
     BarColumn,
     DownloadColumn,
@@ -22,6 +23,8 @@ from .constants import (
 )
 from .exceptions import LoginException, UploadException
 from .helper import print_error
+
+console = Console()
 
 # Set up progress bar
 progress = Progress(
