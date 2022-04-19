@@ -49,13 +49,13 @@ def handle_undefined_response(request):
         raise Exception(UNHANDLED_EXCEPTION_MSG.format(request.url, request.status_code, request.content))
 
 
-def get_server_version(server_url):
-    """ Gets server version in semver format """
+def get_server_version_info(server_url):
+    """ Gets server version information """
     version_url = f"{server_url}/api/v1/system/info/"
     try:
         r = requests.get(version_url)
         if r.status_code == 200:
-            return r.json()['version']
+            return r.json()
         else:
             print_error(msg=FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG, newline=True, exit_after=True)
     except requests.exceptions.RequestException:

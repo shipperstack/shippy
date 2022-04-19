@@ -10,7 +10,7 @@ import sentry_sdk
 from rich import print
 from rich.console import Console
 
-from .client import login_to_server, upload, get_server_version, get_md5_from_file, check_token
+from .client import login_to_server, upload, get_server_version_info, get_md5_from_file, check_token
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
@@ -95,14 +95,20 @@ def init_argparse():
 
 def check_server_compat(server_url):
     with console.status("Please wait while shippy contacts the remote server to check compatibility... ") as status:
-        server_version = get_server_version(server_url)
+        server_version_info = get_server_version_info(server_url)
 
-    if semver.compare(server_version, server_compat_version) == -1:
-        print_error(msg=SERVER_COMPAT_ERROR_MSG.format(server_version, server_compat_version), newline=True,
+    # Check if shipper version is compatible
+    if semver.compare(server_version_info['version'], server_compat_version) == -1:
+        print_error(msg=SERVER_COMPAT_ERROR_MSG.format(server_version_info['version'], server_compat_version), newline=True,
                     exit_after=True)
         exit(0)
-    else:
-        print_success("Finished compatibility check. No problems found.")
+
+    # Check if shippy version is compatible
+    if semver.compare(server_version_info['shippy_compat_version'], __version__) == 1:
+        print_error(msg=SHIPPY_COMPAT_ERROR_MSG.format(server_version_info['shippy_compat_version'], __version__), newline=True,
+                    exit_after=True)
+
+    print_success("Finished compatibility check. No problems found.")
 
 
 def check_token_validity(server_url, token):
