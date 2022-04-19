@@ -148,7 +148,8 @@ def upload(server_url, build_file, checksum_file, token):
 
     # Finalize upload to begin processing
     try:
-        with console.status("Waiting for the server to process the uploaded build. This may take around 30 seconds... ") as status:
+        with console.status(
+                "Waiting for the server to process the uploaded build. This may take around 30 seconds... "):
             finalize_request = requests.post(device_upload_url, headers={"Authorization": f"Token {token}"},
                                              data={'md5': get_md5_from_file(checksum_file)})
 
