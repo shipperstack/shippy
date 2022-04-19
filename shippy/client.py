@@ -139,7 +139,7 @@ def upload(server_url, build_file, checksum_file, token):
                     elif chunk_request.status_code == 429:
                         print("shippy has been rate-limited.")
                         import re
-                        wait_rate_limit(int(re.findall("\d+", chunk_request.json()['detail'])[0]))
+                        wait_rate_limit(int(re.findall(r"\d+", chunk_request.json()['detail'])[0]))
                     else:
                         raise UploadException("Something went wrong during the upload.")
                 except requests.exceptions.RequestException:
