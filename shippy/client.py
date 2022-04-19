@@ -111,7 +111,7 @@ def check_token(server_url, token):
 
 def upload(server_url, build_file, checksum_file, token):
     """ Upload given build files to specified server with token """
-    device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
+    upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
 
     chunk_size = 1000000  # 1 MB
     current_byte = 0
@@ -124,13 +124,13 @@ def upload(server_url, build_file, checksum_file, token):
             chunk_data = build_file_raw.read(chunk_size)
             while chunk_data:
                 try:
-                    chunk_request = requests.put(device_upload_url, headers={
+                    chunk_request = requests.put(upload_url, headers={
                         "Authorization": f"Token {token}",
                         "Content-Range": f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/{total_file_size}",
                     }, data={"filename": build_file}, files={'file': chunk_data})
 
                     if chunk_request.status_code == 200:
-                        device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/{chunk_request.json()['id']}/"
+                        upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/{chunk_request.json()['id']}/"
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
 
@@ -149,8 +149,9 @@ def upload(server_url, build_file, checksum_file, token):
     # Finalize upload to begin processing
     try:
         with console.status(
-                "Waiting for the server to process the uploaded build. This may take around 30 seconds... "):
-            finalize_request = requests.post(device_upload_url, headers={"Authorization": f"Token {token}"},
+                "Waiting for the server to process the uploaded build. This may take around 30 seconds... "
+        ):
+            finalize_request = requests.post(upload_url, headers={"Authorization": f"Token {token}"},
                                              data={'md5': get_md5_from_file(checksum_file)})
 
             upload_exception_check(finalize_request, build_file)
