@@ -94,7 +94,7 @@ def init_argparse():
 
 
 def check_server_compat(server_url):
-    with console.status("Please wait while shippy contacts the remote server to check compatibility... ") as status:
+    with console.status("Please wait while shippy contacts the remote server to check compatibility... "):
         server_version_info = get_server_version_info(server_url)
 
     # Check if shipper version is compatible
