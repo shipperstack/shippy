@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# [1.6.0] - 2022-04-19
+
+## Changed
+- shippy now checks the compatible version returned by the server
+- General code cleanup
+- Updated library dependencies
+  - sentry-sdk (1.5.6 -> 1.5.10)
+  - rich (11.2.0 -> 12.2.0)
+
+
 # [1.5.4] - 2022-02-26
 
 ## Changed
@@ -297,7 +307,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/ericswpark/shippy/compare/1.5.4...HEAD
+[Unreleased]: https://github.com/ericswpark/shippy/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/ericswpark/shippy/compare/1.5.4...1.6.0
 [1.5.4]: https://github.com/ericswpark/shippy/compare/1.5.3...1.5.4
 [1.5.3]: https://github.com/ericswpark/shippy/compare/1.5.2...1.5.3
 [1.5.2]: https://github.com/ericswpark/shippy/compare/1.5.1...1.5.2
