@@ -99,14 +99,19 @@ def check_server_compat(server_url):
 
     # Check if shipper version is compatible
     if semver.compare(server_version_info['version'], server_compat_version) == -1:
-        print_error(msg=SERVER_COMPAT_ERROR_MSG.format(server_version_info['version'], server_compat_version), newline=True,
-                    exit_after=True)
-        exit(0)
+        print_error(
+            msg=SERVER_COMPAT_ERROR_MSG.format(server_version_info['version'], server_compat_version),
+            newline=True,
+            exit_after=True
+        )
 
     # Check if shippy version is compatible
     if semver.compare(server_version_info['shippy_compat_version'], __version__) == 1:
-        print_error(msg=SHIPPY_COMPAT_ERROR_MSG.format(server_version_info['shippy_compat_version'], __version__), newline=True,
-                    exit_after=True)
+        print_error(
+            msg=SHIPPY_COMPAT_ERROR_MSG.format(server_version_info['shippy_compat_version'], __version__),
+            newline=True,
+            exit_after=True
+        )
 
     print_success("Finished compatibility check. No problems found.")
 
