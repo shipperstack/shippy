@@ -44,8 +44,8 @@ def main():
 
         token = check_token_validity(server_url, token)
     except KeyError:
-        print_warning("No configuration file found or configuration is invalid. You need to configure shippy before you can "
-              "start using it.")
+        print_warning("No configuration file found or configuration is invalid. You need to configure shippy before "
+                      "you can start using it.")
         server_url = get_server_url()
         token = get_token(server_url)
 
@@ -117,7 +117,7 @@ def check_server_compat(server_url):
 
 
 def check_token_validity(server_url, token):
-    with console.status("Please wait while shippy contacts the remote server to check if the token is still valid... ") as status:
+    with console.status("Please wait while shippy contacts the remote server to check if the token is still valid... "):
         is_token_valid = check_token(server_url, token)
 
     if not is_token_valid:
@@ -128,7 +128,7 @@ def check_token_validity(server_url, token):
 
 
 def check_shippy_update():
-    with console.status("Please wait while shippy checks for updates... ") as status:
+    with console.status("Please wait while shippy checks for updates... "):
         r = requests.get("https://api.github.com/repos/ericswpark/shippy/releases/latest")
         latest_version = r.json()['name']
 
@@ -142,7 +142,7 @@ def get_builds_in_current_dir():
     builds = []
     glob_match = 'Bliss-v*.zip'
 
-    with console.status("Detecting builds in current directory...") as status:
+    with console.status("Detecting builds in current directory..."):
         for file in glob.glob(glob_match):
             builds.append(file)
 
@@ -159,7 +159,7 @@ def check_build(filename):
         return False
 
     # Validate checksum
-    with console.status(f"Checking MD5 hash of {filename}... this may take a couple of seconds. ") as status:
+    with console.status(f"Checking MD5 hash of {filename}... this may take a couple of seconds. "):
         md5_hash = hashlib.md5()
         with open(filename, "rb") as build_file:
             content = build_file.read()
