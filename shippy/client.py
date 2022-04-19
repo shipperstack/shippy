@@ -90,7 +90,11 @@ def login_to_server(username, password, server_url):
     except LoginException as e:
         raise e
     except JSONDecodeError:
-        print_error(msg=UNEXPECTED_SERVER_RESPONSE_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG, newline=True, exit_after=True)
+        print_error(
+            msg=UNEXPECTED_SERVER_RESPONSE_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG,
+            newline=True,
+            exit_after=True
+        )
     except requests.exceptions.RequestException:
         print_error(msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG, newline=True, exit_after=True)
 
@@ -129,7 +133,7 @@ def upload(server_url, build_file, checksum_file, token):
                         device_upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/{chunk_request.json()['id']}/"
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
-                        
+
                         # Read next chunk and continue
                         chunk_data = build_file_raw.read(chunk_size)
                     elif chunk_request.status_code == 429:
@@ -140,7 +144,7 @@ def upload(server_url, build_file, checksum_file, token):
                         raise UploadException("Something went wrong during the upload.")
                 except requests.exceptions.RequestException:
                     raise UploadException("Something went wrong during the upload and the connection to the server was "
-                                        "lost!")
+                                          "lost!")
 
     # Finalize upload to begin processing
     try:

@@ -1,5 +1,6 @@
 from rich import print
 
+
 def input_yn(question, default=True):
     valid = {"yes": True, "y": True, "ye": True,
              "no": False, "n": False}
