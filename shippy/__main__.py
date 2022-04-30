@@ -79,10 +79,7 @@ def main():
 
             if upload_without_prompt or input_yn(f"Uploading build {build}. Start?"):
                 try:
-                    upload(server_url=server_url,
-                           build_file=build,
-                           checksum_file=f"{build}.md5",
-                           token=token)
+                    upload(server_url=server_url, build_file=build, token=token)
                 except UploadException as exception:
                     print_error(exception, newline=True, exit_after=False)
 

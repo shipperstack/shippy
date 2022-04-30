@@ -110,7 +110,7 @@ def check_token(server_url, token):
     return False
 
 
-def upload(server_url, build_file, checksum_file, token):
+def upload(server_url, build_file, token):
     """ Upload given build files to specified server with token """
     upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
 
