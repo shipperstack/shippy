@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
+# [1.7.0] - 2022-04-30
+
+## Added
+- shippy now supports SHA256 checksum files
+
+## Changed
+- shippy can check for checksum files that end with the postfix `sum` (for example, `.sha256sum`)
+- shippy now sends back the checksum type expected by the server
+- General code cleanup
+- Updated library dependencies
+  - rich (12.2.0 -> 12.3.0)
+- Bumped server compatibility version to shipper 1.15.0
 
 # [1.6.0] - 2022-04-19
 
@@ -307,7 +319,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/ericswpark/shippy/compare/1.6.0...HEAD
+[Unreleased]: https://github.com/ericswpark/shippy/compare/1.7.0...HEAD
+[1.7.0]: https://github.com/ericswpark/shippy/compare/1.6.0...1.7.0
 [1.6.0]: https://github.com/ericswpark/shippy/compare/1.5.4...1.6.0
 [1.5.4]: https://github.com/ericswpark/shippy/compare/1.5.3...1.5.4
 [1.5.3]: https://github.com/ericswpark/shippy/compare/1.5.2...1.5.3
