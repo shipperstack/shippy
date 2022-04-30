@@ -1,6 +1,5 @@
 import argparse
 import glob
-import hashlib
 import os.path
 
 import requests
