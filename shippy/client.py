@@ -1,3 +1,4 @@
+import hashlib
 import os.path
 import requests
 
@@ -151,8 +152,11 @@ def upload(server_url, build_file, checksum_file, token):
         with console.status(
                 "Waiting for the server to process the uploaded build. This may take around 30 seconds... "
         ):
+            # Check which hash we need to send over
+            server_requests_checksum_type = get_server_version_info(server_url=server_url)['shippy_upload_checksum_type']
+            checksum_value = get_hash_of_file(build_file, checksum_type=server_requests_checksum_type)
             finalize_request = requests.post(upload_url, headers={"Authorization": f"Token {token}"},
-                                             data={'md5': get_md5_from_file(checksum_file)})
+                                             data={server_requests_checksum_type: checksum_value})
 
             upload_exception_check(finalize_request, build_file)
 
@@ -164,11 +168,40 @@ def upload(server_url, build_file, checksum_file, token):
         raise UploadException("Something went wrong during the upload and the connection to the server was lost!")
 
 
-def get_md5_from_file(checksum_file):
+def get_hash_of_file(filename, checksum_type):
+    if checksum_type.lower() == "md5":
+        hash_obj = hashlib.md5()
+    elif checksum_type.lower() == "sha256":
+        hash_obj = hashlib.sha256()
+    else:
+        # Unsupported checksum type
+        return None
+
+    with open(filename, "rb") as file:
+        content = file.read()
+        hash_obj.update(content)
+    return hash_obj.hexdigest()
+
+
+def get_hash_from_checksum_file(checksum_file):
     with open(checksum_file, 'r') as checksum_file_raw:
         line = checksum_file_raw.readline()
         values = line.split(" ")
         return values[0]
+
+
+def which_checksum_file(filename):
+    valid_checksum_types = ["md5", "sha256"]
+    has_checksum_file_type = None
+    has_sum_postfix = False
+    for checksum_type in valid_checksum_types:
+        if os.path.isfile(f"{filename}.{checksum_type}"):
+            has_checksum_file_type = checksum_type
+            has_sum_postfix = False
+        elif os.path.isfile(f"{filename}.{checksum_type}sum"):
+            has_checksum_file_type = checksum_type
+            has_sum_postfix = True
+    return has_checksum_file_type, has_sum_postfix
 
 
 def wait_rate_limit(s):

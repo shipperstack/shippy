@@ -10,7 +10,8 @@ import sentry_sdk
 from rich import print
 from rich.console import Console
 
-from .client import login_to_server, upload, get_server_version_info, get_md5_from_file, check_token
+from .client import login_to_server, upload, get_server_version_info, get_hash_from_checksum_file, check_token, \
+    get_hash_of_file, which_checksum_file
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
@@ -154,22 +155,25 @@ def check_build(filename):
     print(f"Validating build {filename}...")
 
     # Validate that there is a matching checksum file
-    if not os.path.isfile(f"{filename}.md5"):
+    has_checksum_file_type, has_sum_postfix = which_checksum_file(filename=filename)
+
+    if has_checksum_file_type is None:
         print_warning("This build does not have a matching checksum file. ", newline=False)
         return False
 
     # Validate checksum
-    with console.status(f"Checking MD5 hash of {filename}... this may take a couple of seconds. "):
-        md5_hash = hashlib.md5()
-        with open(filename, "rb") as build_file:
-            content = build_file.read()
-            md5_hash.update(content)
-        md5_hash = md5_hash.hexdigest()
-        actual_hash = get_md5_from_file(f"{filename}.md5")
-        if md5_hash != actual_hash:
+    with console.status(
+            f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may take a couple of seconds. "
+    ):
+        hash_val = get_hash_of_file(filename=filename, checksum_type=has_checksum_file_type)
+        if not has_sum_postfix:
+            actual_hash_val = get_hash_from_checksum_file(f"{filename}.{has_checksum_file_type}")
+        else:
+            actual_hash_val = get_hash_from_checksum_file(f"{filename}.{has_checksum_file_type}sum")
+        if hash_val != actual_hash_val:
             print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
             return False
-        print_success(f"MD5 hash of {filename} matched.")
+        print_success(f"{has_checksum_file_type.upper()} hash of {filename} matched.")
 
     build_slug, _ = os.path.splitext(filename)
     _, _, _, build_type, build_variant, _ = build_slug.split('-')
