@@ -19,7 +19,12 @@ from .client import (
     which_checksum_file,
 )
 from .config import get_config_value, set_config_value, get_optional_true_config_value
-from .constants import *
+from .constants import (
+    SENTRY_SDK_URL,
+    SERVER_COMPAT_ERROR_MSG,
+    SHIPPY_COMPAT_ERROR_MSG,
+    SHIPPY_OUTDATED_MSG,
+)
 from .exceptions import LoginException, UploadException
 from .helper import input_yn, print_error, print_warning, print_success
 from .version import __version__, server_compat_version
