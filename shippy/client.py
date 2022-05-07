@@ -93,15 +93,17 @@ def login_to_server(username, password, server_url):
             raise LoginException("Username or password must not be blank.")
         elif r.status_code == 404 and r.json()["error"] == "invalid_credential":
             raise LoginException("Invalid credentials!")
-        # Really, really weird edge case where HTTP URLs would redirect and cause a GET request
+        # Really, really weird edge case where HTTP URLs would redirect and cause a
+        # GET request
         elif (
             r.status_code == 405
             and r.json()["detail"] == 'Method "GET" not allowed.'
             and server_url[0:5] == "http:"
         ):
             print(
-                "It seems like you entered a HTTP address when setting up shippy, but the server instance uses "
-                "HTTPS. shippy automatically corrected your server URL in the configuration file."
+                "It seems like you entered a HTTP address when setting up shippy, but "
+                "the server instance uses HTTPS. shippy automatically corrected your "
+                "server URL in the configuration file."
             )
             server_url = f"https://{server_url[7:]}"
             set_config_value("shippy", "server", server_url)
@@ -157,14 +159,20 @@ def upload(server_url, build_file_path, token):
                         upload_url,
                         headers={
                             "Authorization": f"Token {token}",
-                            "Content-Range": f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/{total_file_size}",
+                            "Content-Range": (
+                                f"bytes {current_byte}-"
+                                "{current_byte + len(chunk_data) - 1}/{total_file_size}"
+                            ),
                         },
                         data={"filename": build_file_path},
                         files={"file": chunk_data},
                     )
 
                     if chunk_request.status_code == 200:
-                        upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/{chunk_request.json()['id']}/"
+                        upload_url = (
+                            f"{server_url}/api/v1/maintainers/chunked_upload/"
+                            "{chunk_request.json()['id']}/"
+                        )
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
 
@@ -181,14 +189,15 @@ def upload(server_url, build_file_path, token):
                         raise UploadException("Something went wrong during the upload.")
                 except requests.exceptions.RequestException:
                     raise UploadException(
-                        "Something went wrong during the upload and the connection to the server was "
-                        "lost!"
+                        "Something went wrong during the upload and the connection to "
+                        "the server was lost!"
                     )
 
     # Finalize upload to begin processing
     try:
         with console.status(
-            "Waiting for the server to process the uploaded build. This may take around 30 seconds... "
+            "Waiting for the server to process the uploaded build. This may take "
+            "around 30 seconds... "
         ):
             # Check which hash we need to send over
             server_requests_checksum_type = get_server_version_info(
@@ -211,7 +220,8 @@ def upload(server_url, build_file_path, token):
         raise e
     except requests.exceptions.RequestException:
         raise UploadException(
-            "Something went wrong during the upload and the connection to the server was lost!"
+            "Something went wrong during the upload and the connection to the server "
+            "was lost!"
         )
 
 
