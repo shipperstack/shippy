@@ -4,7 +4,20 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 [keep-a-changelog]: https://keepachangelog.com/en/1.0.0/
 
+
 # [Unreleased]
+
+
+# [1.7.1] - 2022-05-07
+
+## Changed
+- shippy now fetches the regex pattern from the server
+- shippy directly prints the error message received from the server, instead of uselessly matching the error code to a custom message
+- General code cleanup
+- Updated library dependencies
+  - humanize (4.0.0 -> 4.1.0)
+  - sentry-sdk (1.5.10 -> 1.5.11)
+
 
 # [1.7.0] - 2022-04-30
 
@@ -18,6 +31,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 - Updated library dependencies
   - rich (12.2.0 -> 12.3.0)
 - Bumped server compatibility version to shipper 1.15.0
+
 
 # [1.6.0] - 2022-04-19
 
@@ -319,7 +333,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/ericswpark/shippy/compare/1.7.0...HEAD
+[Unreleased]: https://github.com/ericswpark/shippy/compare/1.7.1...HEAD
+[1.7.1]: https://github.com/ericswpark/shippy/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/ericswpark/shippy/compare/1.6.0...1.7.0
 [1.6.0]: https://github.com/ericswpark/shippy/compare/1.5.4...1.6.0
 [1.5.4]: https://github.com/ericswpark/shippy/compare/1.5.3...1.5.4
