@@ -19,7 +19,7 @@ def get_config_value(section, key):
 
 def get_optional_true_config_value(section, key):
     try:
-        value = (config[section][key] == "true")
+        value = config[section][key] == "true"
         return value
     except KeyError:
         # Set default to false so users can change it later
@@ -34,16 +34,16 @@ def set_config_value(section, key, value):
 
 
 def delete_deprecated_config():
-    if config.has_section('shipper'):
-        config.remove_section('shipper')
+    if config.has_section("shipper"):
+        config.remove_section("shipper")
 
 
 def config_init():
-    if not config.has_section('shippy'):
-        config.add_section('shippy')
+    if not config.has_section("shippy"):
+        config.add_section("shippy")
     delete_deprecated_config()
 
 
 def config_save():
-    with open(CONFIGURATION_FILE, 'w+') as config_file:
+    with open(CONFIGURATION_FILE, "w+") as config_file:
         config.write(config_file)
