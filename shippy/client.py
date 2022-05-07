@@ -138,6 +138,14 @@ def check_token(server_url, token):
     return False
 
 
+def get_regex_pattern(server_url, token):
+    regex_pattern_url = f"{server_url}/api/v1/maintainers/upload_filename_regex_pattern"
+    r = requests.get(regex_pattern_url, headers={"Authorization": f"Token {token}"})
+
+    if r.status_code == 200:
+        return r.json()['pattern']
+
+
 def upload(server_url, build_file_path, token):
     """Upload given build files to specified server with token"""
     upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
