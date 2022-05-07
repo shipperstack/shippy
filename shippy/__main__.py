@@ -18,7 +18,7 @@ from .client import (
     get_hash_from_checksum_file,
     check_token,
     get_hash_of_file,
-    which_checksum_file,
+    find_checksum_file,
 )
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import (
@@ -199,7 +199,7 @@ def check_build(filename):
     print(f"Validating build {filename}...")
 
     # Validate that there is a matching checksum file
-    has_checksum_file_type, has_sum_postfix = which_checksum_file(filename=filename)
+    has_checksum_file_type, has_sum_postfix = find_checksum_file(filename=filename)
 
     if has_checksum_file_type is None:
         print_warning(

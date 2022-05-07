@@ -255,7 +255,7 @@ def get_hash_from_checksum_file(checksum_file):
         return values[0]
 
 
-def which_checksum_file(filename):
+def find_checksum_file(filename):
     valid_checksum_types = ["md5", "sha256"]
     has_checksum_file_type = None
     has_sum_postfix = False
