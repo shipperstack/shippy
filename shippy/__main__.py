@@ -64,8 +64,8 @@ def main():
         token = check_token_validity(server_url, token)
     except KeyError:
         print_warning(
-            "No configuration file found or configuration is invalid. You need to configure shippy before "
-            "you can start using it."
+            "No configuration file found or configuration is invalid. You need to "
+            "configure shippy before you can start using it."
         )
         server_url = get_server_url()
         token = get_token(server_url)
@@ -81,7 +81,8 @@ def main():
 
     if len(builds) == 0:
         print_error(
-            msg="No files matching the submission criteria were detected in the current directory.",
+            msg="No files matching the submission criteria were detected in the "
+            "current directory.",
             newline=True,
             exit_after=False,
         )
@@ -152,7 +153,8 @@ def check_server_compat(server_url):
 
 def check_token_validity(server_url, token):
     with console.status(
-        "Please wait while shippy contacts the remote server to check if the token is still valid... "
+        "Please wait while shippy contacts the remote server to check if the token is "
+        "still valid... "
     ):
         is_token_valid = check_token(server_url, token)
 
@@ -202,7 +204,8 @@ def check_build(filename):
 
     # Validate checksum
     with console.status(
-        f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may take a couple of seconds. "
+        f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may "
+        "take a couple of seconds. "
     ):
         hash_val = get_hash_of_file(
             filename=filename, checksum_type=has_checksum_file_type
