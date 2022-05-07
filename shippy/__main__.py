@@ -1,4 +1,5 @@
 import argparse
+import re
 import glob
 import os.path
 
@@ -13,6 +14,7 @@ from .client import (
     login_to_server,
     upload,
     get_server_version_info,
+    get_regex_pattern,
     get_hash_from_checksum_file,
     check_token,
     get_hash_of_file,
@@ -76,8 +78,11 @@ def main():
     # Check server version compatibility
     check_server_compat(server_url)
 
+    # Get regex pattern from server
+    regex_pattern = get_regex_pattern(server_url=server_url, token=token)
+
     # Search current directory for files
-    builds = get_builds_in_current_dir()
+    builds = get_builds_in_current_dir(regex_pattern)
 
     if len(builds) == 0:
         print_error(
@@ -178,13 +183,13 @@ def check_shippy_update():
         print_success("Finished update check. shippy is up-to-date!")
 
 
-def get_builds_in_current_dir():
-    builds = []
-    glob_match = "Bliss-v*.zip"
-
+def get_builds_in_current_dir(regex_pattern):
     with console.status("Detecting builds in current directory..."):
-        for file in glob.glob(glob_match):
-            builds.append(file)
+        builds = []
+        files = [f for f in glob.glob("*.zip")]
+        for file in files:
+            if re.search(regex_pattern, file):
+                builds.append(file)
 
         return builds
 
