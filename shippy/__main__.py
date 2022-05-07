@@ -9,8 +9,15 @@ import sentry_sdk
 from rich import print
 from rich.console import Console
 
-from .client import login_to_server, upload, get_server_version_info, get_hash_from_checksum_file, check_token, \
-    get_hash_of_file, which_checksum_file
+from .client import (
+    login_to_server,
+    upload,
+    get_server_version_info,
+    get_hash_from_checksum_file,
+    check_token,
+    get_hash_of_file,
+    which_checksum_file,
+)
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import *
 from .exceptions import LoginException, UploadException
@@ -19,7 +26,12 @@ from .version import __version__, server_compat_version
 
 ignore_errors = [KeyboardInterrupt]
 
-sentry_sdk.init(SENTRY_SDK_URL, traces_sample_rate=1.0, release=__version__, ignore_errors=ignore_errors)
+sentry_sdk.init(
+    SENTRY_SDK_URL,
+    traces_sample_rate=1.0,
+    release=__version__,
+    ignore_errors=ignore_errors,
+)
 
 console = Console()
 
@@ -28,7 +40,9 @@ def main():
     print(f"Welcome to shippy (v.{__version__})!")
 
     # Check if we cannot prompt the user (default to auto-upload)
-    upload_without_prompt = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
+    upload_without_prompt = get_optional_true_config_value(
+        "shippy", "UploadWithoutPrompt"
+    )
 
     # Get commandline arguments
     args = init_argparse()
@@ -44,8 +58,10 @@ def main():
 
         token = check_token_validity(server_url, token)
     except KeyError:
-        print_warning("No configuration file found or configuration is invalid. You need to configure shippy before "
-                      "you can start using it.")
+        print_warning(
+            "No configuration file found or configuration is invalid. You need to configure shippy before "
+            "you can start using it."
+        )
         server_url = get_server_url()
         token = get_token(server_url)
 
@@ -59,8 +75,11 @@ def main():
     builds = get_builds_in_current_dir()
 
     if len(builds) == 0:
-        print_error(msg="No files matching the submission criteria were detected in the current directory.",
-                    newline=True, exit_after=False)
+        print_error(
+            msg="No files matching the submission criteria were detected in the current directory.",
+            newline=True,
+            exit_after=False,
+        )
     else:
         print(f"Detected {len(builds)} build(s):")
         for build in builds:
@@ -85,36 +104,51 @@ def main():
 
 
 def init_argparse():
-    parser = argparse.ArgumentParser(description="Client-side tool for interfacing with shipper")
-    parser.add_argument('-y', '--yes', action='store_true', help='Upload builds automatically without prompting')
+    parser = argparse.ArgumentParser(
+        description="Client-side tool for interfacing with shipper"
+    )
+    parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Upload builds automatically without prompting",
+    )
     return parser.parse_args()
 
 
 def check_server_compat(server_url):
-    with console.status("Please wait while shippy contacts the remote server to check compatibility... "):
+    with console.status(
+        "Please wait while shippy contacts the remote server to check compatibility... "
+    ):
         server_version_info = get_server_version_info(server_url)
 
     # Check if shipper version is compatible
-    if semver.compare(server_version_info['version'], server_compat_version) == -1:
+    if semver.compare(server_version_info["version"], server_compat_version) == -1:
         print_error(
-            msg=SERVER_COMPAT_ERROR_MSG.format(server_version_info['version'], server_compat_version),
+            msg=SERVER_COMPAT_ERROR_MSG.format(
+                server_version_info["version"], server_compat_version
+            ),
             newline=True,
-            exit_after=True
+            exit_after=True,
         )
 
     # Check if shippy version is compatible
-    if semver.compare(server_version_info['shippy_compat_version'], __version__) == 1:
+    if semver.compare(server_version_info["shippy_compat_version"], __version__) == 1:
         print_error(
-            msg=SHIPPY_COMPAT_ERROR_MSG.format(server_version_info['shippy_compat_version'], __version__),
+            msg=SHIPPY_COMPAT_ERROR_MSG.format(
+                server_version_info["shippy_compat_version"], __version__
+            ),
             newline=True,
-            exit_after=True
+            exit_after=True,
         )
 
     print_success("Finished compatibility check. No problems found.")
 
 
 def check_token_validity(server_url, token):
-    with console.status("Please wait while shippy contacts the remote server to check if the token is still valid... "):
+    with console.status(
+        "Please wait while shippy contacts the remote server to check if the token is still valid... "
+    ):
         is_token_valid = check_token(server_url, token)
 
     if not is_token_valid:
@@ -126,8 +160,10 @@ def check_token_validity(server_url, token):
 
 def check_shippy_update():
     with console.status("Please wait while shippy checks for updates... "):
-        r = requests.get("https://api.github.com/repos/ericswpark/shippy/releases/latest")
-        latest_version = r.json()['name']
+        r = requests.get(
+            "https://api.github.com/repos/ericswpark/shippy/releases/latest"
+        )
+        latest_version = r.json()["name"]
 
     if semver.compare(__version__, latest_version) == -1:
         print(SHIPPY_OUTDATED_MSG.format(__version__, latest_version))
@@ -137,7 +173,7 @@ def check_shippy_update():
 
 def get_builds_in_current_dir():
     builds = []
-    glob_match = 'Bliss-v*.zip'
+    glob_match = "Bliss-v*.zip"
 
     with console.status("Detecting builds in current directory..."):
         for file in glob.glob(glob_match):
@@ -147,32 +183,44 @@ def get_builds_in_current_dir():
 
 
 def check_build(filename):
-    """ Makes sure the build is valid """
+    """Makes sure the build is valid"""
     print(f"Validating build {filename}...")
 
     # Validate that there is a matching checksum file
     has_checksum_file_type, has_sum_postfix = which_checksum_file(filename=filename)
 
     if has_checksum_file_type is None:
-        print_warning("This build does not have a matching checksum file. ", newline=False)
+        print_warning(
+            "This build does not have a matching checksum file. ", newline=False
+        )
         return False
 
     # Validate checksum
     with console.status(
-            f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may take a couple of seconds. "
+        f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may take a couple of seconds. "
     ):
-        hash_val = get_hash_of_file(filename=filename, checksum_type=has_checksum_file_type)
+        hash_val = get_hash_of_file(
+            filename=filename, checksum_type=has_checksum_file_type
+        )
         if not has_sum_postfix:
-            actual_hash_val = get_hash_from_checksum_file(f"{filename}.{has_checksum_file_type}")
+            actual_hash_val = get_hash_from_checksum_file(
+                f"{filename}.{has_checksum_file_type}"
+            )
         else:
-            actual_hash_val = get_hash_from_checksum_file(f"{filename}.{has_checksum_file_type}sum")
+            actual_hash_val = get_hash_from_checksum_file(
+                f"{filename}.{has_checksum_file_type}sum"
+            )
         if hash_val != actual_hash_val:
-            print_error(msg="This build's checksum is invalid. ", newline=False, exit_after=False)
+            print_error(
+                msg="This build's checksum is invalid. ",
+                newline=False,
+                exit_after=False,
+            )
             return False
         print_success(f"{has_checksum_file_type.upper()} hash of {filename} matched.")
 
     build_slug, _ = os.path.splitext(filename)
-    _, _, _, build_type, build_variant, _ = build_slug.split('-')
+    _, _, _, build_type, build_variant, _ = build_slug.split("-")
 
     # Check build type
     if build_type != "OFFICIAL":
@@ -180,9 +228,11 @@ def check_build(filename):
         return False
 
     # Check build variant
-    valid_variants = ['gapps', 'vanilla', 'foss', 'goapps']
+    valid_variants = ["gapps", "vanilla", "foss", "goapps"]
     if build_variant not in valid_variants:
-        print_error(msg="This build has an unknown variant. ", newline=False, exit_after=False)
+        print_error(
+            msg="This build has an unknown variant. ", newline=False, exit_after=False
+        )
         return False
 
     print_success(f"Validation of build {filename} complete. No problems found.")
@@ -196,12 +246,16 @@ def get_server_url():
         while True:
             if "http" not in server_url:
                 # noinspection HttpUrlsUsage
-                print_error(msg="Server URL is missing either http:// or https://.", newline=True, exit_after=False)
+                print_error(
+                    msg="Server URL is missing either http:// or https://.",
+                    newline=True,
+                    exit_after=False,
+                )
             else:
                 break
             server_url = input("Enter the server URL: ")
 
-        if server_url[-1] == '/':
+        if server_url[-1] == "/":
             server_url = server_url[:-1]
 
         set_config_value("shippy", "server", server_url)
@@ -224,7 +278,9 @@ def get_token(server_url):
                 set_config_value("shippy", "token", token)
                 return token
             except LoginException as exception:
-                print_error(f"{exception} Please try again.", newline=True, exit_after=False)
+                print_error(
+                    f"{exception} Please try again.", newline=True, exit_after=False
+                )
         except KeyboardInterrupt:
             exit(0)
 
