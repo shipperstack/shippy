@@ -217,24 +217,12 @@ def upload_exception_check(request, build_file):
     if request.status_code == 200:
         print(f"Successfully uploaded the build {build_file}!")
         return
-    elif request.status_code == 400:
-        if request.json()['error'] == "duplicate_build":
-            raise UploadException("This build already exists in the system!")
-        elif request.json()['error'] == "missing_files":
-            raise UploadException("One of the required fields are missing!")
-        elif request.json()['error'] == "file_name_mismatch":
-            raise UploadException("The build file name does not match the checksum file name!")
-        elif request.json()['error'] == "invalid_file_name":
-            raise UploadException("The file name was malformed!")
-        elif request.json()['error'] == "not_official":
-            raise UploadException("The build is not official!")
-        elif request.json()['error'] == "codename_mismatch":
-            raise UploadException("The codename does not match the build file name!")
-    elif request.status_code == 401:
-        if request.json()['error'] == "insufficient_permissions":
-            raise UploadException("You are not allowed to upload for this device!")
-    elif request.status_code == 404:
-        raise UploadException("Your device isn't registered on shipper. Please contact an admin to add your device.")
+    elif int(request.status_code / 100) == 4:
+        try:
+            response_json = request.json()
+            raise UploadException(response_json["message"])
+        except:
+            raise UploadException("An unknown error occurred parsing the response.")
     elif int(request.status_code / 100) == 5:
         raise UploadException("An internal server error occurred. Please contact the admins.")
 
