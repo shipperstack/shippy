@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# [1.7.2] - 2022-05-11
+
+## Changed
+- Fix shippy not handling errors during the upload phase
+- Updated library dependencies
+  - rich (12.3.0 -> 12.4.1)
+
+
 # [1.7.1] - 2022-05-07
 
 ## Changed
@@ -333,7 +341,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/ericswpark/shippy/compare/1.7.1...HEAD
+[Unreleased]: https://github.com/ericswpark/shippy/compare/1.7.2...HEAD
+[1.7.2]: https://github.com/ericswpark/shippy/compare/1.7.1...1.7.2
 [1.7.1]: https://github.com/ericswpark/shippy/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/ericswpark/shippy/compare/1.6.0...1.7.0
 [1.6.0]: https://github.com/ericswpark/shippy/compare/1.5.4...1.6.0
