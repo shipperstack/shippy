@@ -130,7 +130,10 @@ dmypy.json
 
 # Ignore build artifacts
 *.zip
-*.zip.md5
+*.md5
+*.md5sum
+*.sha256
+*.sha256sum
 
 # Ignore test outputs
 *.html
