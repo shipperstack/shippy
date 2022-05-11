@@ -6,13 +6,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 # Read version file
 main_ns = {}
-ver_path = convert_path('shippy/version.py')
+ver_path = convert_path("shippy/version.py")
 with open(ver_path) as ver_file:
     exec(ver_file.read(), main_ns)
 
 setup(
     name="shipper-shippy",
-    version=main_ns['__version__'],
+    version=main_ns["__version__"],
     author="Eric Park",
     author_email="me@ericswpark.com",
     description="Client-side tool to interface with shipper",
