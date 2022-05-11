@@ -193,8 +193,14 @@ def upload(server_url, build_file_path, token):
                         wait_rate_limit(
                             int(re.findall(r"\d+", chunk_request.json()["detail"])[0])
                         )
+                    elif int(chunk_request.status_code / 100) == 4:
+                        try:
+                            response_json = chunk_request.json()
+                            raise UploadException(response_json["message"])
+                        except JSONDecodeError:
+                            raise UploadException("Something went wrong during the upload.")
                     else:
-                        raise UploadException("Something went wrong during the upload.")
+                        raise UploadException("An unidentified error occurred starting the upload.")
                 except requests.exceptions.RequestException:
                     raise UploadException(
                         "Something went wrong during the upload and the connection to "
