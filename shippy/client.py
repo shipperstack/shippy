@@ -169,7 +169,7 @@ def upload(server_url, build_file_path, token):
                             "Authorization": f"Token {token}",
                             "Content-Range": (
                                 f"bytes {current_byte}-"
-                                "{current_byte + len(chunk_data) - 1}/{total_file_size}"
+                                f"{current_byte + len(chunk_data) - 1}/{total_file_size}"
                             ),
                         },
                         data={"filename": build_file_path},
@@ -179,7 +179,7 @@ def upload(server_url, build_file_path, token):
                     if chunk_request.status_code == 200:
                         upload_url = (
                             f"{server_url}/api/v1/maintainers/chunked_upload/"
-                            "{chunk_request.json()['id']}/"
+                            f"{chunk_request.json()['id']}/"
                         )
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
@@ -197,6 +197,8 @@ def upload(server_url, build_file_path, token):
                         try:
                             response_json = chunk_request.json()
                             raise UploadException(response_json["message"])
+                        except KeyError:
+                            raise UploadException(response_json)
                         except JSONDecodeError:
                             raise UploadException("Something went wrong during the upload.")
                     else:
