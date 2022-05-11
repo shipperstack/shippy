@@ -143,7 +143,7 @@ def get_regex_pattern(server_url, token):
     r = requests.get(regex_pattern_url, headers={"Authorization": f"Token {token}"})
 
     if r.status_code == 200:
-        return r.json()['pattern']
+        return r.json()["pattern"]
 
 
 def upload(server_url, build_file_path, token):
@@ -200,9 +200,13 @@ def upload(server_url, build_file_path, token):
                         except KeyError:
                             raise UploadException(response_json)
                         except JSONDecodeError:
-                            raise UploadException("Something went wrong during the upload.")
+                            raise UploadException(
+                                "Something went wrong during the upload."
+                            )
                     else:
-                        raise UploadException("An unidentified error occurred starting the upload.")
+                        raise UploadException(
+                            "An unidentified error occurred starting the upload."
+                        )
                 except requests.exceptions.RequestException:
                     raise UploadException(
                         "Something went wrong during the upload and the connection to "
