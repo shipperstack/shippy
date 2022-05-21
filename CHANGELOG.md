@@ -319,7 +319,7 @@ Re-release of 1.3.7
 - shippy will now prompt the user multiple times for failed uploads
 
 ## Removed
-- VERSION_CODE has now been deprecated
+- `VERSION_CODE` has now been deprecated
 
 
 # [1.2.2] - 2021-02-19
