@@ -8,6 +8,19 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# [1.7.4] - 2022-07-05
+
+## Changed
+- shippy is now licensed under GPLv3
+- shippy now requires Python 3.7 or higher
+- Updated library dependencies
+  - sentry-sdk (1.5.11 -> 1.6.0)
+  - setuptools (62.1.0 -> 63.1.0)
+  - rich (12.4.1 -> 12.4.4)
+  - requests (2.27.1 -> 2.28.1)
+  - humanize (4.1.0 -> 4.2.3)
+
+
 # [1.7.3] - 2022-05-11
 
 ## Changed
@@ -347,7 +360,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.7.3...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.7.4...HEAD
+[1.7.4]: https://github.com/shipperstack/shippy/compare/1.7.3...1.7.4
 [1.7.3]: https://github.com/shipperstack/shippy/compare/1.7.2...1.7.3
 [1.7.2]: https://github.com/shipperstack/shippy/compare/1.7.1...1.7.2
 [1.7.1]: https://github.com/shipperstack/shippy/compare/1.7.0...1.7.1
