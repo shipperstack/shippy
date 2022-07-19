@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# [1.7.5] - 2022-07-19
+
+## Changed
+- Updated library dependencies
+  - rich (12.4.4 -> 12.5.1)
+  - sentry-sdk (1.6.0 -> 1.7.2)
+  - setuptools (63.1.0 -> 63.2.0)
+ 
+
 # [1.7.4] - 2022-07-05
 
 ## Changed
@@ -360,7 +369,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.7.4...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.7.5...HEAD
+[1.7.5]: https://github.com/shipperstack/shippy/compare/1.7.4...1.7.5
 [1.7.4]: https://github.com/shipperstack/shippy/compare/1.7.3...1.7.4
 [1.7.3]: https://github.com/shipperstack/shippy/compare/1.7.2...1.7.3
 [1.7.2]: https://github.com/shipperstack/shippy/compare/1.7.1...1.7.2
