@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# [1.7.6] - 2022-09-30
+
+## Changed
+- Updated library dependencies
+  - sentry-sdk (1.7.2 -> 1.9.9)
+  - setuptools (63.2.0 -> 65.4.1)
+  - humanize (4.2.3 -> 4.4.0)
+
+
 # [1.7.5] - 2022-07-19
 
 ## Changed
@@ -369,7 +378,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.7.5...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.7.6...HEAD
+[1.7.6]: https://github.com/shipperstack/shippy/compare/1.7.5...1.7.6
 [1.7.5]: https://github.com/shipperstack/shippy/compare/1.7.4...1.7.5
 [1.7.4]: https://github.com/shipperstack/shippy/compare/1.7.3...1.7.4
 [1.7.3]: https://github.com/shipperstack/shippy/compare/1.7.2...1.7.3
