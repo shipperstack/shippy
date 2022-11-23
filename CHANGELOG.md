@@ -10,13 +10,17 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [1.8.0] - 2022-11-23
 
+## Added
+- Added a check when loading the configuration file to guard against malformed server URLs
+
 ## Changed
 - Changed the outdated updater URL to the new repository location
 - Updated library dependencies
   - sentry-sdk (1.9.9 -> 1.11.1)
   - rich (12.5.1 -> 12.6.0)
   - setuptools (65.4.1 -> 65.6.0)
-- Other miscellaneous changes to improve code quality  
+- Other miscellaneous changes to improve code quality
+- Fixed shippy sending unnecessary bug reports to Sentry when a connection failure occurs 
 
 
 # [1.7.6] - 2022-09-30
