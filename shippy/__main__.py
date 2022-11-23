@@ -61,6 +61,13 @@ def main():
     # Check if server config is valid
     try:
         server_url = get_config_value("shippy", "server")
+        if not check_server_url_schema(server_url):
+            print_error(
+                msg=f"The configuration file is corrupt. Please delete it and restart shippy.",
+                newline=True,
+                exit_after=True,
+            )
+        
         token = get_config_value("shippy", "token")
 
         token = check_token_validity(server_url, token)
@@ -256,7 +263,7 @@ def get_server_url():
     try:
         while True:
             server_url = input("Enter the server URL: ")
-            if "http" not in server_url:
+            if not check_server_url_schema(server_url):
                 # noinspection HttpUrlsUsage
                 print_error(
                     msg="Server URL is missing either http:// or https://.",
@@ -274,6 +281,10 @@ def get_server_url():
         return server_url
     except KeyboardInterrupt:
         exit(0)
+
+
+def check_server_url_schema(url):
+    return "http" in url
 
 
 def get_token(server_url):
