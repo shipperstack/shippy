@@ -254,9 +254,8 @@ def check_build(filename):
 
 def get_server_url():
     try:
-        server_url = input("Enter the server URL: ")
-
         while True:
+            server_url = input("Enter the server URL: ")
             if "http" not in server_url:
                 # noinspection HttpUrlsUsage
                 print_error(
@@ -266,7 +265,6 @@ def get_server_url():
                 )
             else:
                 break
-            server_url = input("Enter the server URL: ")
 
         if server_url[-1] == "/":
             server_url = server_url[:-1]
