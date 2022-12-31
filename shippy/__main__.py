@@ -63,7 +63,7 @@ def main():
         server_url = get_config_value("shippy", "server")
         if not check_server_url_schema(server_url):
             print_error(
-                msg=f"The configuration file is corrupt. Please delete it and restart shippy.",
+                msg="The configuration file is corrupt. Please delete it and restart shippy.",
                 newline=True,
                 exit_after=True,
             )
