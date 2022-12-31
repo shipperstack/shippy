@@ -184,20 +184,9 @@ def upload(server_url, build_file_path, token):
                         # Read next chunk and continue
                         chunk_data = build_file.read(chunk_size)
                     elif chunk_request.status_code == 429:
-                        print(RATE_LIMIT_MSG)
-                        import re
-
-                        wait_rate_limit(
-                            int(re.findall(r"\d+", chunk_request.json()["detail"])[0])
-                        )
+                        upload_handle_rate_limit(chunk_request)
                     elif int(chunk_request.status_code / 100) == 4:
-                        try:
-                            response_json = chunk_request.json()
-                            raise UploadException(response_json["message"])
-                        except KeyError:
-                            raise UploadException(response_json)
-                        except JSONDecodeError:
-                            raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
+                        upload_handle_4xx_response(chunk_request)
                     else:
                         raise UploadException(UNKNOWN_UPLOAD_START_ERROR_MSG)
                 except requests.exceptions.RequestException:
@@ -226,6 +215,24 @@ def upload(server_url, build_file_path, token):
     except UploadException as e:
         raise e
     except requests.exceptions.RequestException:
+        raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
+
+
+def upload_handle_rate_limit(chunk_request):
+    print(RATE_LIMIT_MSG)
+    import re
+    wait_rate_limit(
+        int(re.findall(r"\d+", chunk_request.json()["detail"])[0])
+    )
+
+
+def upload_handle_4xx_response(chunk_request):
+    try:
+        response_json = chunk_request.json()
+        raise UploadException(response_json["message"])
+    except KeyError:
+        raise UploadException(response_json)
+    except JSONDecodeError:
         raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
 
 
