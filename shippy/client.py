@@ -163,7 +163,17 @@ def upload(server_url, build_file_path, token):
             "[green]Uploading...", total=total_file_size
         )
 
+        # Check if there is a previous upload attempt
+        previous_attempts = requests.get(upload_url, headers=construct_header(token)).json()
+        for attempt in previous_attempts:
+            if build_file_path == attempt["filename"]:
+                print(f"We found a previous upload attempt for the build "
+                      f"{build_file_path}, created on {attempt['created_at']}.")
+                current_byte = attempt["offset"]
+                progress.update(upload_progress, completed=current_byte)
+
         with open(build_file_path, "rb") as build_file:
+            build_file.seek(current_byte)
             chunk_data = build_file.read(chunk_size)
             while chunk_data:
                 try:
