@@ -20,7 +20,8 @@ from .constants import (
     CANNOT_CONTACT_SERVER_ERROR_MSG,
     FAILED_TO_LOG_IN_ERROR_MSG,
     UNEXPECTED_SERVER_RESPONSE_ERROR_MSG,
-    RATE_LIMIT_WAIT_STATUS_MSG,
+    RATE_LIMIT_WAIT_STATUS_MSG, RATE_LIMIT_MSG, UNKNOWN_UPLOAD_ERROR_MSG,
+    UNKNOWN_UPLOAD_START_ERROR_MSG, WAITING_FINALIZATION_MSG,
 )
 from .exceptions import LoginException, UploadException
 from .helper import print_error
@@ -175,7 +176,7 @@ def upload(server_url, build_file_path, token):
                         # Read next chunk and continue
                         chunk_data = build_file.read(chunk_size)
                     elif chunk_request.status_code == 429:
-                        print("shippy has been rate-limited.")
+                        print(RATE_LIMIT_MSG)
                         import re
 
                         wait_rate_limit(
@@ -188,25 +189,15 @@ def upload(server_url, build_file_path, token):
                         except KeyError:
                             raise UploadException(response_json)
                         except JSONDecodeError:
-                            raise UploadException(
-                                "Something went wrong during the upload."
-                            )
+                            raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
                     else:
-                        raise UploadException(
-                            "An unidentified error occurred starting the upload."
-                        )
+                        raise UploadException(UNKNOWN_UPLOAD_START_ERROR_MSG)
                 except requests.exceptions.RequestException:
-                    raise UploadException(
-                        "Something went wrong during the upload and the connection to "
-                        "the server was lost!"
-                    )
+                    raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
 
     # Finalize upload to begin processing
     try:
-        with console.status(
-            "Waiting for the server to process the uploaded build. This may take "
-            "around 30 seconds... "
-        ):
+        with console.status(WAITING_FINALIZATION_MSG):
             # Check which hash we need to send over
             server_requests_checksum_type = get_server_version_info(
                 server_url=server_url
@@ -227,10 +218,7 @@ def upload(server_url, build_file_path, token):
     except UploadException as e:
         raise e
     except requests.exceptions.RequestException:
-        raise UploadException(
-            "Something went wrong during the upload and the connection to the server "
-            "was lost!"
-        )
+        raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
 
 
 def get_next_upload_url(chunk_request, server_url):
