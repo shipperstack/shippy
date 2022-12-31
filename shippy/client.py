@@ -163,18 +163,9 @@ def upload(server_url, build_file_path, token):
             chunk_data = build_file.read(chunk_size)
             while chunk_data:
                 try:
-                    chunk_request = requests.put(
-                        upload_url,
-                        headers={
-                            "Authorization": f"Token {token}",
-                            "Content-Range": (
-                                f"bytes {current_byte}-"
-                                f"{current_byte + len(chunk_data) - 1}/{total_file_size}"
-                            ),
-                        },
-                        data={"filename": build_file_path},
-                        files={"file": chunk_data},
-                    )
+                    chunk_request = upload_chunk(build_file_path, chunk_data,
+                                                 current_byte, token, total_file_size,
+                                                 upload_url)
 
                     if chunk_request.status_code == 200:
                         upload_url = (
@@ -243,6 +234,22 @@ def upload(server_url, build_file_path, token):
             "Something went wrong during the upload and the connection to the server "
             "was lost!"
         )
+
+
+def upload_chunk(build_file_path, chunk_data, current_byte, token, total_file_size,
+                 upload_url):
+    return requests.put(
+        upload_url,
+        headers={
+            "Authorization": f"Token {token}",
+            "Content-Range": (
+                f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/"
+                f"{total_file_size}"
+            ),
+        },
+        data={"filename": build_file_path},
+        files={"file": chunk_data},
+    )
 
 
 def get_hash_of_file(filename, checksum_type):
