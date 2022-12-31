@@ -20,8 +20,11 @@ from .constants import (
     CANNOT_CONTACT_SERVER_ERROR_MSG,
     FAILED_TO_LOG_IN_ERROR_MSG,
     UNEXPECTED_SERVER_RESPONSE_ERROR_MSG,
-    RATE_LIMIT_WAIT_STATUS_MSG, RATE_LIMIT_MSG, UNKNOWN_UPLOAD_ERROR_MSG,
-    UNKNOWN_UPLOAD_START_ERROR_MSG, WAITING_FINALIZATION_MSG,
+    RATE_LIMIT_WAIT_STATUS_MSG,
+    RATE_LIMIT_MSG,
+    UNKNOWN_UPLOAD_ERROR_MSG,
+    UNKNOWN_UPLOAD_START_ERROR_MSG,
+    WAITING_FINALIZATION_MSG,
 )
 from .exceptions import LoginException, UploadException
 from .helper import print_error
@@ -164,9 +167,14 @@ def upload(server_url, build_file_path, token):
             chunk_data = build_file.read(chunk_size)
             while chunk_data:
                 try:
-                    chunk_request = upload_chunk(build_file_path, chunk_data,
-                                                 current_byte, token, total_file_size,
-                                                 upload_url)
+                    chunk_request = upload_chunk(
+                        build_file_path,
+                        chunk_data,
+                        current_byte,
+                        token,
+                        total_file_size,
+                        upload_url,
+                    )
 
                     if chunk_request.status_code == 200:
                         upload_url = get_next_upload_url(chunk_request, server_url)
@@ -228,20 +236,27 @@ def get_next_upload_url(chunk_request, server_url):
     )
 
 
-def upload_chunk(build_file_path, chunk_data, current_byte, token, total_file_size,
-                 upload_url):
+def upload_chunk(
+    build_file_path, chunk_data, current_byte, token, total_file_size, upload_url
+):
     return requests.put(
         upload_url,
-        headers={
-            "Authorization": f"Token {token}",
-            "Content-Range": (
-                f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/"
-                f"{total_file_size}"
-            ),
-        },
+        headers=construct_header(token, chunk_data, current_byte, total_file_size),
         data={"filename": build_file_path},
         files={"file": chunk_data},
     )
+
+
+def construct_header(token, chunk_data=None, current_byte=None, total_file_size=None):
+    header = {"Authorization": f"Token {token}"}
+
+    if chunk_data and current_byte and total_file_size:
+        header["Content-Range"] = (
+            f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/"
+            f"{total_file_size}"
+        )
+
+    return header
 
 
 def get_hash_of_file(filename, checksum_type):
