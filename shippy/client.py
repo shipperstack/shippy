@@ -164,11 +164,15 @@ def upload(server_url, build_file_path, token):
         )
 
         # Check if there is a previous upload attempt
-        previous_attempts = requests.get(upload_url, headers=construct_header(token)).json()
+        previous_attempts = requests.get(
+            upload_url, headers=construct_header(token)
+        ).json()
         for attempt in previous_attempts:
             if build_file_path == attempt["filename"]:
-                print(f"We found a previous upload attempt for the build "
-                      f"{build_file_path}, created on {attempt['created_at']}.")
+                print(
+                    f"We found a previous upload attempt for the build "
+                    f"{build_file_path}, created on {attempt['created_at']}."
+                )
                 current_byte = attempt["offset"]
                 progress.update(upload_progress, completed=current_byte)
 
@@ -231,9 +235,8 @@ def upload(server_url, build_file_path, token):
 def upload_handle_rate_limit(chunk_request):
     print(RATE_LIMIT_MSG)
     import re
-    wait_rate_limit(
-        int(re.findall(r"\d+", chunk_request.json()["detail"])[0])
-    )
+
+    wait_rate_limit(int(re.findall(r"\d+", chunk_request.json()["detail"])[0]))
 
 
 def upload_handle_4xx_response(chunk_request):
