@@ -174,6 +174,7 @@ def upload(server_url, build_file_path, token):
                     f"{build_file_path}, created on {attempt['created_at']}."
                 )
                 current_byte = attempt["offset"]
+                upload_url = get_next_upload_url(server_url, attempt['id'])
                 progress.update(upload_progress, completed=current_byte)
 
         with open(build_file_path, "rb") as build_file:
@@ -191,7 +192,9 @@ def upload(server_url, build_file_path, token):
                     )
 
                     if chunk_request.status_code == 200:
-                        upload_url = get_next_upload_url(chunk_request, server_url)
+                        upload_url = get_next_upload_url(
+                            server_url, chunk_request.json()['id']
+                        )
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
 
@@ -249,11 +252,8 @@ def upload_handle_4xx_response(chunk_request):
         raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
 
 
-def get_next_upload_url(chunk_request, server_url):
-    return (
-        f"{server_url}/api/v1/maintainers/chunked_upload/"
-        f"{chunk_request.json()['id']}/"
-    )
+def get_next_upload_url(server_url, id):
+    return f"{server_url}/api/v1/maintainers/chunked_upload/{id}/"
 
 
 def upload_chunk(
