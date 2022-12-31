@@ -59,29 +59,7 @@ def main():
     check_shippy_update()
 
     # Check if server config is valid
-    try:
-        server_url = get_config_value("shippy", "server")
-        if not check_server_url_schema(server_url):
-            print_error(
-                msg="The configuration file is corrupt. Please delete it and restart "
-                    "shippy.",
-                newline=True,
-                exit_after=True,
-            )
-
-        token = get_config_value("shippy", "token")
-
-        token = check_token_validity(server_url, token)
-    except KeyError:
-        print_warning(
-            "No configuration file found or configuration is invalid. You need to "
-            "configure shippy before you can start using it."
-        )
-        server_url = get_server_url()
-        token = get_token(server_url)
-
-        # In case login function updated server URL, we need to fetch it again
-        server_url = get_config_value("shippy", "server")
+    server_url, token = check_server_config_validity()
 
     # Check server version compatibility
     check_server_compat(server_url)
@@ -120,6 +98,33 @@ def main():
                     upload(server_url=server_url, build_file_path=build, token=token)
                 except UploadException as exception:
                     print_error(exception, newline=True, exit_after=False)
+
+
+def check_server_config_validity():
+    try:
+        server_url = get_config_value("shippy", "server")
+        if not check_server_url_schema(server_url):
+            print_error(
+                msg="The configuration file is corrupt. Please delete it and restart "
+                    "shippy.",
+                newline=True,
+                exit_after=True,
+            )
+
+        token = get_config_value("shippy", "token")
+
+        token = check_token_validity(server_url, token)
+    except KeyError:
+        print_warning(
+            "No configuration file found or configuration is invalid. You need to "
+            "configure shippy before you can start using it."
+        )
+        server_url = get_server_url()
+        token = get_token(server_url)
+
+        # In case login function updated server URL, we need to fetch it again
+        server_url = get_config_value("shippy", "server")
+    return server_url, token
 
 
 def init_argparse():
