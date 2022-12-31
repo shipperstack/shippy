@@ -168,10 +168,7 @@ def upload(server_url, build_file_path, token):
                                                  upload_url)
 
                     if chunk_request.status_code == 200:
-                        upload_url = (
-                            f"{server_url}/api/v1/maintainers/chunked_upload/"
-                            f"{chunk_request.json()['id']}/"
-                        )
+                        upload_url = get_next_upload_url(chunk_request, server_url)
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
 
@@ -234,6 +231,13 @@ def upload(server_url, build_file_path, token):
             "Something went wrong during the upload and the connection to the server "
             "was lost!"
         )
+
+
+def get_next_upload_url(chunk_request, server_url):
+    return (
+        f"{server_url}/api/v1/maintainers/chunked_upload/"
+        f"{chunk_request.json()['id']}/"
+    )
 
 
 def upload_chunk(build_file_path, chunk_data, current_byte, token, total_file_size,
