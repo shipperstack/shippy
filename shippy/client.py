@@ -134,7 +134,7 @@ def login_to_server(username, password, server_url):
 
 def check_token(server_url, token):
     token_check_url = f"{server_url}/api/v1/maintainers/token_check/"
-    r = requests.get(token_check_url, headers={"Authorization": f"Token {token}"})
+    r = requests.get(token_check_url, headers=construct_header(token))
 
     if r.status_code == 200:
         print(f"Successfully validated token! Hello, {r.json()['username']}.")
@@ -144,7 +144,7 @@ def check_token(server_url, token):
 
 def get_regex_pattern(server_url, token):
     regex_pattern_url = f"{server_url}/api/v1/maintainers/upload_filename_regex_pattern"
-    r = requests.get(regex_pattern_url, headers={"Authorization": f"Token {token}"})
+    r = requests.get(regex_pattern_url, headers=construct_header(token))
 
     if r.status_code == 200:
         return r.json()["pattern"]
@@ -215,7 +215,7 @@ def upload(server_url, build_file_path, token):
             )
             finalize_request = requests.post(
                 upload_url,
-                headers={"Authorization": f"Token {token}"},
+                headers=construct_header(token),
                 data={server_requests_checksum_type: checksum_value},
             )
 
@@ -338,7 +338,7 @@ def check_build_disable(server_url, token, build_id):
         )
         r = requests.post(
             disable_build_url,
-            headers={"Authorization": f"Token {token}"},
+            headers=construct_header(token),
             data={"build_id": build_id, "enable": False},
         )
 
