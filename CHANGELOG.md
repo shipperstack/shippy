@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
+# 1.9.0-alpha
+
+## Added
+- Added mechanism to resume uploads after a network failure or crash
+
+## Changed
+- Updated library dependencies
+  - setuptools (65.6.0 -> 65.6.3)
+  - sentry-sdk (1.11.1 -> 1.12.1) 
+- General code cleanup
+ 
 
 # [1.8.0] - 2022-11-23
 
