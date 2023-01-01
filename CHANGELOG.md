@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-# 1.9.0-alpha
+# 1.9.0a0
 
 ## Added
 - Added mechanism to resume uploads after a network failure or crash
