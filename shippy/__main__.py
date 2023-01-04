@@ -198,10 +198,10 @@ def check_shippy_update():
     
     # Check if user is running an alpha/beta build
     if is_prerelease():
-        print(
-            f"You're running a prerelease build of shippy. Be careful as prerelease "
-            f"versions can behave in unexpected ways! If you haven't been instructed "
-            f"to test shippy, please consider switching back to a stable build."
+        print_warning(
+            "You're running a prerelease build of shippy. Be careful as prerelease "
+            "versions can behave in unexpected ways! If you haven't been instructed "
+            "to test shippy, please consider switching back to a stable build."
         )
     else:
         # User is running a stable build, proceed with update check
