@@ -191,7 +191,7 @@ def check_shippy_update():
         latest_version = r.json()["name"]
     
     # Check if user is running an alpha/beta build
-    if is_prerelease(__version__):
+    if is_prerelease():
         print(
             f"You're running a prerelease build of shippy. Be careful as prerelease "
             f"versions can behave in unexpected ways! If you haven't been instructed "
@@ -205,8 +205,8 @@ def check_shippy_update():
             print_success("Finished update check. shippy is up-to-date!")
 
 
-def is_prerelease(version):
-    return "a" in version or "b" in version
+def is_prerelease():
+    return "a" in __version__ or "b" in __version__
 
 
 def get_builds_in_current_dir(regex_pattern):
