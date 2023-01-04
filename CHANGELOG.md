@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-# 1.9.0a1
+# 1.9.0a2
 
 ## Added
 - Added mechanism to resume uploads after a network failure or crash
@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 - Updated library dependencies
   - setuptools (65.6.0 -> 65.6.3)
   - sentry-sdk (1.11.1 -> 1.12.1) 
+  - rich (12.6.0 -> 13.0.0)
 - General code cleanup
  
 
