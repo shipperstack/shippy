@@ -156,15 +156,21 @@ def check_server_compat(server_url):
             exit_after=True,
         )
 
-    # Check if shippy version is compatible
-    if semver.compare(server_version_info["shippy_compat_version"], __version__) == 1:
-        print_error(
-            msg=SHIPPY_COMPAT_ERROR_MSG.format(
-                server_version_info["shippy_compat_version"], __version__
-            ),
-            newline=True,
-            exit_after=True,
+    # Check if shippy version is compatible, but only if running stable builds
+    if is_prerelease():
+        print_warning(
+            "You're running a prerelease build of shippy. Server compatibility checks "
+            "are disabled."
         )
+    else:
+        if semver.compare(server_version_info["shippy_compat_version"], __version__) == 1:
+            print_error(
+                msg=SHIPPY_COMPAT_ERROR_MSG.format(
+                    server_version_info["shippy_compat_version"], __version__
+                ),
+                newline=True,
+                exit_after=True,
+            )
 
     print_success("Finished compatibility check. No problems found.")
 
