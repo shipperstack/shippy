@@ -278,7 +278,7 @@ def upload_chunk(
 def construct_header(token, chunk_data=None, current_byte=None, total_file_size=None):
     header = {"Authorization": f"Token {token}"}
 
-    if chunk_data and current_byte and total_file_size:
+    if chunk_data is not None and current_byte is not None and total_file_size is not None:
         header["Content-Range"] = (
             f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/"
             f"{total_file_size}"
