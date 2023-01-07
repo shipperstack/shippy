@@ -7,11 +7,12 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-# 1.9.0a2
+# 1.9.0a3
 
 ## Added
 - Added mechanism to resume uploads after a network failure or crash
 - Added mechanisms for alpha/beta build releases
+- Added logging mechanism
 
 ## Changed
 - Updated library dependencies
