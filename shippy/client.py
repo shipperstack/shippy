@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os.path
 import requests
 
@@ -164,9 +165,12 @@ def upload(server_url, build_file_path, token):
         )
 
         # Check if there is a previous upload attempt
+        logging.info(f"Checking for previous upload attempts for build {build_file_path}...")
+        logging.info(f"Sending request: {upload_url} with headers {construct_header(token)}")
         previous_attempts = requests.get(
             upload_url, headers=construct_header(token)
         ).json()
+        logging.info(f"Got back {previous_attempts}")
         for attempt in previous_attempts:
             if build_file_path == attempt["filename"]:
                 print(
@@ -259,12 +263,16 @@ def get_next_upload_url(server_url, id):
 def upload_chunk(
     build_file_path, chunk_data, current_byte, token, total_file_size, upload_url
 ):
-    return requests.put(
+    header = construct_header(token, chunk_data, current_byte, total_file_size)
+    logging.info(f"Sending request: {upload_url} with headers {header}")
+    result = requests.put(
         upload_url,
-        headers=construct_header(token, chunk_data, current_byte, total_file_size),
+        headers=header,
         data={"filename": build_file_path},
         files={"file": chunk_data},
     )
+    logging.info(f"Got back: {result}")
+    return result
 
 
 def construct_header(token, chunk_data=None, current_byte=None, total_file_size=None):

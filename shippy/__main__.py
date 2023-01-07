@@ -2,6 +2,7 @@ import argparse
 import re
 import glob
 import os.path
+import logging
 
 import requests
 import semver
@@ -44,6 +45,13 @@ console = Console()
 
 
 def main():
+    # Get commandline arguments
+    args = init_argparse()
+
+    if args.debug:
+        print("Debug mode has been turned on!")
+        logging.basicConfig(filename='shippy.log', level=logging.INFO)
+
     print(f"Welcome to shippy (v.{__version__})!")
 
     # Check if we cannot prompt the user (default to auto-upload)
@@ -51,8 +59,6 @@ def main():
         "shippy", "UploadWithoutPrompt"
     )
 
-    # Get commandline arguments
-    args = init_argparse()
     upload_without_prompt = upload_without_prompt or args.yes
 
     # Check for updates
@@ -136,6 +142,12 @@ def init_argparse():
         "--yes",
         action="store_true",
         help="Upload builds automatically without prompting",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Enable debug mode",
     )
     return parser.parse_args()
 
