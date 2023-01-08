@@ -240,60 +240,59 @@ def get_builds_in_current_dir(regex_pattern):
 
 def check_build(filename):
     """Makes sure the build is valid"""
-    print(f"Validating build {filename}...")
+    with console.status(f"Validating build {filename}..."):
+        # Validate that there is a matching checksum file
+        has_checksum_file_type, has_sum_postfix = find_checksum_file(filename=filename)
 
-    # Validate that there is a matching checksum file
-    has_checksum_file_type, has_sum_postfix = find_checksum_file(filename=filename)
-
-    if has_checksum_file_type is None:
-        print_warning(
-            "This build does not have a matching checksum file. ", newline=False
-        )
-        return False
-
-    # Validate checksum
-    with console.status(
-        f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may "
-        "take a couple of seconds. "
-    ):
-        hash_val = get_hash_of_file(
-            filename=filename, checksum_type=has_checksum_file_type
-        )
-        if not has_sum_postfix:
-            actual_hash_val = get_hash_from_checksum_file(
-                f"{filename}.{has_checksum_file_type}"
-            )
-        else:
-            actual_hash_val = get_hash_from_checksum_file(
-                f"{filename}.{has_checksum_file_type}sum"
-            )
-        if hash_val != actual_hash_val:
-            print_error(
-                msg="This build's checksum is invalid. ",
-                newline=False,
-                exit_after=False,
+        if has_checksum_file_type is None:
+            print_warning(
+                "This build does not have a matching checksum file. ", newline=False
             )
             return False
-        print_success(f"{has_checksum_file_type.upper()} hash of {filename} matched.")
 
-    build_slug, _ = os.path.splitext(filename)
-    _, _, _, build_type, build_variant, _ = build_slug.split("-")
+        # Validate checksum
+        with console.status(
+            f"Checking {has_checksum_file_type.upper()} hash of {filename}... this may "
+            "take a couple of seconds. "
+        ):
+            hash_val = get_hash_of_file(
+                filename=filename, checksum_type=has_checksum_file_type
+            )
+            if not has_sum_postfix:
+                actual_hash_val = get_hash_from_checksum_file(
+                    f"{filename}.{has_checksum_file_type}"
+                )
+            else:
+                actual_hash_val = get_hash_from_checksum_file(
+                    f"{filename}.{has_checksum_file_type}sum"
+                )
+            if hash_val != actual_hash_val:
+                print_error(
+                    msg="This build's checksum is invalid. ",
+                    newline=False,
+                    exit_after=False,
+                )
+                return False
+            print_success(f"{has_checksum_file_type.upper()} matched!")
 
-    # Check build type
-    if build_type != "OFFICIAL":
-        print_error(msg="This build is not official. ", newline=False, exit_after=False)
-        return False
+        build_slug, _ = os.path.splitext(filename)
+        _, _, _, build_type, build_variant, _ = build_slug.split("-")
 
-    # Check build variant
-    valid_variants = ["gapps", "vanilla", "foss", "goapps"]
-    if build_variant not in valid_variants:
-        print_error(
-            msg="This build has an unknown variant. ", newline=False, exit_after=False
-        )
-        return False
+        # Check build type
+        if build_type != "OFFICIAL":
+            print_error(msg="This build is not official. ", newline=False, exit_after=False)
+            return False
 
-    print_success(f"Validation of build {filename} complete. No problems found.")
-    return True
+        # Check build variant
+        valid_variants = ["gapps", "vanilla", "foss", "goapps"]
+        if build_variant not in valid_variants:
+            print_error(
+                msg="This build has an unknown variant. ", newline=False, exit_after=False
+            )
+            return False
+
+        print_success(f"Validation of build {filename} complete. No problems found.")
+        return True
 
 
 def get_server_url():
