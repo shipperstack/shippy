@@ -22,17 +22,7 @@ Go to the directory with build files, and run:
 shippy
 ```
 
-Command-line arguments:
-
-```shell
-usage: __main__.py [-h] [-y]
-
-Client-side tool for interfacing with shipper
-
-optional arguments:
-  -h, --help  show this help message and exit
-  -y, --yes   Upload builds automatically without prompting
-```
+Run `shippy -h` to see commandline arguments' usage instructions.
 
 # Configuration
 
