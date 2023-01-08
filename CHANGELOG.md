@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-# 1.9.0a3
+# 1.9.0a4
 
 ## Added
 - Added mechanism to resume uploads after a network failure or crash
@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
   - sentry-sdk (1.11.1 -> 1.12.1) 
   - rich (12.6.0 -> 13.0.0)
 - General code cleanup
+- Adjusted message pretty-printing levels
  
 
 # [1.8.0] - 2022-11-23
