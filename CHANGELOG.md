@@ -7,7 +7,8 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 
 # [Unreleased]
 
-# 1.9.0a5
+
+# [1.9.0] - 2023-01-08
 
 ## Added
 - Added mechanism to resume uploads after a network failure or crash
@@ -21,6 +22,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
   - rich (12.6.0 -> 13.0.0)
 - General code cleanup
 - Adjusted message pretty-printing levels
+- Stop printing traceback on `KeyboardInterrupt`s
  
 
 # [1.8.0] - 2022-11-23
@@ -408,7 +410,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.8.0...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.9.0...HEAD
+[1.9.0]: https://github.com/shipperstack/shippy/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/shipperstack/shippy/compare/1.7.6...1.8.0
 [1.7.6]: https://github.com/shipperstack/shippy/compare/1.7.5...1.7.6
 [1.7.5]: https://github.com/shipperstack/shippy/compare/1.7.4...1.7.5
