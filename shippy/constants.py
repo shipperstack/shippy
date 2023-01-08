@@ -1,5 +1,6 @@
-SENTRY_SDK_URL = "https://0da75bab4671455ea1b7580cb93649f5@o444286.ingest.sentry.io" \
-                 "/5645833"
+SENTRY_SDK_URL = (
+    "https://0da75bab4671455ea1b7580cb93649f5@o444286.ingest.sentry.io" "/5645833"
+)
 
 SERVER_COMPAT_ERROR_MSG = """
 The server you're connecting to is out-of-date.
@@ -35,8 +36,10 @@ RATE_LIMIT_WAIT_STATUS_MSG = (
     "resume uploading in {} seconds."
 )
 
-WAITING_FINALIZATION_MSG = "Waiting for the server to process the uploaded build. " \
-                           "This may take around 30 seconds..."
+WAITING_FINALIZATION_MSG = (
+    "Waiting for the server to process the uploaded build. "
+    "This may take around 30 seconds..."
+)
 
 
 CANNOT_CONTACT_SERVER_ERROR_MSG = "Cannot contact the server. "

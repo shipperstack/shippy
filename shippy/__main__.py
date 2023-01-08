@@ -50,7 +50,7 @@ def main():
 
     if args.debug:
         print_warning("Debug mode has been turned on!")
-        logging.basicConfig(filename='shippy.log', level=logging.DEBUG)
+        logging.basicConfig(filename="shippy.log", level=logging.DEBUG)
 
     print(f"Welcome to shippy (v.{__version__})!")
 
@@ -112,7 +112,7 @@ def check_server_config_validity():
         if not check_server_url_schema(server_url):
             print_error(
                 msg="The configuration file is corrupt. Please delete it and restart "
-                    "shippy.",
+                "shippy.",
                 newline=True,
                 exit_after=True,
             )
@@ -175,7 +175,10 @@ def check_server_compat(server_url):
             "are disabled."
         )
     else:
-        if semver.compare(server_version_info["shippy_compat_version"], __version__) == 1:
+        if (
+            semver.compare(server_version_info["shippy_compat_version"], __version__)
+            == 1
+        ):
             print_error(
                 msg=SHIPPY_COMPAT_ERROR_MSG.format(
                     server_version_info["shippy_compat_version"], __version__
@@ -207,7 +210,7 @@ def check_shippy_update():
             "https://api.github.com/repos/shipperstack/shippy/releases/latest"
         )
         latest_version = r.json()["name"]
-    
+
     # Check if user is running an alpha/beta build
     if is_prerelease():
         print_warning(
@@ -280,14 +283,18 @@ def check_build(filename):
 
         # Check build type
         if build_type != "OFFICIAL":
-            print_error(msg="This build is not official. ", newline=False, exit_after=False)
+            print_error(
+                msg="This build is not official. ", newline=False, exit_after=False
+            )
             return False
 
         # Check build variant
         valid_variants = ["gapps", "vanilla", "foss", "goapps"]
         if build_variant not in valid_variants:
             print_error(
-                msg="This build has an unknown variant. ", newline=False, exit_after=False
+                msg="This build has an unknown variant. ",
+                newline=False,
+                exit_after=False,
             )
             return False
 

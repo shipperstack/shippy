@@ -165,8 +165,12 @@ def upload(server_url, build_file_path, token):
         )
 
         # Check if there is a previous upload attempt
-        logging.info(f"Checking for previous upload attempts for build {build_file_path}...")
-        logging.debug(f"Sending request: {upload_url} with headers {construct_header(token)}")
+        logging.info(
+            f"Checking for previous upload attempts for build {build_file_path}..."
+        )
+        logging.debug(
+            f"Sending request: {upload_url} with headers {construct_header(token)}"
+        )
         previous_attempts = requests.get(
             upload_url, headers=construct_header(token)
         ).json()
@@ -178,7 +182,7 @@ def upload(server_url, build_file_path, token):
                     f"{build_file_path}, created on {attempt['created_at']}."
                 )
                 current_byte = attempt["offset"]
-                upload_url = get_next_upload_url(server_url, attempt['id'])
+                upload_url = get_next_upload_url(server_url, attempt["id"])
                 progress.update(upload_progress, completed=current_byte)
 
         with open(build_file_path, "rb") as build_file:
@@ -197,7 +201,7 @@ def upload(server_url, build_file_path, token):
 
                     if chunk_request.status_code == 200:
                         upload_url = get_next_upload_url(
-                            server_url, chunk_request.json()['id']
+                            server_url, chunk_request.json()["id"]
                         )
                         current_byte += len(chunk_data)
                         progress.update(upload_progress, completed=current_byte)
@@ -278,7 +282,11 @@ def upload_chunk(
 def construct_header(token, chunk_data=None, current_byte=None, total_file_size=None):
     header = {"Authorization": f"Token {token}"}
 
-    if chunk_data is not None and current_byte is not None and total_file_size is not None:
+    if (
+        chunk_data is not None
+        and current_byte is not None
+        and total_file_size is not None
+    ):
         header["Content-Range"] = (
             f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/"
             f"{total_file_size}"
