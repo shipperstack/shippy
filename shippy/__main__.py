@@ -3,6 +3,7 @@ import re
 import glob
 import os.path
 import logging
+import signal
 
 import requests
 import semver
@@ -42,6 +43,14 @@ sentry_sdk.init(
 )
 
 console = Console()
+
+
+# Handle SIGINT gracefully and don't puke up traceback
+def sigint_handler(*_):
+    exit(1)
+
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 def main():
