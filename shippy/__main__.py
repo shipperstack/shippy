@@ -49,7 +49,7 @@ def main():
     args = init_argparse()
 
     if args.debug:
-        print("Debug mode has been turned on!")
+        print_warning("Debug mode has been turned on!")
         logging.basicConfig(filename='shippy.log', level=logging.DEBUG)
 
     print(f"Welcome to shippy (v.{__version__})!")

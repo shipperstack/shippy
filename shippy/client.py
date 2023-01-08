@@ -28,7 +28,7 @@ from .constants import (
     WAITING_FINALIZATION_MSG,
 )
 from .exceptions import LoginException, UploadException
-from .helper import print_error
+from .helper import print_error, print_success
 
 console = Console()
 
@@ -138,7 +138,7 @@ def check_token(server_url, token):
     r = requests.get(token_check_url, headers=construct_header(token))
 
     if r.status_code == 200:
-        print(f"Successfully validated token! Hello, {r.json()['username']}.")
+        print_success(f"Successfully validated token! Hello, {r.json()['username']}.")
         return True
     return False
 
