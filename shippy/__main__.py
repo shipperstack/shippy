@@ -13,7 +13,7 @@ import sentry_sdk
 from rich import print
 from rich.console import Console
 
-from .client import (
+from .server import (
     get_hash_from_checksum_file,
     get_hash_of_file,
     find_checksum_file,
