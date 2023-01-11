@@ -14,21 +14,18 @@ from rich.progress import (
     TransferSpeedColumn,
 )
 
-from .config import get_config_value, set_config_value
+from .config import set_config_value
 from .constants import (
     UNHANDLED_EXCEPTION_MSG,
     FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG,
-    CANNOT_CONTACT_SERVER_ERROR_MSG,
-    FAILED_TO_LOG_IN_ERROR_MSG,
-    UNEXPECTED_SERVER_RESPONSE_ERROR_MSG,
     RATE_LIMIT_WAIT_STATUS_MSG,
     RATE_LIMIT_MSG,
     UNKNOWN_UPLOAD_ERROR_MSG,
     UNKNOWN_UPLOAD_START_ERROR_MSG,
     WAITING_FINALIZATION_MSG,
+    CHUNK_SIZE,
 )
 from .exceptions import LoginException, UploadException
-from .helper import print_error, print_success
 
 console = Console()
 
@@ -47,6 +44,206 @@ progress = Progress(
 )
 
 
+class Server:
+    def __init__(self, url, token=None):
+        self.url = url
+        self.token = token
+
+    def is_url_secure(self):
+        return self.url[0:5] == "https"
+
+    def login(self, username, password):
+        r = self._post(
+            url="/api/v1/maintainers/login",
+            data={"username": username, "password": password},
+        )
+
+        if r.status_code == 200:
+            self.token = r.json()["token"]
+        elif r.status_code == 400 and r.json()["error"] == "blank_username_or_password":
+            raise LoginException("Username or password must not be blank.")
+        elif r.status_code == 404 and r.json()["error"] == "invalid_credential":
+            raise LoginException("Invalid credentials!")
+        elif r.status_code == 301 and not self.is_url_secure():
+            print(
+                "It seems like you entered a HTTP address when setting up shippy, "
+                "but the server instance uses HTTPS. shippy automatically "
+                "corrected your server URL in the configuration file."
+            )
+            self.url = f"https://{self.url[7:]}"
+            set_config_value("shippy", "server", self.url)
+            # Attempt logging in again
+            self.login(username=username, password=password)
+
+        # Returned status code matches no scenario, abort
+        handle_undefined_response(r)
+
+    def get_version(self):
+        return self._get_info()["version"]
+
+    def get_shippy_compat_version(self):
+        return self._get_info()["shippy_compat_version"]
+
+    def _get_info(self):
+        r = self._get(url="/api/v1/system/info")
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise Exception(FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG)
+
+    def get_regex_pattern(self):
+        r = self._get(
+            url="/api/v1/maintainers/upload_filename_regex_pattern",
+            headers=self._get_header(),
+        )
+
+        if r.status_code == 200:
+            return r.json()["pattern"]
+
+    def _get_checksum_type(self):
+        return self._get_info()["shippy_upload_checksum_type"]
+
+    def get_username(self):
+        r = self._get(
+            url="/api/v1/maintainers/token_check/",
+            headers=self._get_header(),
+        )
+
+        return r.json()["username"]
+
+    def is_token_valid(self):
+        r = self._get(
+            url="/api/v1/maintainers/token_check/",
+            headers=self._get_header(),
+        )
+
+        return r.status_code == 200
+
+    def upload(self, build_path):
+        current_byte = 0
+        upload_id = ""
+        total_file_size = os.path.getsize(build_path)
+
+        with progress:
+            upload_progress = progress.add_task(
+                "[green]Uploading...", total=total_file_size
+            )
+
+            # Check if there is a previous upload attempt
+            previous_attempts = self._get(
+                url="/api/v1/maintainers/chunked_upload/", headers=self._get_header()
+            ).json()
+            for attempt in previous_attempts:
+                if build_path == attempt["filename"]:
+                    print(
+                        f"We found a previous upload attempt for the build "
+                        f"{build_path}, created on {attempt['created_at']}."
+                    )
+                    current_byte = attempt["offset"]
+                    upload_id = attempt["id"]
+
+            with open(build_path, "rb") as build_file:
+                build_file.seek(current_byte)
+                chunk = build_file.read(CHUNK_SIZE)
+                while chunk:
+                    try:
+                        r = self._upload_chunk(
+                            build_path=build_path,
+                            chunk=chunk,
+                            current=current_byte,
+                            total=total_file_size,
+                            upload_id=upload_id,
+                        )
+
+                        if r.status_code == 200:
+                            upload_id = r.json()["id"]
+                            current_byte += len(chunk)
+                            progress.update(upload_progress, completed=current_byte)
+
+                            # Read next chunk and continue
+                            chunk = build_file.read(CHUNK_SIZE)
+                        elif r.status_code == 429:
+                            upload_handle_rate_limit(r)
+                        elif int(r.status_code / 100) == 4:
+                            upload_handle_4xx_response(r)
+                        else:
+                            raise UploadException(UNKNOWN_UPLOAD_START_ERROR_MSG)
+                    except requests.exceptions.RequestException:
+                        raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
+
+        # Finalize upload to begin processing
+        try:
+            with console.status(WAITING_FINALIZATION_MSG):
+                checksum = get_hash_of_file(
+                    build_path, checksum_type=self._get_checksum_type()
+                )
+                r = self._upload_finalize(upload_id=upload_id, checksum=checksum)
+
+                upload_exception_check(r, build_path)
+        except UploadException as e:
+            raise e
+        except requests.exceptions.RequestException:
+            raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
+
+        return upload_id
+
+    def disable_build(self, upload_id):
+        r = self._post(
+            "/api/v1/maintainers/build/enabled_status_modify/",
+            headers=self._get_header(),
+            data={"build_id": upload_id, "enable": False},
+        )
+
+        if r.status_code == 200:
+            print(f"Build {upload_id} has been disabled.")
+        else:
+            raise Exception("There was a problem disabling the build.")
+
+    def _upload_chunk(self, build_path, chunk, current, total, upload_id):
+        if upload_id:
+            url = f"/api/v1/maintainers/chunked_upload/{upload_id}/"
+        else:
+            url = "/api/v1/maintainers/chunked_upload/"
+        result = self._put(
+            url=url,
+            headers=self._get_header(chunk=chunk, current=current, total=total),
+            data={"filename": build_path},
+            files={"file": chunk},
+        )
+        logging.debug(f"Got back: {result}")
+        return result
+
+    def _upload_finalize(self, upload_id, checksum):
+        return self._post(
+            url=f"/api/v1/maintainers/chunked_upload/{upload_id}/",
+            headers=self._get_header(),
+            data={self._get_checksum_type(): checksum},
+        )
+
+    def _get_header(self, chunk=None, current=None, total=None):
+        header = {"Authorization": f"Token {self.token}"}
+
+        if chunk is not None and current is not None and total is not None:
+            header[
+                "Content-Range"
+            ] = f"bytes {current}-{current + len(chunk) - 1}/{total}"
+
+        return header
+
+    def _post(self, url, headers=None, data=None):
+        return requests.post(
+            url=f"{self.url}{url}", headers=headers, data=data, allow_redirects=False
+        )
+
+    def _get(self, url, headers=None, data=None):
+        return requests.get(url=f"{self.url}{url}", headers=headers, data=data)
+
+    def _put(self, url, headers, data, files):
+        return requests.put(
+            url=f"{self.url}{url}", headers=headers, data=data, files=files
+        )
+
+
 def handle_undefined_response(request):
     """Handles undefined responses sent back by the server"""
     try:
@@ -63,186 +260,6 @@ def handle_undefined_response(request):
         )
 
 
-def get_server_version_info(server_url):
-    """Gets server version information"""
-    version_url = f"{server_url}/api/v1/system/info/"
-    try:
-        r = requests.get(version_url)
-        if r.status_code == 200:
-            return r.json()
-        else:
-            print_error(
-                msg=FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG,
-                newline=True,
-                exit_after=True,
-            )
-    except requests.exceptions.RequestException:
-        print_error(
-            msg=CANNOT_CONTACT_SERVER_ERROR_MSG
-            + FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG,
-            newline=True,
-            exit_after=True,
-        )
-
-
-def login_to_server(username, password, server_url):
-    """Authenticates to server and returns authorization token"""
-    login_url = f"{server_url}/api/v1/maintainers/login/"
-    try:
-        r = requests.post(login_url, data={"username": username, "password": password})
-
-        if r.status_code == 200:
-            data = r.json()
-            return data["token"]
-        elif r.status_code == 400 and r.json()["error"] == "blank_username_or_password":
-            raise LoginException("Username or password must not be blank.")
-        elif r.status_code == 404 and r.json()["error"] == "invalid_credential":
-            raise LoginException("Invalid credentials!")
-        # Really, really weird edge case where HTTP URLs would redirect and cause a
-        # GET request
-        elif (
-            r.status_code == 405
-            and r.json()["detail"] == 'Method "GET" not allowed.'
-            and server_url[0:5] == "http:"
-        ):
-            print(
-                "It seems like you entered a HTTP address when setting up shippy, but "
-                "the server instance uses HTTPS. shippy automatically corrected your "
-                "server URL in the configuration file."
-            )
-            server_url = f"https://{server_url[7:]}"
-            set_config_value("shippy", "server", server_url)
-            # Attempt logging in again
-            return login_to_server(username, password, server_url)
-
-        # Returned status code matches no scenario, abort
-        handle_undefined_response(r)
-    except LoginException as e:
-        raise e
-    except JSONDecodeError:
-        print_error(
-            msg=UNEXPECTED_SERVER_RESPONSE_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG,
-            newline=True,
-            exit_after=True,
-        )
-    except requests.exceptions.RequestException:
-        print_error(
-            msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG,
-            newline=True,
-            exit_after=True,
-        )
-
-
-def check_token(server_url, token):
-    token_check_url = f"{server_url}/api/v1/maintainers/token_check/"
-    r = requests.get(token_check_url, headers=construct_header(token))
-
-    if r.status_code == 200:
-        print_success(f"Successfully validated token! Hello, {r.json()['username']}.")
-        return True
-    return False
-
-
-def get_regex_pattern(server_url, token):
-    regex_pattern_url = f"{server_url}/api/v1/maintainers/upload_filename_regex_pattern"
-    r = requests.get(regex_pattern_url, headers=construct_header(token))
-
-    if r.status_code == 200:
-        return r.json()["pattern"]
-
-
-def upload(server_url, build_file_path, token):
-    """Upload given build files to specified server with token"""
-    upload_url = f"{server_url}/api/v1/maintainers/chunked_upload/"
-
-    chunk_size = 1000000  # 1 MB
-    current_byte = 0
-    total_file_size = os.path.getsize(build_file_path)
-
-    with progress:
-        upload_progress = progress.add_task(
-            "[green]Uploading...", total=total_file_size
-        )
-
-        # Check if there is a previous upload attempt
-        logging.info(
-            f"Checking for previous upload attempts for build {build_file_path}..."
-        )
-        logging.debug(
-            f"Sending request: {upload_url} with headers {construct_header(token)}"
-        )
-        previous_attempts = requests.get(
-            upload_url, headers=construct_header(token)
-        ).json()
-        logging.debug(f"Got back {previous_attempts}")
-        for attempt in previous_attempts:
-            if build_file_path == attempt["filename"]:
-                print(
-                    f"We found a previous upload attempt for the build "
-                    f"{build_file_path}, created on {attempt['created_at']}."
-                )
-                current_byte = attempt["offset"]
-                upload_url = get_next_upload_url(server_url, attempt["id"])
-                progress.update(upload_progress, completed=current_byte)
-
-        with open(build_file_path, "rb") as build_file:
-            build_file.seek(current_byte)
-            chunk_data = build_file.read(chunk_size)
-            while chunk_data:
-                try:
-                    chunk_request = upload_chunk(
-                        build_file_path,
-                        chunk_data,
-                        current_byte,
-                        token,
-                        total_file_size,
-                        upload_url,
-                    )
-
-                    if chunk_request.status_code == 200:
-                        upload_url = get_next_upload_url(
-                            server_url, chunk_request.json()["id"]
-                        )
-                        current_byte += len(chunk_data)
-                        progress.update(upload_progress, completed=current_byte)
-
-                        # Read next chunk and continue
-                        chunk_data = build_file.read(chunk_size)
-                    elif chunk_request.status_code == 429:
-                        upload_handle_rate_limit(chunk_request)
-                    elif int(chunk_request.status_code / 100) == 4:
-                        upload_handle_4xx_response(chunk_request)
-                    else:
-                        raise UploadException(UNKNOWN_UPLOAD_START_ERROR_MSG)
-                except requests.exceptions.RequestException:
-                    raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
-
-    # Finalize upload to begin processing
-    try:
-        with console.status(WAITING_FINALIZATION_MSG):
-            # Check which hash we need to send over
-            server_requests_checksum_type = get_server_version_info(
-                server_url=server_url
-            )["shippy_upload_checksum_type"]
-            checksum_value = get_hash_of_file(
-                build_file_path, checksum_type=server_requests_checksum_type
-            )
-            finalize_request = requests.post(
-                upload_url,
-                headers=construct_header(token),
-                data={server_requests_checksum_type: checksum_value},
-            )
-
-            upload_exception_check(finalize_request, build_file_path)
-
-            # Check if build should be disabled immediately after run
-            check_build_disable(server_url, token, finalize_request.json()["build_id"])
-    except UploadException as e:
-        raise e
-    except requests.exceptions.RequestException:
-        raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
-
-
 def upload_handle_rate_limit(chunk_request):
     print(RATE_LIMIT_MSG)
     import re
@@ -254,45 +271,8 @@ def upload_handle_4xx_response(chunk_request):
     try:
         response_json = chunk_request.json()
         raise UploadException(response_json["message"])
-    except KeyError:
-        raise UploadException(response_json)
-    except JSONDecodeError:
+    except (KeyError, JSONDecodeError):
         raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
-
-
-def get_next_upload_url(server_url, id):
-    return f"{server_url}/api/v1/maintainers/chunked_upload/{id}/"
-
-
-def upload_chunk(
-    build_file_path, chunk_data, current_byte, token, total_file_size, upload_url
-):
-    header = construct_header(token, chunk_data, current_byte, total_file_size)
-    logging.debug(f"Sending request: {upload_url} with headers {header}")
-    result = requests.put(
-        upload_url,
-        headers=header,
-        data={"filename": build_file_path},
-        files={"file": chunk_data},
-    )
-    logging.debug(f"Got back: {result}")
-    return result
-
-
-def construct_header(token, chunk_data=None, current_byte=None, total_file_size=None):
-    header = {"Authorization": f"Token {token}"}
-
-    if (
-        chunk_data is not None
-        and current_byte is not None
-        and total_file_size is not None
-    ):
-        header["Content-Range"] = (
-            f"bytes {current_byte}-{current_byte + len(chunk_data) - 1}/"
-            f"{total_file_size}"
-        )
-
-    return header
 
 
 def get_hash_of_file(filename, checksum_type):
@@ -357,29 +337,3 @@ def upload_exception_check(request, build_file):
         )
 
     handle_undefined_response(request)
-
-
-def check_build_disable(server_url, token, build_id):
-    try:
-        disable_build_on_upload = (
-            get_config_value("shippy", "DisableBuildOnUpload") == "true"
-        )
-    except KeyError:
-        # Not defined
-        return
-
-    if disable_build_on_upload:
-        disable_build_url = (
-            f"{server_url}/api/v1/maintainers/build/enabled_status_modify/"
-        )
-        r = requests.post(
-            disable_build_url,
-            headers=construct_header(token),
-            data={"build_id": build_id, "enable": False},
-        )
-
-        if r.status_code == 200:
-            print("Build has been automatically disabled, following configuration.")
-            print("If this is unexpected, please check your configuration.")
-        else:
-            print("There was a problem disabling the build.")

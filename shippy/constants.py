@@ -41,7 +41,6 @@ WAITING_FINALIZATION_MSG = (
     "This may take around 30 seconds..."
 )
 
-
 CANNOT_CONTACT_SERVER_ERROR_MSG = "Cannot contact the server. "
 UNEXPECTED_SERVER_RESPONSE_ERROR_MSG = "The server returned an unexpected response. "
 FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG = (
@@ -60,3 +59,5 @@ Request response code: {}
 Request response: {}
 ---
 """
+
+CHUNK_SIZE = 1000000  # 1 MB

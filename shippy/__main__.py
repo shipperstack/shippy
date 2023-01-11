@@ -4,6 +4,7 @@ import glob
 import os.path
 import logging
 import signal
+from json import JSONDecodeError
 
 import requests
 import semver
@@ -13,14 +14,10 @@ from rich import print
 from rich.console import Console
 
 from .client import (
-    login_to_server,
-    upload,
-    get_server_version_info,
-    get_regex_pattern,
     get_hash_from_checksum_file,
-    check_token,
     get_hash_of_file,
     find_checksum_file,
+    Server,
 )
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import (
@@ -28,6 +25,9 @@ from .constants import (
     SERVER_COMPAT_ERROR_MSG,
     SHIPPY_COMPAT_ERROR_MSG,
     SHIPPY_OUTDATED_MSG,
+    UNEXPECTED_SERVER_RESPONSE_ERROR_MSG,
+    FAILED_TO_LOG_IN_ERROR_MSG,
+    CANNOT_CONTACT_SERVER_ERROR_MSG,
 )
 from .exceptions import LoginException, UploadException
 from .helper import input_yn, print_error, print_warning, print_success
@@ -73,19 +73,15 @@ def main():
     # Check for updates
     check_shippy_update()
 
-    # Check if server config is valid
-    server_url, token = check_server_config_validity()
+    # Initialize server
+    server = build_server_from_config()
+    check_server_compat(server)
+    check_token_validity(server)
 
-    # Check server version compatibility
-    check_server_compat(server_url)
+    # Search current directory for files with regex pattern returned by server
+    build_paths = get_builds_in_current_dir(server.get_regex_pattern())
 
-    # Get regex pattern from server
-    regex_pattern = get_regex_pattern(server_url=server_url, token=token)
-
-    # Search current directory for files
-    builds = get_builds_in_current_dir(regex_pattern)
-
-    if len(builds) == 0:
+    if len(build_paths) == 0:
         print_error(
             msg="No files matching the submission criteria were detected in the "
             "current directory.",
@@ -93,32 +89,37 @@ def main():
             exit_after=False,
         )
     else:
-        print(f"Detected {len(builds)} build(s):")
-        for build in builds:
-            print(f"\t{build}")
+        print(f"Detected {len(build_paths)} build(s):")
+        for build_path in build_paths:
+            print(f"\t{build_path}")
 
-        if not upload_without_prompt and len(builds) > 1:
+        if not upload_without_prompt and len(build_paths) > 1:
             print_warning("You seem to be uploading multiple builds. ", newline=False)
             if not input_yn("Are you sure you want to continue?", default=False):
                 return
 
-        for build in builds:
+        for build_path in build_paths:
             # Check build file validity
-            if not check_build(build):
+            if not check_build(build_path):
                 print_warning("Invalid build. Skipping...")
                 continue
 
-            if upload_without_prompt or input_yn(f"Uploading build {build}. Start?"):
+            if upload_without_prompt or input_yn(
+                f"Uploading build {build_path}. Start?"
+            ):
                 try:
-                    upload(server_url=server_url, build_file_path=build, token=token)
+                    upload_id = server.upload(build_path=build_path)
+
+                    if is_build_disabling_enabled():
+                        server.disable_build(upload_id=upload_id)
                 except UploadException as exception:
                     print_error(exception, newline=True, exit_after=False)
 
 
-def check_server_config_validity():
+def build_server_from_config():
     try:
-        server_url = get_config_value("shippy", "server")
-        if not check_server_url_schema(server_url):
+        url = get_config_value("shippy", "server")
+        if not check_server_url_schema(url):
             print_error(
                 msg="The configuration file is corrupt. Please delete it and restart "
                 "shippy.",
@@ -127,19 +128,15 @@ def check_server_config_validity():
             )
 
         token = get_config_value("shippy", "token")
-
-        token = check_token_validity(server_url, token)
+        server = Server(url=url, token=token)
     except KeyError:
         print_warning(
             "No configuration file found or configuration is invalid. You need to "
             "configure shippy before you can start using it."
         )
-        server_url = get_server_url()
-        token = get_token(server_url)
-
-        # In case login function updated server URL, we need to fetch it again
-        server_url = get_config_value("shippy", "server")
-    return server_url, token
+        server = Server(url=get_server_url())
+        prompt_login(server)
+    return server
 
 
 def init_argparse():
@@ -161,21 +158,19 @@ def init_argparse():
     return parser.parse_args()
 
 
-def check_server_compat(server_url):
+def check_server_compat(server):
     with console.status(
         "Please wait while shippy contacts the remote server to check compatibility... "
     ):
-        server_version_info = get_server_version_info(server_url)
-
-    # Check if shipper version is compatible
-    if semver.compare(server_version_info["version"], server_compat_version) == -1:
-        print_error(
-            msg=SERVER_COMPAT_ERROR_MSG.format(
-                server_version_info["version"], server_compat_version
-            ),
-            newline=True,
-            exit_after=True,
-        )
+        # Check if shipper version is compatible
+        if semver.compare(server.get_version(), server_compat_version) == -1:
+            print_error(
+                msg=SERVER_COMPAT_ERROR_MSG.format(
+                    server.get_version(), server_compat_version
+                ),
+                newline=True,
+                exit_after=True,
+            )
 
     # Check if shippy version is compatible, but only if running stable builds
     if is_prerelease():
@@ -184,13 +179,10 @@ def check_server_compat(server_url):
             "are disabled."
         )
     else:
-        if (
-            semver.compare(server_version_info["shippy_compat_version"], __version__)
-            == 1
-        ):
+        if semver.compare(server.get_shippy_compat_version(), __version__) == 1:
             print_error(
                 msg=SHIPPY_COMPAT_ERROR_MSG.format(
-                    server_version_info["shippy_compat_version"], __version__
+                    server.get_shippy_compat_version(), __version__
                 ),
                 newline=True,
                 exit_after=True,
@@ -199,18 +191,19 @@ def check_server_compat(server_url):
     print_success("Finished compatibility check. No problems found.")
 
 
-def check_token_validity(server_url, token):
+def check_token_validity(server):
     with console.status(
         "Please wait while shippy contacts the remote server to check if the token is "
         "still valid... "
     ):
-        is_token_valid = check_token(server_url, token)
-
-    if not is_token_valid:
-        # Token check failed, prompt for login again
-        print_warning("The saved token is invalid. Please sign-in again.")
-        token = get_token(server_url)
-    return token
+        if server.is_token_valid():
+            print_success(
+                f"Successfully validated token! Hello, {server.get_username()}!"
+            )
+        else:
+            # Token check failed, prompt for login again
+            print_warning("The saved token is invalid. Please sign-in again.")
+            prompt_login(server)
 
 
 def check_shippy_update():
@@ -289,9 +282,7 @@ def check_build(filename):
 
     # Check build type
     if build_type != "OFFICIAL":
-        print_error(
-            msg="This build is not official. ", newline=False, exit_after=False
-        )
+        print_error(msg="This build is not official. ", newline=False, exit_after=False)
         return False
 
     # Check build variant
@@ -336,7 +327,7 @@ def check_server_url_schema(url):
     return "http" in url
 
 
-def get_token(server_url):
+def prompt_login(server):
     while True:
         from getpass import getpass
 
@@ -345,15 +336,34 @@ def get_token(server_url):
             password = getpass(prompt="Enter your password: ")
 
             try:
-                token = login_to_server(username, password, server_url)
-                set_config_value("shippy", "token", token)
-                return token
+                server.login(username=username, password=password)
+                set_config_value("shippy", "token", server.token)
             except LoginException as exception:
                 print_error(
                     f"{exception} Please try again.", newline=True, exit_after=False
                 )
+            except JSONDecodeError:
+                print_error(
+                    msg=UNEXPECTED_SERVER_RESPONSE_ERROR_MSG
+                    + FAILED_TO_LOG_IN_ERROR_MSG,
+                    newline=True,
+                    exit_after=True,
+                )
+            except requests.exceptions.RequestException:
+                print_error(
+                    msg=CANNOT_CONTACT_SERVER_ERROR_MSG + FAILED_TO_LOG_IN_ERROR_MSG,
+                    newline=True,
+                    exit_after=True,
+                )
         except KeyboardInterrupt:
             exit(0)
+
+
+def is_build_disabling_enabled():
+    try:
+        return get_config_value("shippy", "DisableBuildOnUpload") == "true"
+    except KeyError:
+        return False
 
 
 if __name__ == "__main__":
