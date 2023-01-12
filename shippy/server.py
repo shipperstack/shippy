@@ -1,5 +1,4 @@
 import hashlib
-import logging
 import os.path
 import requests
 
@@ -13,6 +12,7 @@ from rich.progress import (
     TimeRemainingColumn,
     TransferSpeedColumn,
 )
+from loguru import logger
 
 from .config import set_config_value
 from .constants import (
@@ -210,7 +210,7 @@ class Server:
             data={"filename": build_path},
             files={"file": chunk},
         )
-        logging.debug(f"Got back: {result}")
+        logger.debug(f"Got back: {result}")
         return result
 
     def _upload_finalize(self, upload_id, checksum):

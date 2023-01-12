@@ -2,9 +2,9 @@ import argparse
 import re
 import glob
 import os.path
-import logging
 import signal
 from json import JSONDecodeError
+from loguru import logger
 
 import requests
 import semver
@@ -59,7 +59,7 @@ def main():
 
     if args.debug:
         print_warning("Debug mode has been turned on!")
-        logging.basicConfig(filename="shippy.log", level=logging.DEBUG)
+        logger.add(sink="shippy_{time}.log", level="DEBUG")
 
     print(f"Welcome to shippy (v.{__version__})!")
 
