@@ -59,7 +59,7 @@ def main():
 
     if args.debug:
         print_warning("Debug mode has been turned on!")
-        logger.add(sink="shippy_{time}.log", level="DEBUG")
+        logger.add(sink="shippy_{time}.log", level="DEBUG", enqueue=True)
 
     print(f"Welcome to shippy (v.{__version__})!")
 
