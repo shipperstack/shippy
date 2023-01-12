@@ -63,13 +63,6 @@ def main():
 
     print(f"Welcome to shippy (v.{__version__})!")
 
-    # Check if we cannot prompt the user (default to auto-upload)
-    upload_without_prompt = get_optional_true_config_value(
-        "shippy", "UploadWithoutPrompt"
-    )
-
-    upload_without_prompt = upload_without_prompt or args.yes
-
     # Check for updates
     check_shippy_update()
 
@@ -93,7 +86,7 @@ def main():
         for build_path in build_paths:
             print(f"\t{build_path}")
 
-        if not upload_without_prompt and len(build_paths) > 1:
+        if not is_upload_without_prompt_enabled(args) and len(build_paths) > 1:
             print_warning("You seem to be uploading multiple builds. ", newline=False)
             if not input_yn("Are you sure you want to continue?", default=False):
                 return
@@ -104,7 +97,7 @@ def main():
                 print_warning("Invalid build. Skipping...")
                 continue
 
-            if upload_without_prompt or input_yn(
+            if is_upload_without_prompt_enabled(args) or input_yn(
                 f"Uploading build {build_path}. Start?"
             ):
                 try:
@@ -114,6 +107,14 @@ def main():
                         server.disable_build(upload_id=upload_id)
                 except UploadException as exception:
                     print_error(exception, newline=True, exit_after=False)
+
+
+def is_upload_without_prompt_enabled(args):
+    config_value = get_optional_true_config_value(
+        "shippy", "UploadWithoutPrompt"
+    )
+
+    return config_value or args.yes
 
 
 def build_server_from_config():
