@@ -44,6 +44,19 @@ progress = Progress(
 )
 
 
+def log_debug_request_send(request_type, url, headers=None, data=None):
+    logger.debug(f"Sending {request_type} request to {url}, with header {headers} and data {data}")
+
+
+def log_debug_request_response(r):
+    try:
+        r_content = r.json()
+    except ValueError:
+        r_content = r.content
+
+    logger.debug(f"Received response: {r_content}")
+
+
 class Server:
     def __init__(self, url, token=None):
         self.url = url
@@ -231,17 +244,26 @@ class Server:
         return header
 
     def _post(self, url, headers=None, data=None):
-        return requests.post(
+        log_debug_request_send(request_type="POST", url=f"{self.url}{url}", headers=headers, data=data)
+        r = requests.post(
             url=f"{self.url}{url}", headers=headers, data=data, allow_redirects=False
         )
+        log_debug_request_response(r)
+        return r
 
     def _get(self, url, headers=None, data=None):
-        return requests.get(url=f"{self.url}{url}", headers=headers, data=data)
+        log_debug_request_send(request_type="GET", url=f"{self.url}{url}", headers=headers, data=data)
+        r = requests.get(url=f"{self.url}{url}", headers=headers, data=data)
+        log_debug_request_response(r)
+        return r
 
     def _put(self, url, headers, data, files):
-        return requests.put(
+        log_debug_request_send(request_type="PUT", url=f"{self.url}{url}", headers=headers, data=data)
+        r = requests.put(
             url=f"{self.url}{url}", headers=headers, data=data, files=files
         )
+        log_debug_request_response(r)
+        return r
 
 
 def handle_undefined_response(request):
