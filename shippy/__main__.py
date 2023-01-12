@@ -110,9 +110,7 @@ def main():
 
 
 def is_upload_without_prompt_enabled(args):
-    config_value = get_optional_true_config_value(
-        "shippy", "UploadWithoutPrompt"
-    )
+    config_value = get_optional_true_config_value("shippy", "UploadWithoutPrompt")
 
     return config_value or args.yes
 
