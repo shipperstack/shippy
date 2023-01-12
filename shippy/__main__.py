@@ -68,16 +68,25 @@ def main():
 
     # Initialize server
     server = build_server_from_config()
+    server_prechecks(server)
+
+    # Start uploads
+    search_and_upload_builds(server, args)
+
+
+def server_prechecks(server):
     check_server_compat(server)
     check_token_validity(server)
 
+
+def search_and_upload_builds(server, args):
     # Search current directory for files with regex pattern returned by server
     build_paths = get_builds_in_current_dir(server.get_regex_pattern())
 
     if len(build_paths) == 0:
         print_error(
             msg="No files matching the submission criteria were detected in the "
-            "current directory.",
+                "current directory.",
             newline=True,
             exit_after=False,
         )
@@ -98,7 +107,7 @@ def main():
                 continue
 
             if is_upload_without_prompt_enabled(args) or input_yn(
-                f"Uploading build {build_path}. Start?"
+                    f"Uploading build {build_path}. Start?"
             ):
                 try:
                     upload_id = server.upload(build_path=build_path)
