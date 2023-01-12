@@ -86,7 +86,7 @@ def search_and_upload_builds(server, args):
     if len(build_paths) == 0:
         print_error(
             msg="No files matching the submission criteria were detected in the "
-                "current directory.",
+            "current directory.",
             newline=True,
             exit_after=False,
         )
@@ -107,7 +107,7 @@ def search_and_upload_builds(server, args):
                 continue
 
             if is_upload_without_prompt_enabled(args) or input_yn(
-                    f"Uploading build {build_path}. Start?"
+                f"Uploading build {build_path}. Start?"
             ):
                 try:
                     upload_id = server.upload(build_path=build_path)
