@@ -14,7 +14,6 @@ from rich.progress import (
 )
 from loguru import logger
 
-from .config import set_config_value
 from .constants import (
     UNHANDLED_EXCEPTION_MSG,
     FAILED_TO_RETRIEVE_SERVER_VERSION_ERROR_MSG,
@@ -80,18 +79,9 @@ class Server:
         elif r.status_code == 404 and r.json()["error"] == "invalid_credential":
             raise LoginException("Invalid credentials!")
         elif r.status_code == 301 and not self.is_url_secure():
-            print(
-                "It seems like you entered a HTTP address when setting up shippy, "
-                "but the server instance uses HTTPS. shippy automatically "
-                "corrected your server URL in the configuration file."
-            )
-            self.url = f"https://{self.url[7:]}"
-            set_config_value("shippy", "server", self.url)
-            # Attempt logging in again
-            self.login(username=username, password=password)
-
-        # Returned status code matches no scenario, abort
-        handle_undefined_response(r)
+            raise LoginException("Server uses HTTPS, but was supplied HTTP URL.")
+        else:
+            handle_undefined_response(r)
 
     def get_version(self):
         return self._get_info()["version"]
