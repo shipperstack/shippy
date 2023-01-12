@@ -171,7 +171,7 @@ def check_server_compat(server):
         "Please wait while shippy contacts the remote server to check compatibility... "
     ):
         # Check if shipper version is compatible
-        if semver.compare(server.get_version(), server_compat_version) == -1:
+        if not server.is_server_compatible():
             print_error(
                 msg=SERVER_COMPAT_ERROR_MSG.format(
                     server.get_version(), server_compat_version
@@ -187,7 +187,7 @@ def check_server_compat(server):
             "are disabled."
         )
     else:
-        if semver.compare(server.get_shippy_compat_version(), __version__) == 1:
+        if not server.is_shippy_compatible():
             print_error(
                 msg=SHIPPY_COMPAT_ERROR_MSG.format(
                     server.get_shippy_compat_version(), __version__

@@ -3,6 +3,8 @@ import os.path
 import requests
 
 from json import JSONDecodeError
+
+import semver
 from rich.console import Console
 from rich.progress import (
     BarColumn,
@@ -25,6 +27,7 @@ from .constants import (
     CHUNK_SIZE,
 )
 from .exceptions import LoginException, UploadException
+from .version import server_compat_version, __version__
 
 console = Console()
 
@@ -65,6 +68,16 @@ class Server:
 
     def is_url_secure(self):
         return self.url[0:5] == "https"
+
+    def is_server_compatible(self):
+        server_version = semver.VersionInfo.parse(self.get_version())
+        server_compat = semver.VersionInfo.parse(server_compat_version)
+        return server_version >= server_compat
+
+    def is_shippy_compatible(self):
+        shippy_compat = semver.VersionInfo.parse(self.get_shippy_compat_version())
+        shippy_version = semver.VersionInfo.parse(__version__)
+        return shippy_version >= shippy_compat
 
     def login(self, username, password):
         r = self._post(
