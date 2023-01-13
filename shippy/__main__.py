@@ -3,6 +3,7 @@ import re
 import glob
 import os.path
 import signal
+import sys
 from json import JSONDecodeError
 from loguru import logger
 
@@ -53,9 +54,16 @@ def sigint_handler(*_):
 signal.signal(signal.SIGINT, sigint_handler)
 
 
+def lower_logger_level():
+    logger.remove()
+    logger.add(sys.stderr, level="INFO")
+
+
 def main():
     # Get commandline arguments
     args = init_argparse()
+
+    lower_logger_level()
 
     if args.debug:
         print_warning("Debug mode has been turned on!")
