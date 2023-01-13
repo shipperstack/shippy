@@ -70,14 +70,12 @@ class Server:
         return self.url[0:5] == "https"
 
     def is_server_compatible(self):
-        server_version = semver.VersionInfo.parse(self.get_version())
         server_compat = semver.VersionInfo.parse(server_compat_version)
-        return server_version >= server_compat
+        return self.get_version() >= server_compat
 
     def is_shippy_compatible(self):
-        shippy_compat = semver.VersionInfo.parse(self.get_shippy_compat_version())
         shippy_version = semver.VersionInfo.parse(__version__)
-        return shippy_version >= shippy_compat
+        return shippy_version >= self.get_shippy_compat_version()
 
     def login(self, username, password):
         r = self._post(
@@ -97,10 +95,10 @@ class Server:
             handle_undefined_response(r)
 
     def get_version(self):
-        return self._get_info()["version"]
+        return semver.VersionInfo.parse(self._get_info()["version"])
 
     def get_shippy_compat_version(self):
-        return self._get_info()["shippy_compat_version"]
+        return semver.VersionInfo.parse(self._get_info()["shippy_compat_version"])
 
     def _get_info(self):
         r = self._get(url="/api/v1/system/info")
