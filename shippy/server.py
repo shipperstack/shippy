@@ -151,9 +151,9 @@ class Server:
             ).json()
             for attempt in previous_attempts:
                 if build_path == attempt["filename"]:
-                    print(
-                        f"We found a previous upload attempt for the build "
-                        f"{build_path}, created on {attempt['created_at']}."
+                    logger.debug(
+                        f"Found a previous upload attempt for the build {build_path}, "
+                        f"created on {attempt['created_at']}",
                     )
                     current_byte = attempt["offset"]
                     upload_id = attempt["id"]
