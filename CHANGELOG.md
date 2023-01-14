@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
-# 1.10.0a0
+# 1.10.0a1
 
 ## Added
 - Added better logging
