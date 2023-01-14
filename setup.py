@@ -10,6 +10,10 @@ ver_path = convert_path("shippy/version.py")
 with open(ver_path) as ver_file:
     exec(ver_file.read(), main_ns)
 
+# Read requirementd
+with open("requirements.txt") as rqf:
+    install_requires = rqf.read()
+
 setup(
     name="shipper-shippy",
     version=main_ns["__version__"],
@@ -29,13 +33,7 @@ setup(
     ],
     packages=find_packages(exclude=("tests",)),
     python_requires=">=3.7",
-    install_requires=[
-        "requests",
-        "semver",
-        "sentry-sdk",
-        "humanize",
-        "rich",
-    ],
+    install_requires=install_requires,
     entry_points={
         "console_scripts": [
             "shippy=shippy.__main__:main",
