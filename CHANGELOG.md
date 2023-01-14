@@ -8,6 +8,20 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# 1.10.0a0
+
+## Added
+- Added better logging
+
+## Changed
+- A lot of code refactoring to reduce bugs and clean up logic
+- Updated library dependencies
+  - setuptools (65.6.3 -> 65.7.0)
+  - sentry-sdk (1.12.1 -> 1.13.0)
+  - rich (13.0.0 -> 13.0.1)
+  - requests (2.28.1 -> 2.28.2)
+
+
 # [1.9.0] - 2023-01-08
 
 ## Added
