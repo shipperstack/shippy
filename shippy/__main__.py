@@ -28,7 +28,8 @@ from .constants import (
     SHIPPY_OUTDATED_MSG,
     UNEXPECTED_SERVER_RESPONSE_ERROR_MSG,
     FAILED_TO_LOG_IN_ERROR_MSG,
-    CANNOT_CONTACT_SERVER_ERROR_MSG,
+    CANNOT_CONTACT_SERVER_ERROR_MSG, PRERELEASE_WARNING_MSG,
+    NO_CONFIGURATION_WARNING_MSG,
 )
 from .exceptions import LoginException, UploadException
 from .helper import input_yn, print_error, print_warning, print_success
@@ -144,10 +145,7 @@ def build_server_from_config():
         token = get_config_value("shippy", "token")
         server = Server(url=url, token=token)
     except KeyError:
-        print_warning(
-            "No configuration file found or configuration is invalid. You need to "
-            "configure shippy before you can start using it."
-        )
+        print_warning(NO_CONFIGURATION_WARNING_MSG)
         server = Server(url=get_server_url())
         prompt_login(server)
     return server
@@ -229,11 +227,7 @@ def check_shippy_update():
 
     # Check if user is running an alpha/beta build
     if is_prerelease():
-        print_warning(
-            "You're running a prerelease build of shippy. Be careful as prerelease "
-            "versions can behave in unexpected ways! If you haven't been instructed "
-            "to test shippy, please consider switching back to a stable build."
-        )
+        print_warning(PRERELEASE_WARNING_MSG)
     else:
         # User is running a stable build, proceed with update check
         if semver.compare(__version__, latest_version) == -1:

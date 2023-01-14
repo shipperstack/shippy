@@ -2,6 +2,17 @@ SENTRY_SDK_URL = (
     "https://0da75bab4671455ea1b7580cb93649f5@o444286.ingest.sentry.io" "/5645833"
 )
 
+NO_CONFIGURATION_WARNING_MSG = """
+No configuration file found or configuration is invalid. You need to configure shippy
+before you can start using it.
+"""
+
+PRERELEASE_WARNING_MSG = """
+You're running a prerelease build of shippy. Be careful as prerelease versions can
+behave in unexpected ways! If you haven't been instructed to test shippy, please
+consider switching back to a stable build.
+"""
+
 SERVER_COMPAT_ERROR_MSG = """
 The server you're connecting to is out-of-date.
 If you know the server admin, please ask them to upgrade the server.
