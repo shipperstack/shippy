@@ -14,11 +14,11 @@ import sentry_sdk
 from rich import print
 from rich.console import Console
 
-from .server import (
+from .client import (
     get_hash_from_checksum_file,
     get_hash_of_file,
     find_checksum_file,
-    Server,
+    Client,
 )
 from .config import get_config_value, set_config_value, get_optional_true_config_value
 from .constants import (
@@ -73,22 +73,22 @@ def main():
     # Check for updates
     check_shippy_update()
 
-    # Initialize server
-    server = build_server_from_config()
-    server_prechecks(server)
+    # Initialize client
+    client = build_client_from_config()
+    server_prechecks(client)
 
     # Start uploads
-    search_and_upload_builds(server, args)
+    search_and_upload_builds(client, args)
 
 
-def server_prechecks(server):
-    check_server_compat(server)
-    check_token_validity(server)
+def server_prechecks(client):
+    check_server_compat(client)
+    check_token_validity(client)
 
 
-def search_and_upload_builds(server, args):
+def search_and_upload_builds(client, args):
     # Search current directory for files with regex pattern returned by server
-    build_paths = get_builds_in_current_dir(server.get_regex_pattern())
+    build_paths = get_builds_in_current_dir(client.get_regex_pattern())
 
     if len(build_paths) == 0:
         print_error(
@@ -117,10 +117,10 @@ def search_and_upload_builds(server, args):
                 f"Uploading build {build_path}. Start?"
             ):
                 try:
-                    upload_id = server.upload(build_path=build_path)
+                    upload_id = client.upload(build_path=build_path)
 
                     if is_build_disabling_enabled():
-                        server.disable_build(upload_id=upload_id)
+                        client.disable_build(upload_id=upload_id)
                 except UploadException as exception:
                     print_error(exception, newline=True, exit_after=False)
 
@@ -131,7 +131,7 @@ def is_upload_without_prompt_enabled(args):
     return config_value or args.yes
 
 
-def build_server_from_config():
+def build_client_from_config():
     try:
         url = get_config_value("shippy", "server")
         if not check_server_url_schema(url):
@@ -143,10 +143,10 @@ def build_server_from_config():
             )
 
         token = get_config_value("shippy", "token")
-        server = Server(url=url, token=token)
+        server = Client(url=url, token=token)
     except KeyError:
         print_warning(NO_CONFIGURATION_WARNING_MSG)
-        server = Server(url=get_server_url())
+        server = Client(url=get_server_url())
         prompt_login(server)
     return server
 
@@ -170,15 +170,15 @@ def init_argparse():
     return parser.parse_args()
 
 
-def check_server_compat(server):
+def check_server_compat(client):
     with console.status(
         "Please wait while shippy contacts the remote server to check compatibility... "
     ):
         # Check if shipper version is compatible
-        if not server.is_server_compatible():
+        if not client.is_server_compatible():
             print_error(
                 msg=SERVER_COMPAT_ERROR_MSG.format(
-                    server.get_version(), server_compat_version
+                    client.get_version(), server_compat_version
                 ),
                 newline=True,
                 exit_after=True,
@@ -191,10 +191,10 @@ def check_server_compat(server):
             "are disabled."
         )
     else:
-        if not server.is_shippy_compatible():
+        if not client.is_shippy_compatible():
             print_error(
                 msg=SHIPPY_COMPAT_ERROR_MSG.format(
-                    server.get_shippy_compat_version(), __version__
+                    client.get_shippy_compat_version(), __version__
                 ),
                 newline=True,
                 exit_after=True,
@@ -203,19 +203,19 @@ def check_server_compat(server):
     print_success("Finished compatibility check. No problems found.")
 
 
-def check_token_validity(server):
+def check_token_validity(client):
     with console.status(
         "Please wait while shippy contacts the remote server to check if the token is "
         "still valid... "
     ):
-        if server.is_token_valid():
+        if client.is_token_valid():
             print_success(
-                f"Successfully validated token! Hello, {server.get_username()}!"
+                f"Successfully validated token! Hello, {client.get_username()}!"
             )
         else:
             # Token check failed, prompt for login again
             print_warning("The saved token is invalid. Please sign-in again.")
-            prompt_login(server)
+            prompt_login(client)
 
 
 def check_shippy_update():
@@ -335,7 +335,7 @@ def check_server_url_schema(url):
     return "http" in url
 
 
-def prompt_login(server):
+def prompt_login(client):
     while True:
         from getpass import getpass
 
@@ -344,8 +344,8 @@ def prompt_login(server):
             password = getpass(prompt="Enter your password: ")
 
             try:
-                server.login(username=username, password=password)
-                set_config_value("shippy", "token", server.token)
+                client.login(username=username, password=password)
+                set_config_value("shippy", "token", client.token)
             except LoginException as exception:
                 print_error(
                     f"{exception} Please try again.", newline=True, exit_after=False

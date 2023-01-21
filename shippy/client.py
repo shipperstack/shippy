@@ -61,7 +61,7 @@ def log_debug_request_response(r):
     logger.debug(f"Received response: {r_content}")
 
 
-class Server:
+class Client:
     def __init__(self, url, token=None):
         self.url = url
         self.token = token
