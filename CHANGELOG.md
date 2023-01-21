@@ -16,9 +16,9 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 ## Changed
 - A lot of code refactoring to reduce bugs and clean up logic
 - Updated library dependencies
-  - setuptools (65.6.3 -> 65.7.0)
+  - setuptools (65.6.3 -> 66.1.0)
   - sentry-sdk (1.12.1 -> 1.13.0)
-  - rich (13.0.0 -> 13.0.1)
+  - rich (13.0.0 -> 13.2.0)
   - requests (2.28.1 -> 2.28.2)
 
 
