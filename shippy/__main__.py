@@ -143,10 +143,10 @@ def build_client_from_config():
             )
 
         token = get_config_value("shippy", "token")
-        server = Client(url=url, token=token)
+        server = Client(server_url=url, token=token)
     except KeyError:
         print_warning(NO_CONFIGURATION_WARNING_MSG)
-        server = Client(url=get_server_url())
+        server = Client(server_url=get_server_url())
         prompt_login(server)
     return server
 

@@ -62,12 +62,12 @@ def log_debug_request_response(r):
 
 
 class Client:
-    def __init__(self, url, token=None):
-        self.url = url
+    def __init__(self, server_url, token=None):
+        self.server_url = server_url
         self.token = token
 
     def is_url_secure(self):
-        return self.url[0:5] == "https"
+        return self.server_url[0:5] == "https"
 
     def is_server_compatible(self):
         server_compat = semver.VersionInfo.parse(server_compat_version)
@@ -251,28 +251,28 @@ class Client:
 
     def _post(self, url, headers=None, data=None):
         log_debug_request_send(
-            request_type="POST", url=f"{self.url}{url}", headers=headers, data=data
+            request_type="POST", url=f"{self.server_url}{url}", headers=headers, data=data
         )
         r = requests.post(
-            url=f"{self.url}{url}", headers=headers, data=data, allow_redirects=False
+            url=f"{self.server_url}{url}", headers=headers, data=data, allow_redirects=False
         )
         log_debug_request_response(r)
         return r
 
     def _get(self, url, headers=None, data=None):
         log_debug_request_send(
-            request_type="GET", url=f"{self.url}{url}", headers=headers, data=data
+            request_type="GET", url=f"{self.server_url}{url}", headers=headers, data=data
         )
-        r = requests.get(url=f"{self.url}{url}", headers=headers, data=data)
+        r = requests.get(url=f"{self.server_url}{url}", headers=headers, data=data)
         log_debug_request_response(r)
         return r
 
     def _put(self, url, headers, data, files):
         log_debug_request_send(
-            request_type="PUT", url=f"{self.url}{url}", headers=headers, data=data
+            request_type="PUT", url=f"{self.server_url}{url}", headers=headers, data=data
         )
         r = requests.put(
-            url=f"{self.url}{url}", headers=headers, data=data, files=files
+            url=f"{self.server_url}{url}", headers=headers, data=data, files=files
         )
         log_debug_request_response(r)
         return r
