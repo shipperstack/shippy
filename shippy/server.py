@@ -237,7 +237,10 @@ class Server:
         )
 
     def _get_header(self, chunk=None, current=None, total=None):
-        header = {"Authorization": f"Token {self.token}"}
+        header = {
+            "User-Agent": f"shippy {__version__}",
+            "Authorization": f"Token {self.token}",
+        }
 
         if chunk is not None and current is not None and total is not None:
             header[
