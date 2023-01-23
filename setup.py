@@ -32,7 +32,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     packages=find_packages(exclude=("tests",)),
-    python_requires=">=3.7",
+    python_requires=">=3.10",
     install_requires=install_requires,
     entry_points={
         "console_scripts": [
