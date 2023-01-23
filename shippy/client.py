@@ -88,7 +88,9 @@ class Client:
                 self.token = r.json()["token"]
             case 301:
                 if not self.is_url_secure():
-                    raise LoginException("Server uses HTTPS, but was supplied HTTP URL.")
+                    raise LoginException(
+                        "Server uses HTTPS, but was supplied HTTP URL."
+                    )
             case 400:
                 if r.json()["error"] == "blank_username_or_password":
                     raise LoginException("Username or password must not be blank.")
@@ -257,17 +259,26 @@ class Client:
 
     def _post(self, url, headers=None, data=None):
         log_debug_request_send(
-            request_type="POST", url=f"{self.server_url}{url}", headers=headers, data=data
+            request_type="POST",
+            url=f"{self.server_url}{url}",
+            headers=headers,
+            data=data,
         )
         r = requests.post(
-            url=f"{self.server_url}{url}", headers=headers, data=data, allow_redirects=False
+            url=f"{self.server_url}{url}",
+            headers=headers,
+            data=data,
+            allow_redirects=False,
         )
         log_debug_request_response(r)
         return r
 
     def _get(self, url, headers=None, data=None):
         log_debug_request_send(
-            request_type="GET", url=f"{self.server_url}{url}", headers=headers, data=data
+            request_type="GET",
+            url=f"{self.server_url}{url}",
+            headers=headers,
+            data=data,
         )
         r = requests.get(url=f"{self.server_url}{url}", headers=headers, data=data)
         log_debug_request_response(r)
@@ -275,7 +286,10 @@ class Client:
 
     def _put(self, url, headers, data, files):
         log_debug_request_send(
-            request_type="PUT", url=f"{self.server_url}{url}", headers=headers, data=data
+            request_type="PUT",
+            url=f"{self.server_url}{url}",
+            headers=headers,
+            data=data,
         )
         r = requests.put(
             url=f"{self.server_url}{url}", headers=headers, data=data, files=files
