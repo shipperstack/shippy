@@ -83,16 +83,20 @@ class Client:
             data={"username": username, "password": password},
         )
 
-        if r.status_code == 200:
-            self.token = r.json()["token"]
-        elif r.status_code == 400 and r.json()["error"] == "blank_username_or_password":
-            raise LoginException("Username or password must not be blank.")
-        elif r.status_code == 404 and r.json()["error"] == "invalid_credential":
-            raise LoginException("Invalid credentials!")
-        elif r.status_code == 301 and not self.is_url_secure():
-            raise LoginException("Server uses HTTPS, but was supplied HTTP URL.")
-        else:
-            handle_undefined_response(r)
+        match r.status_code:
+            case 200:
+                self.token = r.json()["token"]
+            case 301:
+                if not self.is_url_secure():
+                    raise LoginException("Server uses HTTPS, but was supplied HTTP URL.")
+            case 400:
+                if r.json()["error"] == "blank_username_or_password":
+                    raise LoginException("Username or password must not be blank.")
+            case 404:
+                if r.json()["error"] == "invalid_credential":
+                    raise LoginException("Invalid credentials!")
+            case _:
+                handle_undefined_response(r)
 
     def get_version(self):
         return semver.VersionInfo.parse(self._get_info()["version"])
