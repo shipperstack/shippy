@@ -95,6 +95,8 @@ class Client:
             case 404:
                 if r.json()["error"] == "invalid_credential":
                     raise LoginException("Invalid credentials!")
+            case 503:
+                raise LoginException("A server-side error occurred.")
             case _:
                 handle_undefined_response(r)
 
