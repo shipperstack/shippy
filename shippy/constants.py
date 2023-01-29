@@ -71,4 +71,5 @@ Request response: {}
 ---
 """
 
-CHUNK_SIZE = 1000000  # 1 MB
+# Chunk size MUST be at 1 MB, as nginx defaults limit request size to that (or less)
+CHUNK_SIZE = 1000000
