@@ -8,18 +8,22 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
-# 1.10.0a1
+# 1.10.0
 
 ## Added
 - Added better logging
+- Added custom User Agent string for shippy
 
 ## Changed
+- shippy now handles 503 errors returned by Cloudflare
+- shippy now handles more 5xx errors returned from the server
 - A lot of code refactoring to reduce bugs and clean up logic
 - Updated library dependencies
-  - setuptools (65.6.3 -> 66.1.0)
-  - sentry-sdk (1.12.1 -> 1.13.0)
-  - rich (13.0.0 -> 13.2.0)
+  - setuptools (65.6.3 -> 67.4.0)
+  - sentry-sdk (1.12.1 -> 1.15.0)
+  - rich (13.0.0 -> 13.3.1)
   - requests (2.28.1 -> 2.28.2)
+  - humanize (4.4.0 -> 4.5.0)
 
 
 # [1.9.0] - 2023-01-08
