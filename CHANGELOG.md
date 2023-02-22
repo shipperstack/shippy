@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
-# 1.10.0
+# [1.10.0] - 2023-02-22
 
 ## Added
 - Added better logging
@@ -428,7 +428,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.9.0...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.0...HEAD
+[1.10.0]: https://github.com/shipperstack/shippy/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/shipperstack/shippy/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/shipperstack/shippy/compare/1.7.6...1.8.0
 [1.7.6]: https://github.com/shipperstack/shippy/compare/1.7.5...1.7.6
