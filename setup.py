@@ -10,7 +10,7 @@ ver_path = convert_path("shippy/version.py")
 with open(ver_path) as ver_file:
     exec(ver_file.read(), main_ns)
 
-# Read requirementd
+# Read requirements
 with open("requirements.txt") as rqf:
     install_requires = rqf.read()
 
