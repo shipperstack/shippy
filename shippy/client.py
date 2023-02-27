@@ -146,6 +146,20 @@ class Client:
 
         return r.status_code == 200
 
+    def _get_previous_upload_info(self, build_path):
+        previous_attempts = self._get(
+            url="/api/v1/maintainers/chunked_upload/", headers=self._get_header()
+        ).json()
+        for attempt in previous_attempts:
+            if build_path == attempt["filename"]:
+                logger.debug(
+                    f"Found a previous upload attempt for the build {build_path}, "
+                    f"created on {attempt['created_at']}",
+                )
+                current_byte = attempt["offset"]
+                upload_id = attempt["id"]
+        return current_byte, upload_id
+
     def upload(self, build_path):
         current_byte = 0
         upload_id = ""
@@ -157,17 +171,7 @@ class Client:
             )
 
             # Check if there is a previous upload attempt
-            previous_attempts = self._get(
-                url="/api/v1/maintainers/chunked_upload/", headers=self._get_header()
-            ).json()
-            for attempt in previous_attempts:
-                if build_path == attempt["filename"]:
-                    logger.debug(
-                        f"Found a previous upload attempt for the build {build_path}, "
-                        f"created on {attempt['created_at']}",
-                    )
-                    current_byte = attempt["offset"]
-                    upload_id = attempt["id"]
+            current_byte, upload_id = self._get_previous_upload_info(build_path)
 
             with open(build_path, "rb") as build_file:
                 build_file.seek(current_byte)
