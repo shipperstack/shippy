@@ -88,7 +88,7 @@ class Client:
             case 200:
                 token = r.json()["token"]
 
-                if token == b'':
+                if token == b"":
                     raise LoginException("Server returned an empty token.")
                 else:
                     self.token = token
