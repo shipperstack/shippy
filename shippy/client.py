@@ -146,7 +146,11 @@ class Client:
 
         return r.status_code == 200
 
-    def _get_previous_upload_info(self, build_path):
+    def _get_upload_info(self, build_path):
+        current_byte = 0
+        upload_id = ""
+
+        # Check for previous attempts
         previous_attempts = self._get(
             url="/api/v1/maintainers/chunked_upload/", headers=self._get_header()
         ).json()
@@ -161,17 +165,14 @@ class Client:
         return current_byte, upload_id
 
     def upload(self, build_path):
-        current_byte = 0
-        upload_id = ""
         total_file_size = os.path.getsize(build_path)
 
         with progress:
             upload_progress = progress.add_task(
                 "[green]Uploading...", total=total_file_size
             )
-
-            # Check if there is a previous upload attempt
-            current_byte, upload_id = self._get_previous_upload_info(build_path)
+            
+            current_byte, upload_id = self._get_upload_info(build_path)
 
             with open(build_path, "rb") as build_file:
                 build_file.seek(current_byte)
