@@ -352,9 +352,7 @@ def prompt_login(client):
                 client.login(username=username, password=password)
                 set_config_value("shippy", "token", client.token)
             except LoginException as exception:
-                print_error(
-                    f"{exception} Please try again.", newline=True, exit_after=False
-                )
+                print_error(exception, newline=True, exit_after=True)
             except JSONDecodeError:
                 print_error(
                     msg=UNEXPECTED_SERVER_RESPONSE_ERROR_MSG
