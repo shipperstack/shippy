@@ -87,6 +87,24 @@ def server_prechecks(client):
     check_token_validity(client)
 
 
+def check_and_upload_build(client, args, build_path):
+    # Check build file validity
+    if not check_build(build_path):
+        print_warning("Invalid build. Skipping...")
+        return
+
+    if is_upload_without_prompt_enabled(args) or input_yn(
+        f"Uploading build {build_path}. Start?"
+    ):
+        try:
+            upload_id = client.upload(build_path=build_path)
+
+            if is_build_disabling_enabled():
+                client.disable_build(upload_id=upload_id)
+        except UploadException as exception:
+            print_error(exception, newline=True, exit_after=False)
+
+
 def search_and_upload_builds(client, args):
     # Search current directory for files with regex pattern returned by server
     build_paths = get_builds_in_current_dir(client.get_regex_pattern())
@@ -109,21 +127,7 @@ def search_and_upload_builds(client, args):
                 return
 
         for build_path in build_paths:
-            # Check build file validity
-            if not check_build(build_path):
-                print_warning("Invalid build. Skipping...")
-                continue
-
-            if is_upload_without_prompt_enabled(args) or input_yn(
-                f"Uploading build {build_path}. Start?"
-            ):
-                try:
-                    upload_id = client.upload(build_path=build_path)
-
-                    if is_build_disabling_enabled():
-                        client.disable_build(upload_id=upload_id)
-                except UploadException as exception:
-                    print_error(exception, newline=True, exit_after=False)
+            check_and_upload_build(client, args, build_path)
 
 
 def is_upload_without_prompt_enabled(args):
