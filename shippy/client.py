@@ -151,9 +151,12 @@ class Client:
         upload_id = ""
 
         # Check for previous attempts
-        previous_attempts = self._get(
-            url="/api/v1/maintainers/chunked_upload/", headers=self._get_header()
-        ).json()
+        try:
+            previous_attempts = self._get(
+                url="/api/v1/maintainers/chunked_upload/", headers=self._get_header()
+            ).json()
+        except requests.exceptions.RequestException:
+            raise UploadException(UNKNOWN_UPLOAD_ERROR_MSG)
         for attempt in previous_attempts:
             if build_path == attempt["filename"]:
                 logger.debug(
@@ -171,7 +174,7 @@ class Client:
             upload_progress = progress.add_task(
                 "[green]Uploading...", total=total_file_size
             )
-            
+
             current_byte, upload_id = self._get_upload_info(build_path)
 
             with open(build_path, "rb") as build_file:
