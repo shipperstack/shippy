@@ -80,7 +80,7 @@ class Client:
 
     def login(self, username, password):
         r = self._post(
-            url="/api/v1/maintainers/login",
+            url="/api/v1/maintainers/login/",
             data={"username": username, "password": password},
         )
 
