@@ -284,7 +284,7 @@ def check_build(filename):
                 exit_after=False,
             )
             return False
-        print_success(f"Success!")
+        print_success("Success!")
 
     build_slug, _ = os.path.splitext(filename)
     _, _, _, build_type, build_variant, _ = build_slug.split("-")
