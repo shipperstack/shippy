@@ -48,7 +48,8 @@ progress = Progress(
 
 def log_debug_request_send(request_type, url, headers=None, data=None):
     logger.debug(
-        f"Sending {request_type} request to {url}, with header {headers} and data {data}"
+        f"Sending {request_type} request to {url}, with header {headers} and "
+        f"data {data}"
     )
 
 
