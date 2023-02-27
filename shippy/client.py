@@ -86,7 +86,12 @@ class Client:
 
         match r.status_code:
             case 200:
-                self.token = r.json()["token"]
+                token = r.json()["token"]
+
+                if token == b'':
+                    raise LoginException("Server returned an empty token.")
+                else:
+                    self.token = token
             case 301:
                 if not self.is_url_secure():
                     raise LoginException(
