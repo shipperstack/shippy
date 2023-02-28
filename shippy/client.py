@@ -272,7 +272,7 @@ class Client:
             ] = f"bytes {current}-{current + len(chunk) - 1}/{total}"
 
         return header
-    
+
     def _request(self, type, url, headers=None, data=None, files=None):
         log_debug_request_send(
             request_type=type,
@@ -282,7 +282,9 @@ class Client:
         )
         match type:
             case "GET":
-                r = requests.get(url=f"{self.server_url}{url}", headers=headers, data=data)
+                r = requests.get(
+                    url=f"{self.server_url}{url}", headers=headers, data=data
+                )
             case "POST":
                 r = requests.post(
                     url=f"{self.server_url}{url}",
@@ -292,13 +294,15 @@ class Client:
                 )
             case "PUT":
                 r = requests.put(
-                    url=f"{self.server_url}{url}", headers=headers, data=data, files=files
+                    url=f"{self.server_url}{url}",
+                    headers=headers,
+                    data=data,
+                    files=files,
                 )
             case _:
                 return
         log_debug_request_response(r)
         return r
-
 
     def _post(self, url, headers=None, data=None):
         return self._request("POST", url, headers, data)
