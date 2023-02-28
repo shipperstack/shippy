@@ -272,46 +272,42 @@ class Client:
             ] = f"bytes {current}-{current + len(chunk) - 1}/{total}"
 
         return header
+    
+    def _request(self, type, url, headers=None, data=None, files=None):
+        log_debug_request_send(
+            request_type=type,
+            url=f"{self.server_url}{url}",
+            headers=headers,
+            data=data,
+        )
+        match type:
+            case "GET":
+                r = requests.get(url=f"{self.server_url}{url}", headers=headers, data=data)
+            case "POST":
+                r = requests.post(
+                    url=f"{self.server_url}{url}",
+                    headers=headers,
+                    data=data,
+                    allow_redirects=False,
+                )
+            case "PUT":
+                r = requests.put(
+                    url=f"{self.server_url}{url}", headers=headers, data=data, files=files
+                )
+            case _:
+                return
+        log_debug_request_response(r)
+        return r
+
 
     def _post(self, url, headers=None, data=None):
-        log_debug_request_send(
-            request_type="POST",
-            url=f"{self.server_url}{url}",
-            headers=headers,
-            data=data,
-        )
-        r = requests.post(
-            url=f"{self.server_url}{url}",
-            headers=headers,
-            data=data,
-            allow_redirects=False,
-        )
-        log_debug_request_response(r)
-        return r
+        return self._request("POST", url, headers, data)
 
     def _get(self, url, headers=None, data=None):
-        log_debug_request_send(
-            request_type="GET",
-            url=f"{self.server_url}{url}",
-            headers=headers,
-            data=data,
-        )
-        r = requests.get(url=f"{self.server_url}{url}", headers=headers, data=data)
-        log_debug_request_response(r)
-        return r
+        return self._request("GET", url, headers, data)
 
     def _put(self, url, headers, data, files):
-        log_debug_request_send(
-            request_type="PUT",
-            url=f"{self.server_url}{url}",
-            headers=headers,
-            data=data,
-        )
-        r = requests.put(
-            url=f"{self.server_url}{url}", headers=headers, data=data, files=files
-        )
-        log_debug_request_response(r)
-        return r
+        return self._request("PUT", url, headers, data, files)
 
 
 def handle_undefined_response(request):
