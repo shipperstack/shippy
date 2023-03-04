@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+# [1.10.2] - 2023-03-04
+
+## Changed
+- shippy now checks if it has been rate-limited for all requests, including login
+- Updated library dependencies
+  - sentry-sdk (1.15.0 -> 1.16.0)
+- General code cleanup and refactor
+
+
 # [1.10.1] - 2023-02-27
 
 ## Added
