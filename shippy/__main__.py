@@ -326,9 +326,6 @@ def get_server_url():
             else:
                 break
 
-        if server_url[-1] == "/":
-            server_url = server_url[:-1]
-
         set_config_value("shippy", "server", server_url)
 
         return server_url
