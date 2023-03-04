@@ -1,6 +1,8 @@
 import hashlib
 import os.path
 import requests
+import re
+import time
 
 from json import JSONDecodeError
 
@@ -202,8 +204,6 @@ class Client:
 
                             # Read next chunk and continue
                             chunk = build_file.read(CHUNK_SIZE)
-                        elif r.status_code == 429:
-                            upload_handle_rate_limit(r)
                         elif int(r.status_code / 100) == 4:
                             upload_handle_4xx_response(r)
                         else:
@@ -302,7 +302,24 @@ class Client:
             case _:
                 return
         log_debug_request_response(r)
+
+        # Check for rate limit
+        if r.status_code == 429:
+            print(RATE_LIMIT_MSG)
+            self._wait_rate_limit(int(re.findall(r"\d+", r.json()["detail"])[0]))
+
+            return self._request(
+                type=type, url=url, headers=headers, data=data, files=files
+            )
+
         return r
+
+    def _wait_rate_limit(seconds):
+        with console.status(RATE_LIMIT_WAIT_STATUS_MSG.format(seconds)) as status:
+            while seconds:
+                time.sleep(1)
+                seconds -= 1
+                status.update(status=RATE_LIMIT_WAIT_STATUS_MSG.format(seconds))
 
     def _post(self, url, headers=None, data=None):
         return self._request("POST", url, headers, data)
@@ -328,13 +345,6 @@ def handle_undefined_response(request):
                 request.url, request.status_code, request.content
             )
         )
-
-
-def upload_handle_rate_limit(chunk_request):
-    print(RATE_LIMIT_MSG)
-    import re
-
-    wait_rate_limit(int(re.findall(r"\d+", chunk_request.json()["detail"])[0]))
 
 
 def upload_handle_4xx_response(chunk_request):
@@ -379,16 +389,6 @@ def find_checksum_file(filename):
             has_checksum_file_type = checksum_type
             has_sum_postfix = True
     return has_checksum_file_type, has_sum_postfix
-
-
-def wait_rate_limit(s):
-    import time
-
-    with console.status(RATE_LIMIT_WAIT_STATUS_MSG.format(s)) as status:
-        while s:
-            time.sleep(1)
-            s -= 1
-            status.update(status=RATE_LIMIT_WAIT_STATUS_MSG.format(s))
 
 
 def upload_exception_check(request, build_file):
