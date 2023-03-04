@@ -3,6 +3,7 @@ import os.path
 import requests
 import re
 import time
+import urllib.parse
 
 from json import JSONDecodeError
 
@@ -274,27 +275,26 @@ class Client:
         return header
 
     def _request(self, type, url, headers=None, data=None, files=None):
+        request_url = urllib.parse.urljoin(self.server_url, url)
         log_debug_request_send(
             request_type=type,
-            url=f"{self.server_url}{url}",
+            url=request_url,
             headers=headers,
             data=data,
         )
         match type:
             case "GET":
-                r = requests.get(
-                    url=f"{self.server_url}{url}", headers=headers, data=data
-                )
+                r = requests.get(url=request_url, headers=headers, data=data)
             case "POST":
                 r = requests.post(
-                    url=f"{self.server_url}{url}",
+                    url=request_url,
                     headers=headers,
                     data=data,
                     allow_redirects=False,
                 )
             case "PUT":
                 r = requests.put(
-                    url=f"{self.server_url}{url}",
+                    url=request_url,
                     headers=headers,
                     data=data,
                     files=files,
