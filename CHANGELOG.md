@@ -448,7 +448,8 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.1...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.2...HEAD
+[1.10.2]: https://github.com/shipperstack/shippy/compare/1.10.1...1.10.2
 [1.10.1]: https://github.com/shipperstack/shippy/compare/1.10.0...1.10.1
 [1.10.0]: https://github.com/shipperstack/shippy/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/shipperstack/shippy/compare/1.8.0...1.9.0
