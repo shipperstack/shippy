@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.2...HEAD
+
+
 # [1.10.2] - 2023-03-04
 
 ## Changed
@@ -15,6 +18,8 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 - Updated library dependencies
   - sentry-sdk (1.15.0 -> 1.16.0)
 - General code cleanup and refactor
+
+[1.10.2]: https://github.com/shipperstack/shippy/compare/1.10.1...1.10.2
 
 
 # [1.10.1] - 2023-02-27
@@ -448,8 +453,6 @@ Re-release of 1.3.7
 - shippy will alert you to more problems reported from the server
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.2...HEAD
-[1.10.2]: https://github.com/shipperstack/shippy/compare/1.10.1...1.10.2
 [1.10.1]: https://github.com/shipperstack/shippy/compare/1.10.0...1.10.1
 [1.10.0]: https://github.com/shipperstack/shippy/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/shipperstack/shippy/compare/1.8.0...1.9.0
