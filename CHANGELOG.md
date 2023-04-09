@@ -8,7 +8,22 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.2...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.3...HEAD
+
+
+# [1.10.3] - 2023-04-09
+
+## Changed
+- Switched to urllib for better handling of URLs
+- shippy no longer checks for trailing slashes (thanks to urllib)
+- Updated library dependencies
+  - setuptools (67.4.0 -> 67.6.1)
+  - sentry-sdk (1.16.0 -> 1.19.1)
+  - rich (13.3.1 -> 13.3.3)
+  - semver (2.13.0 -> 3.0.0)
+
+
+[1.10.3]: https://github.com/shipperstack/shippy/compare/1.10.2...1.10.3
 
 
 # [1.10.2] - 2023-03-04
