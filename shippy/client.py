@@ -399,7 +399,7 @@ def upload_exception_check(request, build_file):
         try:
             response_json = request.json()
             raise UploadException(response_json["message"])
-        except JSONDecodeError:
+        except JSONDecodeError | KeyError:
             raise UploadException("An unknown error occurred parsing the response.")
     elif int(request.status_code / 100) == 5:
         raise UploadException(
