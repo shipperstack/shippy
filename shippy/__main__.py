@@ -349,6 +349,7 @@ def prompt_login(client):
                 client.login(username=username, password=password)
                 set_config_value("shippy", "token", client.token)
                 print_success("Successfully logged in!")
+                return
             except LoginException as exception:
                 print_error(exception, newline=True, exit_after=True)
             except JSONDecodeError:
