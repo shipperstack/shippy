@@ -8,7 +8,22 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.10.4...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.11.0...HEAD
+
+
+# [1.11.0] - 2023-04-30
+
+## Changed
+- shippy now fetches the allowed variants from the server
+- shippy now requires shipper 2.14.0 or higher
+- Updated library dependencies
+  - loguru (0.6.0 -> 0.7.0)
+  - rich (13.3.3 -> 13.3.5)
+  - setuptools (67.6.1 -> 67.7.2)
+  - sentry-sdk (1.19.1 -> 1.21.0)
+  - requests (2.28.2 -> 2.29.0)
+
+[1.11.0]: https://github.com/shipperstack/shippy/compare/1.10.4...1.11.0
 
 
 # [1.10.4] - 2023-04-09
