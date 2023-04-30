@@ -89,7 +89,7 @@ def server_prechecks(client):
 
 def check_and_upload_build(client, args, build_path):
     # Check build file validity
-    if not check_build(build_path):
+    if not check_build(client, build_path):
         print_warning("Invalid build. Skipping...")
         return
 
@@ -256,7 +256,7 @@ def get_builds_in_current_dir(regex_pattern):
         return builds
 
 
-def check_build(filename):
+def check_build(client, filename):
     """Makes sure the build is valid"""
     print(f"Validating build {filename}...")
     # Validate that there is a matching checksum file
@@ -299,8 +299,7 @@ def check_build(filename):
         return False
 
     # Check build variant
-    valid_variants = ["gapps", "vanilla", "foss", "goapps"]
-    if build_variant not in valid_variants:
+    if build_variant not in client.get_shippy_upload_variants():
         print_error(
             msg="This build has an unknown variant. ",
             newline=False,
