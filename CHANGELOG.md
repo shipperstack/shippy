@@ -8,7 +8,22 @@ The format is based on [Keep a Changelog][keep-a-changelog].
 # [Unreleased]
 
 
-[Unreleased]: https://github.com/shipperstack/shippy/compare/1.11.0...HEAD
+[Unreleased]: https://github.com/shipperstack/shippy/compare/1.11.1...HEAD
+
+
+# [1.11.1] - 2023-05-22
+
+## Added
+- Added an argument to show shippy's version
+
+## Changed
+- Fixed a crash that occurred when the GitHub API was down
+- Updated library dependencies
+  - sentry-sdk (1.21.0 -> 1.23.1)
+  - requests (2.29.0 -> 2.30.0)
+  - setuptools (67.7.2 -> 67.8.0)
+
+[1.11.1]: https://github.com/shipperstack/shippy/compare/1.11.0...1.11.1
 
 
 # [1.11.0] - 2023-04-30
