@@ -225,10 +225,17 @@ def check_token_validity(client):
 
 def check_shippy_update():
     with console.status("Please wait while shippy checks for updates... "):
-        r = requests.get(
-            "https://api.github.com/repos/shipperstack/shippy/releases/latest"
-        )
-        latest_version = r.json()["name"]
+        try:
+            r = requests.get(
+                "https://api.github.com/repos/shipperstack/shippy/releases/latest"
+            )
+            latest_version = r.json()["name"]
+        except KeyError:
+            print_error(
+                "Failed to contact the GitHub API to check the latest version.",
+                newline=True,
+                exit_after=False,
+            )
 
     # Check if user is running an alpha/beta build
     if is_prerelease():
